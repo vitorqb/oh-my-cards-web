@@ -1,12 +1,19 @@
-{:source-paths ["src"]
- :dependencies [[binaryage/devtools "0.9.10"]
+{:source-paths ["src" "test"]
+ :dependencies [[binaryage/devtools "1.0.0"]
                 [nrepl "0.6.0"]
-                [reagent "0.8.1"]]
- :builds       {:app {:target     :browser
-                      :output-dir "public/js"
-                      :asset-path "/js"
-                      :modules    {:app {:entries [oh-my-cards-web.core]}}
-                      :devtools   {:after-load oh-my-cards-web.core/mount-root}}}
+                [reagent "0.9.1"]
+                [cider/cider-nrepl "0.24.0"]
+                [metosin/reitit-frontend "0.4.2"]]
 
- :dev-http     {3000 {:root    "public"
-                      :handler user/app}}}
+ :builds {:app  {:target     :browser
+                 :output-dir "public/js"
+                 :asset-path "/js"
+                 :modules    {:app {:entries [ohmycards.web.core]}}
+                 :devtools   {:after-load ohmycards.web.core/mount-root}}
+
+          :test {:target     :karma
+                 :output-to  "target/test.js"
+                 :ns-regexp  "-test$"}}
+ 
+ :dev-http {3000 {:root    "public"
+                  :handler user/app}}}
