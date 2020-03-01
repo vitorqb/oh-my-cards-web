@@ -9,6 +9,12 @@
     (.preventDefault event)
     (on-submit)))
 
+(defn gen-input-on-change-handler
+  "Returns a on-change handler that calls `on-change` with the new input value."
+  [on-change]
+  (fn [event]
+    (on-change (.-value (.-target event)))))
+
 ;; Components
 (defn main
   "A wrapper for a form component.
@@ -31,7 +37,8 @@
 (defn input
   "An input for a form, usually comming alone in a form row."
   [props]
-  [:input.simple-form__input props])
+  [:input.simple-form__input
+   (update props :on-change gen-input-on-change-handler)])
 
 (defn submit
   "A submit button form a form, usually in an empty row."

@@ -6,11 +6,19 @@
    [ohmycards.web.kws.lenses.routing :as lenses.routing]
    [ohmycards.web.kws.lenses.login :as lenses.login]
    [ohmycards.web.components.current-view.core :as components.current-view]
-   [ohmycards.web.views.login.core :as views.login]))
+   [ohmycards.web.views.login.core :as views.login]
+   [ohmycards.web.common.focused-atom :as focused-atom]
+   [ohmycards.web.services.http :as services.http]))
 
 ;; -------------------------
 ;; State
 (defonce state (r/atom {}))
+
+(defn- gen-focused-state
+  "Generates a new `FocusedAtom` for the global state object."
+  [path]
+  (let [path* (if (keyword? path) [path] path)]
+    (focused-atom/->FocusedAtom state path*)))
 
 
 ;; -------------------------
@@ -18,7 +26,8 @@
 (defn login
   "An instance for the login page."
   []
-  [views.login/main {}])
+  [views.login/main {:state (gen-focused-state :views.login)
+                     :http-fn #(apply services.http/http %&)}])
 
 (defn home-page
   "An instance for the home page."

@@ -1,0 +1,22 @@
+(ns ohmycards.web.services.http-test
+  (:require [ohmycards.web.services.http :as sut]
+            [cljs.test :refer-macros [is are deftest testing use-fixtures async]]
+            [ohmycards.web.kws.http :as kws.http]))
+
+(deftest test-parse-args
+
+  (testing "Base"
+    (is (= {:method :post :url "/api/URL" :with-credentials? false}
+           (sut/parse-args {::kws.http/method :post
+                            ::kws.http/url "/URL"}))))
+
+  (testing "Adds json-params"
+    (is (= {:method :post :url "/api/URL" :with-credentials? false :json-params {::foo 1}}
+           (sut/parse-args {::kws.http/method :post
+                            ::kws.http/url "/URL"
+                            ::kws.http/json-params {::foo 1}})))))
+
+(deftest test-parse-response
+
+  (testing "Base"
+    (is (= {::kws.http/success? true} (sut/parse-response {:success true})))))

@@ -3,17 +3,22 @@
                 [nrepl "0.6.0"]
                 [reagent "0.9.1"]
                 [cider/cider-nrepl "0.24.0"]
-                [metosin/reitit-frontend "0.4.2"]]
+                [metosin/reitit-frontend "0.4.2"]
+                [org.clojure/core.async "1.0.567"]
+                [cljs-http "0.1.46"]
+                [com.rpl/specter "1.1.3"]
+                [pjstadig/humane-test-output "0.10.0"]]
 
  :builds {:app  {:target     :browser
                  :output-dir "public/js"
                  :asset-path "/js"
                  :modules    {:app {:entries [ohmycards.web.core]}}
-                 :devtools   {:after-load ohmycards.web.core/mount-root}}
+                 :devtools   {:after-load ohmycards.web.core/mount-root
+                              :preloads [pjstadig.humane-test-output]}}
 
           :test {:target     :karma
                  :output-to  "target/test.js"
                  :ns-regexp  "-test$"}}
  
- :dev-http {3000 {:root    "public"
+ :dev-http {9001 {:root    "public"
                   :handler user/app}}}
