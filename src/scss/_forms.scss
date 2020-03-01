@@ -1,0 +1,19 @@
+.simple-form {
+
+    &__input-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-bottom: 10px;
+    }
+    
+    &__label {
+        width: 25%;
+        text-align: right;
+        padding-right: 10px;
+    }
+
+    &__input {
+        width: 60%;
+    }
+}
