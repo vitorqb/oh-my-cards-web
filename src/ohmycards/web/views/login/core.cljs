@@ -2,7 +2,9 @@
   (:require [ohmycards.web.components.form.core :as form]
             [cljs.core.async :as a]
             [ohmycards.web.views.login.handlers.submit :as handlers.submit]
-            [ohmycards.web.views.login.email-row :as email-row]))
+            [ohmycards.web.views.login.email-row :as email-row]
+            [ohmycards.web.components.error-message-box.core :as error-message-box]
+            [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]))
 
 ;; Components
 (defn- submit-btn
@@ -23,12 +25,14 @@
 (defn main
   "The login page, that allows the user to identify itself."
   [{:keys [state] :as props}]
-  (let [{:keys [onetime-password-sent? email onetime-password]} @state]
+  (let [{:keys [onetime-password-sent? email onetime-password error-message loading?]} @state]
     [:div.login-view {}
      [:h3 "Login"]
-     [form/main {::form/on-submit #(handlers.submit/main props)}
-      [email-row/main (email-row/props-builder props)]
-      [one-time-password-row {:onetime-password-sent? onetime-password-sent?
-                              :value onetime-password
-                              :on-change #(swap! state assoc :onetime-password %)}]
-      [submit-btn]]]))
+     [loading-wrapper/main {:loading? loading?}
+      [form/main {::form/on-submit #(handlers.submit/main props)}
+       [email-row/main (email-row/props-builder props)]
+       [one-time-password-row {:onetime-password-sent? onetime-password-sent?
+                               :value onetime-password
+                               :on-change #(swap! state assoc :onetime-password %)}]
+       [submit-btn]]
+      [error-message-box/main {:value error-message}]]]))

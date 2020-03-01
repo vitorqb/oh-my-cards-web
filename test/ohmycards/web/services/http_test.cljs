@@ -19,4 +19,9 @@
 (deftest test-parse-response
 
   (testing "Base"
-    (is (= {::kws.http/success? true} (sut/parse-response {:success true})))))
+    (is (= {::kws.http/success? true
+            ::kws.http/body {:foo :bar}
+            ::kws.http/status 200}
+           (sut/parse-response {:success true
+                                :body {:foo :bar}
+                                :status 200})))))

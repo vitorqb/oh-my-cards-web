@@ -2,7 +2,8 @@
   (:require  [cljs.core.async :as a]
              [ohmycards.web.kws.http :as kws.http]
              [ohmycards.web.services.login.onetime-password :as onetime-password]
-             [ohmycards.web.kws.services.login.core :as kws]))
+             [ohmycards.web.kws.services.login.core :as kws]
+             [ohmycards.web.services.login.get-token :as get-token]))
 
 ;; Constants
 (def ^:private onetime-password-url "/api/v1/auth/oneTimePassword")
@@ -11,13 +12,6 @@
   #{kws/send-onetime-password-action kws/get-token-action})
 
 ;; Functions
-(defn- get-token!
-  "Tries to get the token from the BE."
-  [args opts]
-  (js/console.log "Getting token...")
-  ;; !!!! TODO
-  nil)
-
 (defn main
   "Performs login for a given user.
   - `email`: The user email.
@@ -31,5 +25,5 @@
   [{::kws/keys [onetime-password] :as args} opts]
   (js/console.log "Starting login service...")
   (if onetime-password
-    (get-token! args opts)
+    (get-token/send! args opts)
     (onetime-password/send! args opts)))

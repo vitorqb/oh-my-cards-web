@@ -3,7 +3,8 @@
             [cljs.test :refer-macros [is are deftest testing use-fixtures async]]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.login.core :as sut.kws]
-            [ohmycards.web.services.login.onetime-password :as onetime-password]))
+            [ohmycards.web.services.login.onetime-password :as onetime-password]
+            [ohmycards.web.services.login.get-token :as get-token]))
 
 (deftest test-main
 
@@ -13,6 +14,6 @@
         (is (= [::foo args opts] (sut/main args opts))))))
 
   (testing "Dispatches to get-token! if has onetime-password"
-    (with-redefs [sut/get-token! #(do [::foo %1 %2])]
+    (with-redefs [get-token/send! #(do [::foo %1 %2])]
       (let [args {::sut.kws/onetime-password 1} opts {::opts 1}]
         (is (= [::foo args opts] (sut/main args opts)))))))

@@ -11,7 +11,10 @@
     (is (true? (-> {} sut/before-submit :loading?))))
 
   (testing "Cleans error message"
-    (is (nil? (-> {:error-message "FOO"} sut/before-submit :error-message)))))
+    (is (nil? (-> {:error-message "FOO"} sut/before-submit :error-message))))
+
+  (testing "Cleans token"
+    (is (nil? (-> {:token "FOO"} sut/before-submit :token)))))
 
 (deftest test-after-submit
 
@@ -34,4 +37,12 @@
                      {}
                      {::services.login.kws/action
                       ::services.login.kws/send-onetime-password-action})]
-      (is (true? (:onetime-password-sent? new-state))))))
+      (is (true? (:onetime-password-sent? new-state)))))
+
+  (testing "Don't :onetime-password-sent? if action is :send-onetime-password but has error."
+    (let [new-state
+          (sut/after-submit
+           {}
+           {::services.login.kws/action ::services.login.kws/send-onetime-password-action
+            ::services.login.kws/error-message "FOO"})]
+      (is (nil? (:onetime-password-sent? new-state))))))

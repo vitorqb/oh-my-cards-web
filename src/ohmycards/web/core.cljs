@@ -27,7 +27,8 @@
   "An instance for the login page."
   []
   [views.login/main {:state (gen-focused-state :views.login)
-                     :http-fn #(apply services.http/http %&)}])
+                     :http-fn #(apply services.http/http %&)
+                     :save-user-fn #(swap! state assoc lenses.login/current-user %)}])
 
 (defn home-page
   "An instance for the home page."

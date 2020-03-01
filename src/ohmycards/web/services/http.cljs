@@ -13,8 +13,10 @@
 
 (defn- parse-response
   "Parses the response from teh cljs-http client."
-  [{:keys [success]}]
-  {::kws.http/success? success})
+  [{:keys [success body status]}]
+  {::kws.http/success? success
+   ::kws.http/status status
+   ::kws.http/body body})
 
 (defn http
   "Runs an http request."

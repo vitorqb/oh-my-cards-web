@@ -2,18 +2,20 @@
   (:require [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.services.login.core :as services.login]
             [cljs.core.async :as a]
-            [ohmycards.web.kws.services.login.core :as services.login.kws]))
+            [ohmycards.web.kws.services.login.core :as services.login.kws]
+            [ohmycards.web.kws.user :as kws.user]))
 
 (defn- before-submit
   "Reducer applied to state before the login submit action."
   [state]
   (assoc state
          :loading? true
-         :error-message nil))
+         :error-message nil
+         :token nil))
 
 (defn- after-submit
   "Reducer applied to state after the login submit call returns."
-  [state {::services.login.kws/keys [error-message token action]}]
+  [state {::services.login.kws/keys [error-message token action] :as response}]
   (cond-> state
     :always
     (assoc :loading? false)
@@ -23,14 +25,15 @@
     
     token
     (assoc :token token)
-
-    (= action services.login.kws/send-onetime-password-action)
+    
+    (and (= action services.login.kws/send-onetime-password-action)
+         (not error-message))
     (assoc :onetime-password-sent? true
            :onetime-password "")))
 
 (defn main
   "Handles state during login submission."
-  [{:keys [state http-fn]}]
+  [{:keys [state http-fn save-user-fn]}]
   (let [{:keys [email onetime-password loading?]} @state]
     (when-not loading?
       (a/go
@@ -39,4 +42,6 @@
                                 ::services.login.kws/email email}
                                (services.login/main {:http-fn http-fn})
                                a/<!)]
-          (swap! state after-submit login-result))))))
+          (swap! state after-submit login-result)
+          (when-let [token (:token @state)]
+            (save-user-fn {::kws.user/email email ::kws.user/token token})))))))
