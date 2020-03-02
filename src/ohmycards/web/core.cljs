@@ -8,7 +8,8 @@
    [ohmycards.web.components.current-view.core :as components.current-view]
    [ohmycards.web.views.login.core :as views.login]
    [ohmycards.web.common.focused-atom :as focused-atom]
-   [ohmycards.web.services.http :as services.http]))
+   [ohmycards.web.services.http :as services.http]
+   [ohmycards.web.services.login.core :as services.login]))
 
 ;; -------------------------
 ;; State
@@ -67,4 +68,5 @@
 
 (defn ^:export init! []
   (routing.core/start-routing! routes set-routing-match!)
+  (services.login/init-state! {:state state :http-fn #(apply services.http/http %&)})
   (mount-root))
