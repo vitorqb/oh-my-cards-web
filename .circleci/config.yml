@@ -1,0 +1,12 @@
+# Check https://circleci.com/docs/2.0/language-clojure/ for more details
+version: 2
+jobs:
+  build:
+    docker: 
+      - image: vitorqb23/oh-my-cards-circle-ci-primary
+    steps:
+      - checkout
+      - run: |
+          npm install
+          make build/test 
+          make karma KARMA_OPTS='--single-run'
