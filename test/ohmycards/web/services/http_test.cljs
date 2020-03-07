@@ -14,7 +14,16 @@
     (is (= {:method :post :url "/api/URL" :with-credentials? false :json-params {::foo 1}}
            (sut/parse-args {::kws.http/method :post
                             ::kws.http/url "/URL"
-                            ::kws.http/json-params {::foo 1}})))))
+                            ::kws.http/json-params {::foo 1}}))))
+
+  (testing "Adds token"
+    (is (= {:method :post
+            :url "/api/URL"
+            :with-credentials? false
+            :headers {"Authorization" "Bearer FOO"}}
+           (sut/parse-args {::kws.http/method :post
+                            ::kws.http/url "/URL"
+                            ::kws.http/token "FOO"})))))
 
 (deftest test-parse-response
 

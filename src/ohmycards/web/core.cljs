@@ -9,7 +9,9 @@
    [ohmycards.web.views.login.core :as views.login]
    [ohmycards.web.common.focused-atom :as focused-atom]
    [ohmycards.web.services.http :as services.http]
-   [ohmycards.web.services.login.core :as services.login]))
+   [ohmycards.web.services.login.core :as services.login]
+   [ohmycards.web.kws.user :as kws.user]
+   [ohmycards.web.kws.http :as kws.http]))
 
 ;; -------------------------
 ;; State
@@ -27,9 +29,10 @@
 (defn login
   "An instance for the login page."
   []
-  [views.login/main {:state (gen-focused-state :views.login)
-                     :http-fn #(apply services.http/http %&)
-                     :save-user-fn #(swap! state assoc lenses.login/current-user %)}])
+  (let [token (-> @state ::lenses.login/current-user ::kws.user/token)]
+    [views.login/main {:state (gen-focused-state :views.login)
+                       :http-fn #(apply services.http/http ::kws.http/token token %&)
+                       :save-user-fn #(swap! state assoc lenses.login/current-user %)}]))
 
 (defn home-page
   "An instance for the home page."
