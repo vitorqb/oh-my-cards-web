@@ -37,3 +37,27 @@
     (testing "Assocs login"
       (is (= (assoc-in state [lenses.login/current-user kws.user/token] {:value "foo"})
              (sut/parse-token-recovery-response state response))))))
+
+(deftest test-should-try-to-recover-user?
+
+  (let [state {lenses.login/current-user {kws.user/email "bar@foo.com"
+                                          kws.user/token "FOO"}}]
+
+    (testing "False if already has token and email"
+      (is (false? (sut/should-try-to-recover-user? state))))
+
+    (testing "False if has no token"
+      (let [state* (assoc-in state [lenses.login/current-user kws.user/token] nil)]
+        (is (nil? (sut/should-try-to-recover-user? state*)))))
+
+    (testing "True if has token but no email"
+      (let [state* (assoc-in state [lenses.login/current-user kws.user/email] nil)]
+        (is (true? (sut/should-try-to-recover-user? state*)))))))
+
+(deftest test-parse-get-user-response
+
+  (let [state {lenses.login/current-user {kws.user/token "FOO"}}]
+
+    (testing "Sets the email from response"
+      (is (= (assoc-in state [lenses.login/current-user kws.user/email] "a@b.c")
+             (sut/parse-get-user-response state {::kws.http/body {:email "a@b.c"}}))))))

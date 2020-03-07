@@ -1,0 +1,24 @@
+.header {
+    padding-top: 15px;
+    text-align: center;
+    display: flex;
+
+    &__left {
+        display: inline-block;
+        flex: 1;
+        flex-basis: 25%;
+    }
+
+    &__center {
+        display: inline-block;
+        flex: 1;
+        flex-basis: 50%;
+    }
+
+    &__right {
+        display: inline-block;
+        flex: 1;
+        flex-basis: 25%;
+        font-style: italic;
+    }
+}

@@ -9,7 +9,10 @@
    [ohmycards.web.views.login.core :as views.login]
    [ohmycards.web.common.focused-atom :as focused-atom]
    [ohmycards.web.services.http :as services.http]
-   [ohmycards.web.services.login.core :as services.login]))
+   [ohmycards.web.services.login.core :as services.login]
+   [ohmycards.web.kws.user :as kws.user]
+   [ohmycards.web.kws.http :as kws.http]
+   [ohmycards.web.components.header.core :as header]))
 
 ;; -------------------------
 ;; State
@@ -27,9 +30,15 @@
 (defn login
   "An instance for the login page."
   []
-  [views.login/main {:state (gen-focused-state :views.login)
-                     :http-fn #(apply services.http/http %&)
-                     :save-user-fn #(swap! state assoc lenses.login/current-user %)}])
+  (let [token (-> @state ::lenses.login/current-user ::kws.user/token)]
+    [views.login/main {:state (gen-focused-state :views.login)
+                       :http-fn #(apply services.http/http ::kws.http/token token %&)
+                       :save-user-fn #(swap! state assoc lenses.login/current-user %)}]))
+
+(defn header
+  "An instance for the headerer component."
+  []
+  [header/main {::header/email (-> @state ::lenses.login/current-user ::kws.user/email)}])
 
 (defn home-page
   "An instance for the home page."
@@ -38,13 +47,15 @@
 
 (defn- current-view*
   "Returns an instance of the `current-view` component."
-  [state home-view login-view]
+  [state home-view login-view header-component]
   [components.current-view/main
-   {::components.current-view/current-user (::lenses.login/current-user state)
-    ::components.current-view/view         (or (-> state ::lenses.routing/match :view) home-view)
-    ::components.current-view/login-view   login-view}])
+   {::components.current-view/current-user     (::lenses.login/current-user state)
+    ::components.current-view/view             (or (-> state ::lenses.routing/match :view)
+                                                   home-view)
+    ::components.current-view/login-view       login-view
+    ::components.current-view/header-component header-component}])
 
-(defn current-view [] (current-view* @state home-page login))
+(defn current-view [] (current-view* @state home-page login header))
 
 
 ;; -------------------------

@@ -38,13 +38,45 @@
     (and token success?)
     (assoc-in [lenses.login/current-user kws.user/token] token)))
 
-(defn init-state!
-  "Tries to get the token using cookies, and set's the state on success.
-  `opts.state`: An state atom to set the token.
-  `opts.http-fn`: A function for making http requests."
+(defn- recover-token-from-cookies!
+  "Tries to recover the token from cookies and store it in the state atom."
   [{:keys [state http-fn]}]
+  (js/console.log "Trying to recover token...")
   (a/map
    #(swap! state parse-token-recovery-response %)
    [(http-fn
      ::kws.http/url "/v1/auth/tokenRecovery"
      ::kws.http/method :post)]))
+
+(defn- should-try-to-recover-user?
+  "Defines whether we should try to recover the user from the token."
+  [{{::kws.user/keys [email token]} ::lenses.login/current-user}]
+  (and token (not email)))
+
+(defn- parse-get-user-response
+  [state {{:keys [email]} ::kws.http/body}]
+  (assoc-in state [lenses.login/current-user kws.user/email] email))
+
+(defn- get-user-from-token!
+  "Tries to get the user information from the token."
+  [{:keys [state http-fn]}]
+  (let [token (-> @state ::lenses.login/current-user ::kws.user/token)]
+    (js/console.log "Querying for user info...")
+    (a/map
+     #(swap! state parse-get-user-response %)
+     [(http-fn
+       ::kws.http/url "/v1/auth/user"
+       ::kws.http/method :get
+       ::kws.http/token token)])))
+
+(defn init-state!
+  "Performs initialization services for the login, trying to log the user in if he is not
+  yet logged in.
+  `opts.state`: An state atom to set the token.
+  `opts.http-fn`: A function for making http requests."
+  [{:keys [state http-fn] :as opts}]
+  (js/console.log "Initializing login state...")
+  (a/go
+    (a/<! (recover-token-from-cookies! opts))
+    (when (should-try-to-recover-user? @state)
+      (a/<! (get-user-from-token! opts)))))
