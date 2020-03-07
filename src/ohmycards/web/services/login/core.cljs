@@ -54,7 +54,7 @@
   (and token (not email)))
 
 (defn- parse-get-user-response
-  [state {:keys [email]}]
+  [state {{:keys [email]} ::kws.http/body}]
   (assoc-in state [lenses.login/current-user kws.user/email] email))
 
 (defn- get-user-from-token!

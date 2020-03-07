@@ -38,7 +38,7 @@
 (defn header
   "An instance for the headerer component."
   []
-  [header/main {}])
+  [header/main {::header/email (-> @state ::lenses.login/current-user ::kws.user/email)}])
 
 (defn home-page
   "An instance for the home page."

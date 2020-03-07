@@ -60,4 +60,4 @@
 
     (testing "Sets the email from response"
       (is (= (assoc-in state [lenses.login/current-user kws.user/email] "a@b.c")
-             (sut/parse-get-user-response state {:email "a@b.c"}))))))
+             (sut/parse-get-user-response state {::kws.http/body {:email "a@b.c"}}))))))
