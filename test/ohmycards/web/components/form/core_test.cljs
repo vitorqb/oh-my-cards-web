@@ -28,7 +28,15 @@
   (testing "Passes the value to the outer handler"
     (let [on-change #(do [::change %])
           handler (sut/gen-input-on-change-handler on-change)]
-      (is (= [::change "foo"] (handler (clj->js {:target {:value "foo"}})))))))
+      (is (= [::change "foo"] (handler (clj->js {:target {:value "foo"}}))))))
+
+  (testing "Defaults class"
+    (let [[_ props] (sut/input {})]
+      (is (= "simple-form__input" (:class props)))))
+
+  (testing "Keeps class if passed"
+    (let [[_ props] (sut/input {:class "FOO"})]
+      (is (= "FOO" (:class props))))))
 
 (deftest test-input
 

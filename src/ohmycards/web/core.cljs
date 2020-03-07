@@ -13,7 +13,12 @@
    [ohmycards.web.kws.user :as kws.user]
    [ohmycards.web.kws.http :as kws.http]
    [ohmycards.web.components.header.core :as header]
-   [ohmycards.web.views.cards-grid.core :as cards-grid]))
+   [ohmycards.web.views.cards-grid.core :as cards-grid]
+   [ohmycards.web.views.cards-grid.state-management :as cards-grid.state-management]
+   [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
+   [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
+   [ohmycards.web.views.cards-grid.config-dashboard.core :as cards-grid.config-dashboard]
+   [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws.cards-grid.config-dashboard]))
 
 ;; -------------------------
 ;; State
@@ -31,7 +36,7 @@
 (defn http-fn
   "Wraps the http service function injecting the token from the global state."
   [& args]
-  (let [token (-> @state lenses.login/current-user kws.http/token)]
+  (let [token (-> @state lenses.login/current-user kws.user/token)]
     (apply services.http/http kws.http/token token args)))
 
 ;; -------------------------
@@ -48,17 +53,39 @@
   []
   [header/main {::header/email (-> @state ::lenses.login/current-user ::kws.user/email)}])
 
+(def cards-grid-page-props
+  "Props given to the cards-grid-page."
+  {:state (r/cursor state [:views.cards-grid])
+   kws.cards-grid/fetch-cards! #(services.fetch-cards/main (assoc % :http-fn http-fn))
+   kws.cards-grid/goto-settings! #(routing.core/goto! routing.pages/cards-grid-config)})
+
 (defn cards-grid-page
   "An instance for the cards-grid view."
   []
-  [cards-grid/main {}])
+  [cards-grid/main cards-grid-page-props])
+
+(defn cards-grid-config-page
+  "An instance for the cards-grid-config view."
+  []
+  [cards-grid.config-dashboard/main
+   {:state
+    (r/cursor state [:views.cards-grid.config-dashboard])
+
+    kws.cards-grid.config-dashboard/goto-cards-grid!
+    #(routing.core/goto! routing.pages/home)
+
+    kws.cards-grid.config-dashboard/set-page!
+    #(cards-grid.state-management/set-page-from-props! cards-grid-page-props %)
+
+    kws.cards-grid.config-dashboard/set-page-size!
+    #(cards-grid.state-management/set-page-size-from-props! cards-grid-page-props %)}])
 
 (defn- current-view*
   "Returns an instance of the `current-view` component."
   [state home-view login-view header-component]
   [components.current-view/main
    {::components.current-view/current-user     (::lenses.login/current-user state)
-    ::components.current-view/view             (or (-> state ::lenses.routing/match :view)
+    ::components.current-view/view             (or (-> state ::lenses.routing/match :data :view)
                                                    home-view)
     ::components.current-view/login-view       login-view
     ::components.current-view/header-component header-component}])
@@ -71,8 +98,11 @@
 (def ^:private routes
   "The reitit-style raw routes."
   [["/"
-    {:name ::routing.pages/home
-     :view #'cards-grid-page}]])
+    {:name routing.pages/home
+     :view #'cards-grid-page}]
+   ["/cards-grid/config"
+    {:name routing.pages/cards-grid-config
+     :view #'cards-grid-config-page}]])
 
 (defn- set-routing-match!
   "Set's the routing match on the state."

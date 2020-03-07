@@ -1,4 +1,5 @@
-(ns ohmycards.web.components.loading-wrapper.core)
+(ns ohmycards.web.components.loading-wrapper.core
+  (:require [ohmycards.web.utils.components :as utils.components]))
 
 (defn- loading-view
   []
@@ -9,7 +10,6 @@
 (defn main
   "Wraps all children in a loading state view."
   [{:keys [loading?]} & children]
-  (let [children* (map-indexed #(with-meta %2 {:key %1}) children)]
-    (if-not loading?
-      [:<> children*]
-      [:<> [loading-view] children*])))
+  (if-not loading?
+    [:<> (utils.components/with-seq-keys children)]
+    [:<> [loading-view] (utils.components/with-seq-keys children)]))

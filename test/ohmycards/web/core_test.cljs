@@ -9,7 +9,7 @@
 (deftest test-current-view*
 
   (let [state {::lenses.login/current-user ::current-user
-               ::lenses.routing/match      {:view ::current-view}}]
+               ::lenses.routing/match      {:data {:view ::current-view}}}]
 
     (testing "Base"
       (is (= [components.current-view/main
