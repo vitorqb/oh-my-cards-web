@@ -1,4 +1,4 @@
-.PHONY: watch server test karma scss rev-proxy
+.PHONY: watch server test karma scss rev-proxy circleci/images/primary
 
 # Docker command to use
 DOCKER ?= docker
@@ -12,6 +12,9 @@ BACKEND_DB_FILE ?= $(shell realpath ./backend.sqlite)
 # The name for the be docker container
 BACKEND_DOCKER_NAME ?= ohmycards-web--backend
 
+# Extra options for karma
+KARMA_OPTS ?= 
+
 # Starts shadow-cljs server.
 server:
 	npx shadow-cljs server
@@ -20,10 +23,15 @@ server:
 watch:
 	npx shadow-cljs watch app test
 
+# Builds once a specific build target
+build/%:
+	$(eval BUILD=$(subst build/,,$@))
+	npx shadow-cljs compile $(BUILD)
+
 # Test using karma
 test: karma
 karma:
-	npx karma start
+	npx karma start $(KARMA_OPTS)
 
 # Watch-compile scss
 scss:
@@ -61,3 +69,7 @@ test-ns-requires:
 	echo '))' >>"${tmpfile}"
 	cp ${tmpfile} src/test_ns_requires.cljs
 	rm -rf ${tmpfile}
+
+# Circle CI docker image for builds
+circleci/images/primary:
+	$(DOCKER) build -t vitorqb23/oh-my-cards-circle-ci-primary ./.circleci/images/primary/
