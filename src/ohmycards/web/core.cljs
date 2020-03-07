@@ -12,7 +12,8 @@
    [ohmycards.web.services.login.core :as services.login]
    [ohmycards.web.kws.user :as kws.user]
    [ohmycards.web.kws.http :as kws.http]
-   [ohmycards.web.components.header.core :as header]))
+   [ohmycards.web.components.header.core :as header]
+   [ohmycards.web.views.cards-grid.core :as cards-grid]))
 
 ;; -------------------------
 ;; State
@@ -40,10 +41,10 @@
   []
   [header/main {::header/email (-> @state ::lenses.login/current-user ::kws.user/email)}])
 
-(defn home-page
-  "An instance for the home page."
+(defn cards-grid-page
+  "An instance for the cards-grid view."
   []
-  [:div [:h2 "Home page."]])
+  [cards-grid/main {}])
 
 (defn- current-view*
   "Returns an instance of the `current-view` component."
@@ -55,7 +56,7 @@
     ::components.current-view/login-view       login-view
     ::components.current-view/header-component header-component}])
 
-(defn current-view [] (current-view* @state home-page login header))
+(defn current-view [] (current-view* @state cards-grid-page login header))
 
 
 ;; -------------------------
@@ -64,7 +65,7 @@
   "The reitit-style raw routes."
   [["/"
     {:name ::routing.pages/home
-     :view #'home-page}]])
+     :view #'cards-grid-page}]])
 
 (defn- set-routing-match!
   "Set's the routing match on the state."

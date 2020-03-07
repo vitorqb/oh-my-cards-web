@@ -5,7 +5,7 @@
 (deftest test-main
 
   (testing "Returns view if has user"
-    (is (= [:div.current-view [::header-component [::view]]]
+    (is (= [:div.current-view '([::header-component] [::view])]
            (sut/main {::sut/current-user     :user
                       ::sut/view             ::view
                       ::sut/header-component ::header-component}))))

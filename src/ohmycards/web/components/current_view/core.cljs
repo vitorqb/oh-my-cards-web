@@ -6,8 +6,9 @@
   - `view`: A reagent component for the current view.
   - `login-view`: The page to render if the user is not logged in.
   - `header-component`: The header to use on every page."
-  [{:keys [state] ::keys [current-user view login-view header-component]}]
+  [{:keys [state] ::keys [current-user view login-view header-component] :as props}]
   [:div.current-view
    (if current-user
-     [header-component [view]]
+     (list ^{:key :header} [header-component]
+           ^{:key :view}   [view])
      [login-view])])
