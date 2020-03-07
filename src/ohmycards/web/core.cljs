@@ -27,14 +27,21 @@
 
 
 ;; -------------------------
+;; Http helpers
+(defn http-fn
+  "Wraps the http service function injecting the token from the global state."
+  [& args]
+  (let [token (-> @state lenses.login/current-user kws.http/token)]
+    (apply services.http/http kws.http/token token args)))
+
+;; -------------------------
 ;; View instances
 (defn login
   "An instance for the login page."
   []
-  (let [token (-> @state ::lenses.login/current-user ::kws.user/token)]
-    [views.login/main {:state (gen-focused-state :views.login)
-                       :http-fn #(apply services.http/http ::kws.http/token token %&)
-                       :save-user-fn #(swap! state assoc lenses.login/current-user %)}]))
+  [views.login/main {:state (gen-focused-state :views.login)
+                     :http-fn http-fn
+                     :save-user-fn #(swap! state assoc lenses.login/current-user %)}])
 
 (defn header
   "An instance for the headerer component."
@@ -80,5 +87,5 @@
 
 (defn ^:export init! []
   (routing.core/start-routing! routes set-routing-match!)
-  (services.login/init-state! {:state state :http-fn #(apply services.http/http %&)})
+  (services.login/init-state! {:state state :http-fn http-fn})
   (mount-root))
