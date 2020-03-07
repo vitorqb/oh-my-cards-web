@@ -3,12 +3,12 @@
 @import "forms";
 @import "error-message-box";
 @import "loading-wrapper";
+@import "header";
 
 body {
   font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
   max-width: 1250px;
   margin: 0 auto;
-  padding-top: 72px;
   -webkit-font-smoothing: antialiased;
   font-size: 1.125em;
   color: #333;
