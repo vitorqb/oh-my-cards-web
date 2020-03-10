@@ -4,5 +4,5 @@
   "A box for displaying error messages to the user."
   [{:keys [value]}]
   (when value
-    [:div.error-message-box {}
+    [:span.error-message-box {}
      value]))

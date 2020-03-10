@@ -4,6 +4,8 @@
 @import "error-message-box";
 @import "loading-wrapper";
 @import "header";
+@import "cards-grid";
+@import "cards-grid/config-dashboard";
 
 body {
   font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
@@ -41,4 +43,44 @@ a:hover {
 
 .title {
     font-size: 1.25em;
+}
+
+.small-box {
+    margin-left: 5px;
+    margin-right: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 2.5px;
+    box-shadow:  0px 0px 2.5px 1px;
+    background-color: #e6e6e6;
+}
+
+// A css class that "resets" button styling
+.clear-button {
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: auto;
+    overflow: visible;
+
+    background: transparent;
+
+    /* inherit font & color from ancestor */
+    color: inherit;
+    font: inherit;
+
+    /* Normalize `line-height`. Cannot be changed from `normal` in Firefox 4+. */
+    line-height: normal;
+
+    /* Corrects font smoothing for webkit */
+    -webkit-font-smoothing: inherit;
+    -moz-osx-font-smoothing: inherit;
+
+    /* Corrects inability to style clickable `input` types in iOS */
+    -webkit-appearance: none;
+
+    &::-moz-focus-inner {
+        border: 0;
+        padding: 0;
+    }
 }

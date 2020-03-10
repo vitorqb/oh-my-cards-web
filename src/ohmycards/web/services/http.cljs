@@ -6,11 +6,12 @@
 
 (defn- parse-args
   "Parses the arguments for the cljs-http client."
-  [{::kws.http/keys [method url json-params token] :as args}]
+  [{::kws.http/keys [method url json-params token query-params] :as args}]
   (cond-> {:method method :url url :with-credentials? false}
-    :always (update :url #(str "/api" %))
-    token (assoc-in [:headers "Authorization"] (str "Bearer " (or (:value token) token)))
-    json-params (assoc :json-params json-params)))
+    :always      (update :url #(str "/api" %))
+    token        (assoc-in [:headers "Authorization"] (str "Bearer " (or (:value token) token)))
+    json-params  (assoc :json-params json-params)
+    query-params (assoc :query-params query-params)))
 
 (defn- parse-response
   "Parses the response from teh cljs-http client."

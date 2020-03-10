@@ -16,6 +16,12 @@
                             ::kws.http/url "/URL"
                             ::kws.http/json-params {::foo 1}}))))
 
+  (testing "Adds query-params"
+    (is (= {:method :get :url "/api/URL" :with-credentials? false :query-params {::foo 1}}
+           (sut/parse-args {::kws.http/method :get
+                            ::kws.http/url "/URL"
+                            ::kws.http/query-params {::foo 1}}))))
+
   (testing "Adds token"
     (is (= {:method :post
             :url "/api/URL"

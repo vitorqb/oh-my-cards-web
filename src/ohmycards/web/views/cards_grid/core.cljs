@@ -1,0 +1,31 @@
+(ns ohmycards.web.views.cards-grid.core
+  (:require [ohmycards.web.kws.views.cards-grid.core :as kws]
+            [ohmycards.web.views.cards-grid.state-management :as state-management]
+            [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.components.error-message-box.core :as error-message-box]
+            [ohmycards.web.views.cards-grid.control-header :as control-header]))
+
+;; Functions
+(defn- card-display
+  "A component to display a single card."
+  [{{::kws.card/keys [id title body]} ::card}]
+  [:div.card-display
+   [:div.card-display__title title]
+   [:div.card-display__body body]])
+
+(defn- main*
+  "Rendering logic for the `main` component."
+  [{:keys [state] :as props}]
+  [:div.cards-grid
+   [control-header/main props]
+   [:div.cards-grid__top-error-box
+    [error-message-box/main {:value (kws/error-message @state)}]]
+   (for [card (kws/cards @state)]
+     ^{:key (kws.card/id card)}
+     [card-display {::card card}])])
+
+(defn main
+  "A view for a grid of cards."
+  [{:keys [state] :as props}]
+  (state-management/initialize-from-props! props)
+  (fn [props] (main* props)))

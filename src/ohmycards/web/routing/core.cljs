@@ -2,6 +2,11 @@
   (:require [reitit.frontend :as rf]
             [reitit.frontend.easy :as rfe]))
 
+(defn goto!
+  "Navigates to a route."
+  [k]
+  (rfe/push-state k))
+
 (defn start-routing!
   "Starts the routing with reitit.
   - `raw-routes` Must be a reitit-like route registration data.
