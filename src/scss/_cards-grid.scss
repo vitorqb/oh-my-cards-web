@@ -1,12 +1,10 @@
+.cards-grid-header {
+    @include header3;
+}
+
 .cards-grid {
     display: flex;
     flex-wrap: wrap;
-
-    &__control-header {
-        width: 100%;
-        text-align: center;
-        display: flex;
-    }
 
     &__top-error-box {
         flex: 1;
@@ -16,25 +14,6 @@
         flex-basis: 99%;
     }
 
-    &__header-left {
-        flex: 1;
-        width: 25%;
-        text-align: left;
-        padding-left: 20px;
-    }
-    
-    &__header-center {
-        flex: 1;
-        width: 49.5%;
-        text-align: center;
-    }
-
-    &__header-right {
-        flex: 1;
-        width: 25%;
-        text-align: right;
-        padding-right: 20px;
-    }
 }
 
 .card-display {

@@ -18,7 +18,9 @@
    [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
    [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
    [ohmycards.web.views.cards-grid.config-dashboard.core :as cards-grid.config-dashboard]
-   [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws.cards-grid.config-dashboard]))
+   [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws.cards-grid.config-dashboard]
+   [ohmycards.web.views.new-card.core :as new-card]
+   [ohmycards.web.kws.views.new-card.core :as kws.new-card]))
 
 ;; -------------------------
 ;; State
@@ -57,12 +59,20 @@
   "Props given to the cards-grid-page."
   {:state (r/cursor state [:views.cards-grid])
    kws.cards-grid/fetch-cards! #(services.fetch-cards/main (assoc % :http-fn http-fn))
-   kws.cards-grid/goto-settings! #(routing.core/goto! routing.pages/cards-grid-config)})
+   kws.cards-grid/goto-settings! #(routing.core/goto! routing.pages/cards-grid-config)
+   kws.cards-grid/goto-newcard! #(routing.core/goto! routing.pages/new-card)})
 
 (defn cards-grid-page
   "An instance for the cards-grid view."
   []
   [cards-grid/main cards-grid-page-props])
+
+(defn new-card-page
+  "An instance for the new-card view."
+  []
+  [new-card/main {:http-fn http-fn
+                  :state (r/cursor state [:views.new-card])
+                  kws.new-card/goto-home! #(routing.core/goto! routing.pages/home)}])
 
 (defn cards-grid-config-page
   "An instance for the cards-grid-config view."
@@ -102,7 +112,10 @@
      :view #'cards-grid-page}]
    ["/cards-grid/config"
     {:name routing.pages/cards-grid-config
-     :view #'cards-grid-config-page}]])
+     :view #'cards-grid-config-page}]
+   ["/cards/new"
+    {:name routing.pages/new-card
+     :view #'new-card-page}]])
 
 (defn- set-routing-match!
   "Set's the routing match on the state."

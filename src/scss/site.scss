@@ -1,3 +1,5 @@
+@import "mixins/header";
+
 @import "login-view";
 @import "utils";
 @import "forms";
@@ -6,6 +8,8 @@
 @import "header";
 @import "cards-grid";
 @import "cards-grid/config-dashboard";
+@import "new-card";
+@import "good-message-box";
 
 body {
   font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
@@ -83,4 +87,8 @@ a:hover {
         border: 0;
         padding: 0;
     }
+}
+
+.u-color-good {
+    color: green;
 }
