@@ -8,6 +8,7 @@
 [ohmycards.web.components.header.core-test]
 [ohmycards.web.components.loading-wrapper.core-test]
 [ohmycards.web.core-test]
+[ohmycards.web.services.cards-crud.core-test]
 [ohmycards.web.services.fetch-cards.core-test]
 [ohmycards.web.services.http-test]
 [ohmycards.web.services.login.core-test]
@@ -22,4 +23,8 @@
 [ohmycards.web.views.login.core-test]
 [ohmycards.web.views.login.email-row-test]
 [ohmycards.web.views.login.handlers.submit-test]
+[ohmycards.web.views.new-card.core-test]
+[ohmycards.web.views.new-card.form-test]
+[ohmycards.web.views.new-card.handlers.create-card-test]
+[ohmycards.web.views.new-card.header-test]
 ))

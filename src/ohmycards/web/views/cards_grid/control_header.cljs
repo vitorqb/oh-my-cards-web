@@ -20,26 +20,31 @@
   [:button.clear-button {:on-click #(goto-settings!)}
    [icons/settings]])
 
-(defn- header-left []
-  [:span.cards-grid__header-left])
+(defn- new-card-btn [goto-newcard!]
+  [:button.clear-button.u-color-good {:on-click #(goto-newcard!)}
+   [icons/add]])
+
+(defn- header-left [props]
+  [:span.cards-grid-header__left
+   [new-card-btn (kws/goto-newcard! props)]])
 
 (defn- header-center
   "The center of the header, containing the pagination controls."
-  [{:keys [state] :as props}]
-  (let [{::kws/keys [page page-size count-of-cards goto-previous-page!]} @state]
-    [:span.cards-grid__header-center
+  [{:keys [state] ::kws/keys [] :as props}]
+  (let [{::kws/keys [page page-size count-of-cards]} @state]
+    [:span.cards-grid-header__center
      [arrow-left props]
      [page-counter {::page page ::max-page (utils.pagination/last-page page-size count-of-cards)}]
      [arrow-right props]]))
 
 (defn- header-right [{::kws/keys [goto-settings!]}]
-  [:span.cards-grid__header-right
+  [:span.cards-grid-header__right
    [settings-btn goto-settings!]])
 
 (defn main
   "A header for the grid with controls."
-  [{:keys [state] ::kws/keys [goto-settings! goto-previous-page!] :as props}]
-  [:div.cards-grid__control-header
-   [header-left]
+  [props]
+  [:div.cards-grid-header
+   [header-left props]
    [header-center props]
    [header-right props]])
