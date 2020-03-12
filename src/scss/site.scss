@@ -1,4 +1,6 @@
+@import "variables";
 @import "mixins/header";
+@import "mixins/clear-button";
 
 @import "login-view";
 @import "utils";
@@ -10,6 +12,7 @@
 @import "cards-grid/config-dashboard";
 @import "new-card";
 @import "good-message-box";
+@import "edit-card";
 
 body {
   font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
@@ -61,32 +64,7 @@ a:hover {
 
 // A css class that "resets" button styling
 .clear-button {
-    border: none;
-    margin: 0;
-    padding: 0;
-    width: auto;
-    overflow: visible;
-
-    background: transparent;
-
-    /* inherit font & color from ancestor */
-    color: inherit;
-    font: inherit;
-
-    /* Normalize `line-height`. Cannot be changed from `normal` in Firefox 4+. */
-    line-height: normal;
-
-    /* Corrects font smoothing for webkit */
-    -webkit-font-smoothing: inherit;
-    -moz-osx-font-smoothing: inherit;
-
-    /* Corrects inability to style clickable `input` types in iOS */
-    -webkit-appearance: none;
-
-    &::-moz-focus-inner {
-        border: 0;
-        padding: 0;
-    }
+    @include clear-button;
 }
 
 .u-color-good {

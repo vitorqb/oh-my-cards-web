@@ -3,15 +3,23 @@
             [ohmycards.web.views.cards-grid.state-management :as state-management]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
-            [ohmycards.web.views.cards-grid.control-header :as control-header]))
+            [ohmycards.web.views.cards-grid.control-header :as control-header]
+            [ohmycards.web.icons :as icons]))
 
 ;; Functions
+(defn- card-edit-btn
+  "A button to edit a card."
+  [{::keys [card] ::kws/keys [goto-editcard!]}]
+  [:button.clear-button.u-color-good {:on-click #(goto-editcard! card)}
+   [icons/edit]])
+
 (defn- card-display
   "A component to display a single card."
-  [{{::kws.card/keys [id title body]} ::card}]
+  [{{::kws.card/keys [id title body] :as card} ::card :as props}]
   [:div.card-display
    [:div.card-display__title title]
-   [:div.card-display__body body]])
+   [:div.card-display__body body]
+   [:div.card-display__foot [card-edit-btn props]]])
 
 (defn- main*
   "Rendering logic for the `main` component."
@@ -22,7 +30,7 @@
     [error-message-box/main {:value (kws/error-message @state)}]]
    (for [card (kws/cards @state)]
      ^{:key (kws.card/id card)}
-     [card-display {::card card}])])
+     [card-display (assoc props ::card card)])])
 
 (defn main
   "A view for a grid of cards."

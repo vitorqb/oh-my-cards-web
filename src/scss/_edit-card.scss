@@ -1,0 +1,21 @@
+.edit-card-header {
+    @include header3;
+}
+
+.edit-card {
+    text-align: center;
+    &__label {
+        width: 15%;
+    }
+    &__button {
+        @include clear-button;
+        padding-left: 2.5px;
+        padding-right: 2.5px;
+        &--good {
+            color: green;
+        }
+        &--bad {
+            color: $bad-color;
+        }
+    }
+}

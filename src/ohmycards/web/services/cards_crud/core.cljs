@@ -4,8 +4,9 @@
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.cards-crud.core :as kws]))
 
-(defn- parse-response
-  "Parses a response from a be call."
+;; Create
+(defn- parse-create-response
+  "Parses a response from a be call to create a card."
   [{::kws.http/keys [success? body]}]
   (if success?
     {kws/created-card {kws.card/id (:id body)
@@ -26,4 +27,58 @@
   "Creates a card in the backend."
   [opts card-input]
   (js/console.log "Creating card...")
-  (a/map parse-response [(run-create-call! opts card-input)]))
+  (a/map parse-create-response [(run-create-call! opts card-input)]))
+
+;; Read
+(defn- parse-read-response
+  "Parses a response from a be call to read a card."
+  [{::kws.http/keys [success? body]}]
+  (if success?
+    {kws/read-card {kws.card/id (:id body)
+                    kws.card/body (:body body)
+                    kws.card/title (:title body)}}
+    {kws/error-message (if (empty? body) "Could not read card!" body)}))
+
+(defn- run-read-call!
+  "Performs the http call to read a card."
+  [{:keys [http-fn]} card-id]
+  (http-fn
+   kws.http/method :GET
+   kws.http/url (str "/v1/cards/" card-id)))
+
+(defn read!
+  "Reads a card from the backend."
+  [opts card-id]
+  (js/console.log (str "Reading card... " card-id))
+  (a/map parse-read-response [(run-read-call! opts card-id)]))
+
+;; Update
+(defn update!
+  "Updates a card in the backend."
+  [opts card-input]
+  (js/console.log "Updating card...")
+  ;; !!!! TODO
+  (a/go
+    (a/<! (a/timeout 2000))
+    {}))
+
+;; Delete
+(defn parse-delete-response
+  "Parses the response of a delete http call."
+  [{::kws.http/keys [success? body]}]
+  (if success?
+    {}
+    {kws/error-message (if (empty? body) "Error deleting card!" body)}))
+
+(defn run-delete-call!
+  "Performs the http call to delete a card."
+  [{:keys [http-fn]} card-id]
+  (http-fn
+   kws.http/method :DELETE
+   kws.http/url (str "/v1/cards/" card-id)))
+
+(defn delete!
+  "Deletes a card in the backend."
+  [opts card-id]
+  (js/console.log "Removing card...")
+  (a/map parse-delete-response [(run-delete-call! opts card-id)]))
