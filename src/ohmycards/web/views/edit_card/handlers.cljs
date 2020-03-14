@@ -8,7 +8,10 @@
 (defn- reduce-before-delete
   "Reduces state before removing a card."
   [state]
-  (assoc state kws/loading? true))
+  (assoc state
+         kws/loading? true
+         kws/error-message nil
+         kws/good-message nil))
 
 (defn- reduce-after-delete
   "Reduces state after removing a card"
