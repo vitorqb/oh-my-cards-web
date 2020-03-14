@@ -14,3 +14,5 @@
 (def goto-settings! "A fn that routes the application to the grid settings page" ::goto-settings!)
 (def goto-newcard! "A fn that routes the application to the page to create a new card"
   ::goto-newcard!)
+(def goto-editcard! "A fn that routes the application to the page to edit a card"
+  ::goto-editcard!)

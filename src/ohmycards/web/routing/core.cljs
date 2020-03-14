@@ -1,11 +1,12 @@
 (ns ohmycards.web.routing.core
   (:require [reitit.frontend :as rf]
-            [reitit.frontend.easy :as rfe]))
+            [reitit.frontend.easy :as rfe]
+            [ohmycards.web.kws.routing.core :as kws]))
 
 (defn goto!
   "Navigates to a route."
-  [k]
-  (rfe/push-state k))
+  [k & {::kws/keys [query-params]}]
+  (rfe/push-state k {} query-params))
 
 (defn start-routing!
   "Starts the routing with reitit.

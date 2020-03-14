@@ -1,26 +1,39 @@
 (ns ohmycards.web.core
-  (:require
-   [reagent.core :as r]
-   [ohmycards.web.kws.routing.pages :as routing.pages]
-   [ohmycards.web.routing.core :as routing.core]
-   [ohmycards.web.kws.lenses.routing :as lenses.routing]
-   [ohmycards.web.kws.lenses.login :as lenses.login]
-   [ohmycards.web.components.current-view.core :as components.current-view]
-   [ohmycards.web.views.login.core :as views.login]
-   [ohmycards.web.common.focused-atom :as focused-atom]
-   [ohmycards.web.services.http :as services.http]
-   [ohmycards.web.services.login.core :as services.login]
-   [ohmycards.web.kws.user :as kws.user]
-   [ohmycards.web.kws.http :as kws.http]
-   [ohmycards.web.components.header.core :as header]
-   [ohmycards.web.views.cards-grid.core :as cards-grid]
-   [ohmycards.web.views.cards-grid.state-management :as cards-grid.state-management]
-   [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
-   [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
-   [ohmycards.web.views.cards-grid.config-dashboard.core :as cards-grid.config-dashboard]
-   [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws.cards-grid.config-dashboard]
-   [ohmycards.web.views.new-card.core :as new-card]
-   [ohmycards.web.kws.views.new-card.core :as kws.new-card]))
+  (:require [ohmycards.web.common.focused-atom :as focused-atom]
+            [ohmycards.web.components.current-view.core :as components.current-view]
+            [ohmycards.web.components.header.core :as header]
+            [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.http :as kws.http]
+            [ohmycards.web.kws.lenses.login :as lenses.login]
+            [ohmycards.web.kws.lenses.routing :as lenses.routing]
+            [ohmycards.web.kws.routing.core :as kws.routing]
+            [ohmycards.web.kws.routing.pages :as routing.pages]
+            [ohmycards.web.kws.user :as kws.user]
+            [ohmycards.web.kws.views.cards-grid.config-dashboard.core
+             :as
+             kws.cards-grid.config-dashboard]
+            [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
+            [ohmycards.web.kws.views.edit-card.core :as kws.edit-card]
+            [ohmycards.web.kws.views.new-card.core :as kws.new-card]
+            [ohmycards.web.routing.core :as routing.core]
+            [ohmycards.web.services.cards-crud.core :as services.cards-crud]
+            [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
+            [ohmycards.web.services.http :as services.http]
+            [ohmycards.web.services.login.core :as services.login]
+            [ohmycards.web.views.cards-grid.config-dashboard.core
+             :as
+             cards-grid.config-dashboard]
+            [ohmycards.web.views.cards-grid.core :as cards-grid]
+            [ohmycards.web.views.cards-grid.state-management
+             :as
+             cards-grid.state-management]
+            [ohmycards.web.views.edit-card.core :as edit-card]
+            [ohmycards.web.views.edit-card.state-management
+             :as
+             edit-card.state-management]
+            [ohmycards.web.views.login.core :as views.login]
+            [ohmycards.web.views.new-card.core :as new-card]
+            [reagent.core :as r]))
 
 ;; -------------------------
 ;; State
@@ -60,7 +73,10 @@
   {:state (r/cursor state [:views.cards-grid])
    kws.cards-grid/fetch-cards! #(services.fetch-cards/main (assoc % :http-fn http-fn))
    kws.cards-grid/goto-settings! #(routing.core/goto! routing.pages/cards-grid-config)
-   kws.cards-grid/goto-newcard! #(routing.core/goto! routing.pages/new-card)})
+   kws.cards-grid/goto-newcard! #(routing.core/goto! routing.pages/new-card)
+   kws.cards-grid/goto-editcard! #(routing.core/goto!
+                                   routing.pages/edit-card
+                                   kws.routing/query-params {:id (kws.card/id %)})})
 
 (defn cards-grid-page
   "An instance for the cards-grid view."
@@ -73,6 +89,16 @@
   [new-card/main {:http-fn http-fn
                   :state (r/cursor state [:views.new-card])
                   kws.new-card/goto-home! #(routing.core/goto! routing.pages/home)}])
+
+(defn edit-card-page
+  "An instance for the edit-card view"
+  []
+  [edit-card/main {kws.edit-card/goto-home! #(routing.core/goto! routing.pages/home)
+                   :http-fn http-fn
+                   :state (edit-card.state-management/init!
+                           (r/cursor state [:viws.edit-card])
+                           (-> @state lenses.routing/match :parameters :query :id)
+                           #(services.cards-crud/read! {:http-fn http-fn} %))}])
 
 (defn cards-grid-config-page
   "An instance for the cards-grid-config view."
@@ -113,9 +139,13 @@
    ["/cards-grid/config"
     {:name routing.pages/cards-grid-config
      :view #'cards-grid-config-page}]
-   ["/cards/new"
-    {:name routing.pages/new-card
-     :view #'new-card-page}]])
+   ["/cards"
+    ["/edit"
+     {:name routing.pages/edit-card
+      :view #'edit-card-page}]
+    ["/new"
+     {:name routing.pages/new-card
+      :view #'new-card-page}]]])
 
 (defn- set-routing-match!
   "Set's the routing match on the state."

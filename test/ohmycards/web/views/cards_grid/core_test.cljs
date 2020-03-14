@@ -14,10 +14,11 @@
 
   (testing "A card has it's card-display rendered"
     (let [card      {kws.card/id "FOO"}
-          component (sut/main* {:state (atom {kws/cards [card]})})]
+          props     {:state (atom {kws/cards [card]})}
+          component (sut/main* props)]
       (is
        (some
-        #(= [sut/card-display {::sut/card card}] %)
+        #(= [sut/card-display (assoc props ::sut/card card)] %)
         (tu/comp-seq component)))))
 
   (testing "Renders error message with error"

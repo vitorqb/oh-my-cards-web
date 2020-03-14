@@ -19,6 +19,8 @@
 .card-display {
 
     flex: 1;
+    display: flex;
+    flex-direction: column;
     max-width: 300px;
     min-width: 250px;
     max-height: 300px;
@@ -40,7 +42,12 @@
     }
 
     &__body {
+        flex-grow: 3;
+        overflow: auto;
+    }
 
+    &__footer {
+        
     }
     
 }
