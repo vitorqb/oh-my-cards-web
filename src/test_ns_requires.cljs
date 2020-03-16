@@ -11,6 +11,7 @@
 [ohmycards.web.services.cards-crud.core-test]
 [ohmycards.web.services.fetch-cards.core-test]
 [ohmycards.web.services.http-test]
+[ohmycards.web.services.http.utils-test]
 [ohmycards.web.services.login.core-test]
 [ohmycards.web.services.login.get-token-test]
 [ohmycards.web.services.login.onetime-password-test]

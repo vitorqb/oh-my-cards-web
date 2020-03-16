@@ -5,10 +5,25 @@
             [ohmycards.web.kws.views.edit-card.core :as kws]
             [ohmycards.web.views.edit-card.handlers :as sut]))
 
-(deftest test-reduce-before-delete
+(deftest test-reduce-before-event
 
   (testing "Sets loading to true"
-    (is (-> {} sut/reduce-before-delete kws/loading? true?))))
+    (is (-> {} sut/reduce-before-event kws/loading? true?))))
+
+(deftest test-reduce-after-event
+
+  (testing "Sets loading to false"
+    (is (false? (kws/loading? (sut/reduce-after-event {kws/loading? true} {}))))
+    (is (false? (kws/loading? (sut/reduce-after-event {kws/loading? true}
+                                                      {kws.cards-crud/error-message "err"})))))
+
+  (testing "Set's error message on error"
+    (is (= "err"
+           (kws/error-message (sut/reduce-after-event {kws/loading? true}
+                                                      {kws.cards-crud/error-message "err"})))))
+
+  (testing "Unsets error msg if no error"
+    (is (nil? (kws/error-message (sut/reduce-after-event {kws/error-message "err"} {}))))))
 
 (deftest test-reduce-after-delete
   
@@ -37,7 +52,14 @@
       (testing "Sets success-message"
         (is (= "Deleted card with id 1" (kws/good-message result)))))))
 
-(deftest test-reduce-before-update
+(deftest test-reduce-after-update
 
-  (testing "Sets loading to true"
-    (is (-> {} sut/reduce-before-update kws/loading? true?))))
+  (testing "Sets success msg"
+    (is (= sut/updated-card-msg (kws/good-message (sut/reduce-after-update {} {})))))
+
+  (testing "Sets selected-card and card-input"
+    (let [card {kws.card/id 1}]
+      (is (= card
+             (kws/selected-card (sut/reduce-after-update {} {kws.cards-crud/updated-card card}))))
+      (is (= card
+             (kws/card-input (sut/reduce-after-update {} {kws.cards-crud/updated-card card})))))))
