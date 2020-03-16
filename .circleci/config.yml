@@ -34,3 +34,13 @@ workflows:
           requires:
             - test
           context: main
+  create_docker_image_from_tag:
+    jobs:
+      - create_docker_image:
+          context: main
+          filters:
+            branches:
+              only:
+                - master
+            tags:
+              only: /^[0-9]+\.[0-9]+\.[0-9]+$/
