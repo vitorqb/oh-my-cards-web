@@ -31,6 +31,29 @@
            (sut/parse-read-response {kws.http/success? true
                                      kws.http/body {:id "1":body "2" :title "3"}})))))
 
+(deftest test-parse-update-response
+
+  (testing "Success"
+
+    (testing "Assocs updated-card"
+      (is (= (sut/http-body->card {:id 1})
+             (kws/updated-card (sut/parse-update-response {kws.http/success? true
+                                                           kws.http/body {:id 1}}))))))
+
+  (testing "Failure"
+
+    (testing "Set's error-msg"
+      (is (= "err" (kws/error-message (sut/parse-update-response {kws.http/success? false
+                                                                  kws.http/body "err"})))))))
+
+(deftest test-run-update-call!
+  (is (= {kws.http/method :POST
+          kws.http/url "/v1/cards/foo"
+          kws.http/json-params {:body "body" :title "title"}}
+         (sut/run-update-call! {:http-fn hash-map} {kws.card/id "foo"
+                                                    kws.card/body "body"
+                                                    kws.card/title "title"}))))
+
 (deftest test-run-create-call!
 
   (testing "Calls http-fn with correct args"
