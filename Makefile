@@ -70,8 +70,7 @@ run-backend:
 	  --env-file '$(BACKEND_ENV_FILE)'\
 	  -v '$(BACKEND_DB_FILE):/home/ohmycards/dev.sqlite'\
 	  -p '9002:8000'\
-	  $(BACKEND_DOCKER_IMGTAG)\
-	  -Dplay.evolutions.db.default.autoApply=true
+	  $(BACKEND_DOCKER_IMGTAG)
 
 rev-proxy:
         # A reverse proxy, usefull for development with BE.
