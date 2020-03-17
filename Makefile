@@ -66,7 +66,7 @@ run-backend:
 	  --name '$(BACKEND_DOCKER_NAME)'\
 	  --env-file '$(BACKEND_ENV_FILE)'\
 	  -v '$(BACKEND_DB_FILE):/home/ohmycards/dev.sqlite'\
-	  -p '9002:9000'\
+	  -p '9002:8000'\
 	  ohmycards/ohmycards\
 	  -Dplay.evolutions.db.default.autoApply=true
 
