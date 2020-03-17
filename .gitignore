@@ -19,3 +19,6 @@ pom.xml.asc
 /.dir-locals.el
 /backend.env
 /backend.sqlite
+/devops/build
+/devops/target
+/devops/context
