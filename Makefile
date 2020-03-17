@@ -1,7 +1,7 @@
 .PHONY: watch server test karma scss rev-proxy circleci/images/primary clean release scss/once
 
 # Docker command to use
-DOCKER ?= docker
+DOCKER ?= sudo docker
 
 # The .env file used to the run backend
 BACKEND_ENV_FILE ?= $(shell realpath ./backend.env)
@@ -11,6 +11,9 @@ BACKEND_DB_FILE ?= $(shell realpath ./backend.sqlite)
 
 # The name for the be docker container
 BACKEND_DOCKER_NAME ?= ohmycards-web--backend
+
+# Backend image name
+BACKEND_DOCKER_IMGTAG ?= ohmycards:latest
 
 # The target directory for css
 TARGET_CSS_DIR ?= ./public/css
@@ -67,7 +70,7 @@ run-backend:
 	  --env-file '$(BACKEND_ENV_FILE)'\
 	  -v '$(BACKEND_DB_FILE):/home/ohmycards/dev.sqlite'\
 	  -p '9002:8000'\
-	  ohmycards/ohmycards\
+	  $(BACKEND_DOCKER_IMGTAG)\
 	  -Dplay.evolutions.db.default.autoApply=true
 
 rev-proxy:
