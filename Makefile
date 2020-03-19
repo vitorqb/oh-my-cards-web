@@ -68,7 +68,7 @@ run-backend:
 	$(DOCKER) run --rm -ti\
 	  --name '$(BACKEND_DOCKER_NAME)'\
 	  --env-file '$(BACKEND_ENV_FILE)'\
-	  -v '$(BACKEND_DB_FILE):/home/ohmycards/dev.sqlite'\
+	  -v '$(BACKEND_DB_FILE):/home/ohmycards/db.sqlite3'\
 	  -p '9002:8000'\
 	  $(BACKEND_DOCKER_IMGTAG)
 

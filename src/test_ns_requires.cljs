@@ -15,6 +15,7 @@
 [ohmycards.web.services.login.core-test]
 [ohmycards.web.services.login.get-token-test]
 [ohmycards.web.services.login.onetime-password-test]
+[ohmycards.web.services.login.utils-test]
 [ohmycards.web.utils.components-test]
 [ohmycards.web.utils.pagination-test]
 [ohmycards.web.views.cards-grid.config-dashboard.core-test]
