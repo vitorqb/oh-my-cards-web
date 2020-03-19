@@ -1,4 +1,5 @@
-(ns ohmycards.web.components.current-view.core)
+(ns ohmycards.web.components.current-view.core
+  (:require [ohmycards.web.services.login.utils :as login.utils]))
 
 (defn main 
   "A component to render the application current page.
@@ -8,7 +9,7 @@
   - `header-component`: The header to use on every page."
   [{:keys [state] ::keys [current-user view login-view header-component] :as props}]
   [:div.current-view
-   (if current-user
+   (if (login.utils/user-logged-in? current-user)
      (list ^{:key :header} [header-component]
            ^{:key :view}   [view])
      [login-view])])
