@@ -55,6 +55,12 @@
   (when (not (state-initialized? @state))
     (init-state! state fetch-cards!)))
 
+(defn refetch-from-props!
+  "Refetches the cards data using the props."
+  [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]}]
+  (js/console.log "Refetching cards grid data...")
+  (refetch! state fetch-cards!))
+
 (defn set-page-from-props!
   "Set's page on the state"
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-page]

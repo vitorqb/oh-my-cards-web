@@ -9,6 +9,7 @@
 [ohmycards.web.components.loading-wrapper.core-test]
 [ohmycards.web.core-test]
 [ohmycards.web.services.cards-crud.core-test]
+[ohmycards.web.services.events-bus.core-test]
 [ohmycards.web.services.fetch-cards.core-test]
 [ohmycards.web.services.http-test]
 [ohmycards.web.services.http.utils-test]

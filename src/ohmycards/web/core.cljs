@@ -8,6 +8,11 @@
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
             [ohmycards.web.kws.routing.core :as kws.routing]
             [ohmycards.web.kws.routing.pages :as routing.pages]
+            [ohmycards.web.kws.services.cards-crud.actions
+             :as
+             kws.cards-crud.actions]
+            [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
+            [ohmycards.web.kws.services.events-bus.core :as kws.events-bus]
             [ohmycards.web.kws.user :as kws.user]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core
              :as
@@ -17,6 +22,7 @@
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
             [ohmycards.web.routing.core :as routing.core]
             [ohmycards.web.services.cards-crud.core :as services.cards-crud]
+            [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.http :as services.http]
             [ohmycards.web.services.login.core :as services.login]
@@ -154,11 +160,25 @@
 
 
 ;; -------------------------
+;; Bus Event Handlers
+(defn handle-cards-crud-action
+  "Handles actions from cards crud."
+  [event-kw {::kws.cards-crud/keys [error-message]}]
+  (when (and (not error-message) (kws.cards-crud.actions/cdu event-kw))
+    (cards-grid.state-management/refetch-from-props! cards-grid-page-props)))
+
+(def events-bus-handler
+  "The main handler for all events send to the event bus."
+  #(do
+     (handle-cards-crud-action %1 %2)))
+
+;; -------------------------
 ;; Initialize app
 (defn mount-root []
   (r/render [current-view] (.getElementById js/document "app")))
 
 (defn ^:export init! []
+  (events-bus/init! {kws.events-bus/handler events-bus-handler})
   (routing.core/start-routing! routes set-routing-match!)
   (services.login/init-state! {:state state :http-fn http-fn})
   (mount-root))
