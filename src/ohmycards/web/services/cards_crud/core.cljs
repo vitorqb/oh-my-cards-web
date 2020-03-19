@@ -4,7 +4,8 @@
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.cards-crud.actions :as kws.actions]
             [ohmycards.web.kws.services.cards-crud.core :as kws]
-            [ohmycards.web.services.http.utils :as http.utils]))
+            [ohmycards.web.services.http.utils :as http.utils]
+            [ohmycards.web.services.events-bus.core :as events-bus]))
 
 ;; Helpers
 (defn- http-body->card [body]
@@ -92,7 +93,10 @@
   "Run an action."
   [action opts]
   (js/console.log (str "Running action " action))
-  (a/map #(parse-response* action %) [(run-http-call!* action opts)]))
+  (a/go
+    (let [response (parse-response* action (a/<! (run-http-call!* action opts)))]
+      (events-bus/send! action response)
+      response)))
 
 ;; Public API
 (defn create! [opts card-input]

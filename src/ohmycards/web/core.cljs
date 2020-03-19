@@ -8,6 +8,7 @@
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
             [ohmycards.web.kws.routing.core :as kws.routing]
             [ohmycards.web.kws.routing.pages :as routing.pages]
+            [ohmycards.web.kws.services.events-bus.core :as kws.events-bus]
             [ohmycards.web.kws.user :as kws.user]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core
              :as
@@ -17,6 +18,7 @@
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
             [ohmycards.web.routing.core :as routing.core]
             [ohmycards.web.services.cards-crud.core :as services.cards-crud]
+            [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.http :as services.http]
             [ohmycards.web.services.login.core :as services.login]
@@ -159,6 +161,7 @@
   (r/render [current-view] (.getElementById js/document "app")))
 
 (defn ^:export init! []
+  (events-bus/init! {kws.events-bus/handler #(do)})
   (routing.core/start-routing! routes set-routing-match!)
   (services.login/init-state! {:state state :http-fn http-fn})
   (mount-root))
