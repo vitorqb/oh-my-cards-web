@@ -5,3 +5,6 @@
 (def read ::read)
 (def delete ::delete)
 (def update ::update)
+
+(def all #{create read delete update})
+(def cdu #{create delete update})
