@@ -2,6 +2,10 @@
     @include header3;
 }
 
-.new-card {
-    text-align: center;
+.new-card-form {
+    &__label {
+        display: inline-block;
+        min-width: 125px;
+        width: 15%;
+    }
 }

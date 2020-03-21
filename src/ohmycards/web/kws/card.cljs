@@ -3,3 +3,4 @@
 (def title "The card title" ::title)
 (def id "The card id" ::id)
 (def body "The card body" ::body)
+(def tags "The tags of the card" ::tags)

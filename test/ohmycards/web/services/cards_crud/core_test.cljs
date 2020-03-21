@@ -69,11 +69,12 @@
      (=
       {kws.http/method :POST
        kws.http/url "/v1/cards"
-       kws.http/json-params {:title "FOO" :body "BAR"}}
+       kws.http/json-params {:title "FOO" :body "BAR" :tags ["A"]}}
       (sut/run-http-call!* kws.actions/create
                           {:http-fn hash-map
                            kws/card-input {kws.card/title "FOO"
-                                           kws.card/body "BAR"}})))))
+                                           kws.card/body "BAR"
+                                           kws.card/tags ["A" ""]}})))))
 
 (deftest test-run-read-call!
   (is (= {kws.http/method :GET kws.http/url "/v1/cards/1"}

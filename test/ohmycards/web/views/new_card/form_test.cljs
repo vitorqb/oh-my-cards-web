@@ -1,10 +1,11 @@
 (ns ohmycards.web.views.new-card.form-test
-  (:require [ohmycards.web.views.new-card.form :as sut]
-            [cljs.test :refer-macros [is are deftest testing use-fixtures async]]
-            [ohmycards.web.test-utils :as tu]
-            [ohmycards.web.kws.views.new-card.core :as kws]
+  (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.form.core :as form]
-            [ohmycards.web.kws.card :as kws.card]))
+            [ohmycards.web.components.inputs.tags :as inputs.tags]
+            [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.views.new-card.core :as kws]
+            [ohmycards.web.test-utils :as tu]
+            [ohmycards.web.views.new-card.form :as sut]))
 
 (deftest test-title-input
 
@@ -36,18 +37,34 @@
           [_ {:keys [value]}] (tu/get-first #(= (tu/safe-first %) form/input) comp)]
       (is (= value "Foo")))))
 
+(deftest test-tags-input
+
+  (let [props {:state (atom {})}]
+
+    (testing "Renders label"
+      (is (tu/exists-in-component?
+           [:span.new-card-form__label "Tags"]
+           (sut/tags-input props))))
+
+    (testing "Renders a tags-input"
+      (let [card {kws.card/tags ["A"]}
+            comp (sut/tags-input (assoc props :state (atom {kws/card-input card})))
+            [_ tag-input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
+                                              (tu/comp-seq comp))
+            {:keys [value on-change]} tag-input-props]
+        (is (= ["A"] value))
+        (is (ifn? on-change))
+        (is (= (on-change ["A" "B"]) {kws/card-input {kws.card/tags ["A" "B"]}}))))))
+
 (deftest test-main
 
-  (testing "Renders a title input"
-    (let [props {kws/goto-home! (constantly ::foo)}]
-      (is
-       (some
-        #(= [sut/title-input props] %)
-        (tu/comp-seq (sut/main props))))))
+  (let [props {kws/goto-home! (constantly ::foo)}]
 
-  (testing "Renders a body input"
-    (let [props {kws/goto-home! (constantly ::foo)}]
-      (is
-       (some
-        #(= [sut/body-input props] %)
-        (tu/comp-seq (sut/main props)))))))
+    (testing "Renders a title input"
+      (is (tu/exists-in-component? [sut/title-input props] (sut/main props))))
+
+    (testing "Renders a body input"
+      (is (tu/exists-in-component? [sut/body-input props] (sut/main props))))
+
+    (testing "Renders a tags input"
+      (is (tu/exists-in-component? [sut/tags-input props] (sut/main props))))))

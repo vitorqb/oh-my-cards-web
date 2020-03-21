@@ -45,7 +45,8 @@
    kws.http/method :POST
    kws.http/url "/v1/cards"
    kws.http/json-params {:title (kws.card/title card-input)
-                         :body  (kws.card/body card-input)}))
+                         :body  (kws.card/body card-input)
+                         :tags  (remove empty? (kws.card/tags card-input))}))
 
 ;; Read Impl
 (defmethod parse-response* kws.actions/read
