@@ -1,5 +1,5 @@
 (ns ohmycards.web.components.inputs.tags
-  (:require [ohmycards.web.components.form.core :as form]))
+  (:require [ohmycards.web.components.form.input :as form.input]))
 
 ;; Helpers
 (defn- zip-tags
@@ -27,10 +27,10 @@
 (defn- single-tag-input
   "An input for a single tag"
   [{:keys [value on-change]}]
-  [form/input {:class "tags-input__input"
-               :type "text"
-               :value value
-               :on-change on-change}])
+  [form.input/main {:class "tags-input__input"
+                    :type "text"
+                    :value value
+                    :on-change on-change}])
 
 (defn main
   "An input for tags."

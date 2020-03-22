@@ -1,6 +1,7 @@
 (ns ohmycards.web.components.form.core
-  (:require [reagent.core :as r]
-            [ohmycards.web.utils.components :as utils.components]))
+  (:require [ohmycards.web.components.form.input :as input]
+            [ohmycards.web.utils.components :as utils.components]
+            [reagent.core :as r]))
 
 ;; Handlers and helpers
 (defn gen-submit-handler
@@ -9,12 +10,6 @@
   (fn [event]
     (.preventDefault event)
     (on-submit)))
-
-(defn gen-input-on-change-handler
-  "Returns a on-change handler that calls `on-change` with the new input value."
-  [on-change]
-  (fn [event]
-    (on-change (.-value (.-target event)))))
 
 ;; Components
 (defn main
@@ -34,14 +29,6 @@
   "A label for a form input, usually comming before the input."
   [_ & children]
   [:div.simple-form__label {} children])
-
-(defn input
-  "An input for a form, usually comming alone in a form row."
-  [props]
-  [:input
-   (-> props
-       (update :on-change gen-input-on-change-handler)
-       (update :class #(or % "simple-form__input")))])
 
 (defn submit
   "A submit button form a form, usually in an empty row."

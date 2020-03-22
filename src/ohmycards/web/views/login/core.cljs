@@ -1,10 +1,11 @@
 (ns ohmycards.web.views.login.core
-  (:require [ohmycards.web.components.form.core :as form]
-            [cljs.core.async :as a]
-            [ohmycards.web.views.login.handlers.submit :as handlers.submit]
-            [ohmycards.web.views.login.email-row :as email-row]
+  (:require [cljs.core.async :as a]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
-            [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]))
+            [ohmycards.web.components.form.core :as form]
+            [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
+            [ohmycards.web.views.login.email-row :as email-row]
+            [ohmycards.web.views.login.handlers.submit :as handlers.submit]))
 
 ;; Components
 (defn- submit-btn
@@ -20,7 +21,7 @@
     [form/row {}
      [form/label {}
       "Password"]
-     [form/input {:type "password" :value value :on-change on-change}]]))
+     [form.input/main {:type "password" :value value :on-change on-change}]]))
 
 (defn main
   "The login page, that allows the user to identify itself."

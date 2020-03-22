@@ -1,6 +1,7 @@
 (ns ohmycards.web.views.edit-card.core
   (:require [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
+            [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.icons :as icons]
@@ -37,22 +38,22 @@
   [{:keys [state]}]
   [form/row {}
    [:span.edit-card__label "Id"]
-   [form/input {:disabled true
-                :value (-> @state kws/card-input kws.card/id)}]])
+   [form.input/main (form.input/build-props state [kws/card-input kws.card/id]
+                                            :disabled true)]])
 
 (defn- title-input-row
   [{:keys [state]}]
   [form/row {}
    [:span.edit-card__label "Title"]
-   [form/input {:value (-> @state kws/card-input kws.card/title)
-                :on-change #(swap! state assoc-in [kws/card-input kws.card/title] %)}]])
+   [form.input/main {:value (-> @state kws/card-input kws.card/title)
+                     :on-change #(swap! state assoc-in [kws/card-input kws.card/title] %)}]])
 
 (defn- body-input-row
   [{:keys [state]}]
   [form/row {}
    [:span.edit-card__label "Body"]
-   [form/input {:value (-> @state kws/card-input kws.card/body)
-                :on-change #(swap! state assoc-in [kws/card-input kws.card/body] %)}]])
+   [form.input/main {:value (-> @state kws/card-input kws.card/body)
+                     :on-change #(swap! state assoc-in [kws/card-input kws.card/body] %)}]])
 
 (defn- form
   "The form for the card inputs."

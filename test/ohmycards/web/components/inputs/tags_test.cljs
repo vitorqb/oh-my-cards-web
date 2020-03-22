@@ -1,6 +1,6 @@
 (ns ohmycards.web.components.inputs.tags-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
-            [ohmycards.web.components.form.core :as form]
+            [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.tags :as sut]
             [ohmycards.web.test-utils :as tu]))
 
@@ -37,7 +37,10 @@
 (deftest test-single-tag-input
   (testing "Base"
     (is
-     (= [form/input {:class "tags-input__input" :type "text" :value nil :on-change ::on-change}]
+     (= [form.input/main {:class "tags-input__input"
+                          :type "text"
+                          :value nil
+                          :on-change ::on-change}]
         (sut/single-tag-input {:on-change ::on-change})))))
 
 (deftest test-main

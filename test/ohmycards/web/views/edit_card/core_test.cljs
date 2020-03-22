@@ -2,6 +2,7 @@
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
+            [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.kws.card :as kws.card]
@@ -36,14 +37,14 @@
   (let [state (atom {kws/card-input {kws.card/id "FOO"}})]
     (is
      (some
-      #(= [form/input {:disabled true :value "FOO"}] %)
+      #(= [form.input/main {:disabled true :value "FOO"}] %)
       (tu/comp-seq (sut/id-input-row {:state state}))))))
 
 (deftest test-title-input-row
   (let [state     (atom {kws/card-input {kws.card/title "FOO"}})
         comp      (sut/title-input-row {:state state})
         [_ props] (tu/get-first
-                   #(= (tu/safe-first %) form/input)
+                   #(= (tu/safe-first %) form.input/main)
                    (tu/comp-seq comp))]
     (is (= "FOO" (:value props)))
     (is (ifn? (:on-change props)))))
@@ -52,7 +53,7 @@
   (let [state     (atom {kws/card-input {kws.card/body "FOO"}})
         comp      (sut/body-input-row {:state state})
         [_ props] (tu/get-first
-                   #(= (tu/safe-first %) form/input)
+                   #(= (tu/safe-first %) form.input/main)
                    (tu/comp-seq comp))]
     (is (= "FOO" (:value props)))
     (is (ifn? (:on-change props)))))

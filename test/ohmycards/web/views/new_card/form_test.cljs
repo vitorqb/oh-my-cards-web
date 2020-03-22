@@ -1,6 +1,7 @@
 (ns ohmycards.web.views.new-card.form-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.form.core :as form]
+            [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.views.new-card.core :as kws]
@@ -12,14 +13,14 @@
   (testing "On change mutates state"
     (let [state (atom {})
           comp  (sut/title-input {:state state})
-          [_ {:keys [on-change]}] (tu/get-first #(= (tu/safe-first %) form/input) comp)]
+          [_ {:keys [on-change]}] (tu/get-first #(= (tu/safe-first %) form.input/main) comp)]
       (on-change "foo")
       (is (= @state {kws/card-input {kws.card/title "foo"}}))))
 
   (testing "Passes value"
     (let [state (atom {kws/card-input {kws.card/title "Foo"}})
           comp  (sut/title-input {:state state})
-          [_ {:keys [value]}] (tu/get-first #(= (tu/safe-first %) form/input) comp)]
+          [_ {:keys [value]}] (tu/get-first #(= (tu/safe-first %) form.input/main) comp)]
       (is (= value "Foo")))))
 
 (deftest test-body-input
@@ -27,14 +28,14 @@
   (testing "On change mutates state"
     (let [state (atom {})
           comp  (sut/body-input {:state state})
-          [_ {:keys [on-change]}] (tu/get-first #(= (tu/safe-first %) form/input) comp)]
+          [_ {:keys [on-change]}] (tu/get-first #(= (tu/safe-first %) form.input/main) comp)]
       (on-change "foo")
       (is (= @state {kws/card-input {kws.card/body "foo"}}))))
 
   (testing "Passes value"
     (let [state (atom {kws/card-input {kws.card/body "Foo"}})
           comp  (sut/body-input {:state state})
-          [_ {:keys [value]}] (tu/get-first #(= (tu/safe-first %) form/input) comp)]
+          [_ {:keys [value]}] (tu/get-first #(= (tu/safe-first %) form.input/main) comp)]
       (is (= value "Foo")))))
 
 (deftest test-tags-input
