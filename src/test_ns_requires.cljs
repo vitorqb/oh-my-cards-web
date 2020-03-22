@@ -5,7 +5,9 @@
   (:require
 [ohmycards.web.components.current-view.core-test]
 [ohmycards.web.components.form.core-test]
+[ohmycards.web.components.form.input-test]
 [ohmycards.web.components.header.core-test]
+[ohmycards.web.components.inputs.tags-test]
 [ohmycards.web.components.loading-wrapper.core-test]
 [ohmycards.web.core-test]
 [ohmycards.web.services.cards-crud.core-test]

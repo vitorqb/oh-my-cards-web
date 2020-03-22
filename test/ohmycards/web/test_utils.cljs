@@ -9,3 +9,8 @@
 (defn safe-first [x] (and (seqable? x) (first x)))
 
 (defn get-first [pred col] (some #(and (pred %) %) col))
+
+(defn exists-in-component?
+  "Returns logical true of a given element is found on the component tree."
+  [element component]
+  (some #(= element %) (comp-seq component)))

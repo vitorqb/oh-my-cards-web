@@ -13,6 +13,7 @@
 @import "new-card";
 @import "good-message-box";
 @import "edit-card";
+@import "tags-input";
 
 body {
   font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
@@ -69,4 +70,8 @@ a:hover {
 
 .u-color-good {
     color: green;
+}
+
+.u-center {
+    text-align: center;
 }

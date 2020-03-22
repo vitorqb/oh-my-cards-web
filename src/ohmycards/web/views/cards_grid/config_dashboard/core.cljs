@@ -1,10 +1,11 @@
 (ns ohmycards.web.views.cards-grid.config-dashboard.core
-  (:require [ohmycards.web.icons :as icons]
-            [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
-            [ohmycards.web.components.form.core :as form]))
+  (:require [ohmycards.web.components.form.core :as form]
+            [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.icons :as icons]
+            [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]))
 
 (defn- label [x] [:span.cards-grid-config-dashboard__label x])
-(defn- input [state kw] [form/input {:class "cards-grid-config-dashboard__input"
+(defn- input [state kw] [form.input/main {:class "cards-grid-config-dashboard__input"
                                      :type "number"
                                      :on-change #(swap! state assoc kw %)
                                      :value (kw @state)}])

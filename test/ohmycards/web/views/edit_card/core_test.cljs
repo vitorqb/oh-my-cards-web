@@ -2,7 +2,9 @@
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
+            [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
+            [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.views.edit-card.core :as kws]
@@ -36,14 +38,14 @@
   (let [state (atom {kws/card-input {kws.card/id "FOO"}})]
     (is
      (some
-      #(= [form/input {:disabled true :value "FOO"}] %)
+      #(= [form.input/main {:disabled true :value "FOO"}] %)
       (tu/comp-seq (sut/id-input-row {:state state}))))))
 
 (deftest test-title-input-row
   (let [state     (atom {kws/card-input {kws.card/title "FOO"}})
         comp      (sut/title-input-row {:state state})
         [_ props] (tu/get-first
-                   #(= (tu/safe-first %) form/input)
+                   #(= (tu/safe-first %) form.input/main)
                    (tu/comp-seq comp))]
     (is (= "FOO" (:value props)))
     (is (ifn? (:on-change props)))))
@@ -52,30 +54,32 @@
   (let [state     (atom {kws/card-input {kws.card/body "FOO"}})
         comp      (sut/body-input-row {:state state})
         [_ props] (tu/get-first
-                   #(= (tu/safe-first %) form/input)
+                   #(= (tu/safe-first %) form.input/main)
                    (tu/comp-seq comp))]
     (is (= "FOO" (:value props)))
     (is (ifn? (:on-change props)))))
 
+(deftest test-tags-input-row
+  (testing "Renders a tags input"
+    (with-redefs [form.input/build-props #(do {:state %1 :path %2})]
+      (is
+       (tu/exists-in-component?
+        [inputs.tags/main {:state ::state :path [kws/card-input kws.card/tags] }]
+        (sut/tags-input-row {:state ::state}))))))
+
 (deftest test-form
 
   (testing "Renders row for title"
-    (is
-     (some
-      #(= [sut/title-input-row {}] %)
-      (tu/comp-seq (sut/form {})))))
+    (is (tu/exists-in-component? [sut/title-input-row {}] (sut/form {}))))
 
   (testing "Renders row for Id"
-    (is
-     (some
-      #(= [sut/id-input-row {}] %)
-      (tu/comp-seq (sut/form {})))))
+    (is (tu/exists-in-component? [sut/id-input-row {}] (sut/form {}))))
 
   (testing "Renders row for body"
-    (is
-     (some
-      #(= [sut/body-input-row {}] %)
-      (tu/comp-seq (sut/form {}))))))
+    (is (tu/exists-in-component? [sut/body-input-row {}] (sut/form {}))))
+
+  (testing "Renders row for tags"
+    (is (tu/exists-in-component? [sut/tags-input-row {}] (sut/form {})))))
 
 (deftest test-main
 

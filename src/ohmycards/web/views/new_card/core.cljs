@@ -15,6 +15,7 @@
   [:div.new-card
    [loading-wrapper/main {:loading? (kws/loading? @state)}
     [header/main props]
-    [error-message-box/main {:value (kws/error-message @state)}]
-    [good-message-box/main {:value (-> @state kws/created-card success-message)}]
+    [:div.u-center
+     [error-message-box/main {:value (kws/error-message @state)}]
+     [good-message-box/main {:value (-> @state kws/created-card success-message)}]]
     [form/main props]]])
