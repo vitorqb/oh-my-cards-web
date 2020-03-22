@@ -3,6 +3,7 @@
   THIS FILE IS CREATED AUTOMATICALLY AND SHOULD NOT BE EDITED.
   See make test-ns-requires"
   (:require
+[ohmycards.web.common.cards.core-test]
 [ohmycards.web.components.current-view.core-test]
 [ohmycards.web.components.form.core-test]
 [ohmycards.web.components.form.input-test]

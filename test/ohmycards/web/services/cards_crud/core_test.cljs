@@ -1,5 +1,6 @@
 (ns ohmycards.web.services.cards-crud.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.common.cards.core :as common.cards]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.cards-crud.actions :as kws.actions]
@@ -49,7 +50,7 @@
   (testing "Success"
 
     (testing "Assocs updated-card"
-      (is (= (sut/http-body->card {:id 1})
+      (is (= (common.cards/from-http {:id 1})
              (kws/updated-card
               (sut/parse-response* kws.actions/update {kws.http/success? true
                                                        kws.http/body {:id 1}}))))))
