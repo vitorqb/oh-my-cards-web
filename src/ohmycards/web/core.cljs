@@ -1,5 +1,5 @@
 (ns ohmycards.web.core
-  (:require [ohmycards.web.common.focused-atom :as focused-atom]
+  (:require [ohmycards.web.common.utils :as utils]
             [ohmycards.web.components.current-view.core :as components.current-view]
             [ohmycards.web.components.header.core :as header]
             [ohmycards.web.kws.card :as kws.card]
@@ -45,12 +45,7 @@
 ;; State
 (defonce state (r/atom {}))
 
-(defn- gen-focused-state
-  "Generates a new `FocusedAtom` for the global state object."
-  [path]
-  (let [path* (if (keyword? path) [path] path)]
-    (focused-atom/->FocusedAtom state path*)))
-
+(defn- state-cursor [path] (r/cursor state (utils/to-path path)))
 
 ;; -------------------------
 ;; Http helpers
@@ -65,7 +60,7 @@
 (defn login
   "An instance for the login page."
   []
-  [views.login/main {:state (gen-focused-state :views.login)
+  [views.login/main {:state (state-cursor :views.login)
                      :http-fn http-fn
                      :save-user-fn #(swap! state assoc lenses.login/current-user %)}])
 
@@ -76,7 +71,7 @@
 
 (def cards-grid-page-props
   "Props given to the cards-grid-page."
-  {:state (r/cursor state [:views.cards-grid])
+  {:state (state-cursor :views.cards-grid)
    kws.cards-grid/fetch-cards! #(services.fetch-cards/main (assoc % :http-fn http-fn))
    kws.cards-grid/goto-settings! #(routing.core/goto! routing.pages/cards-grid-config)
    kws.cards-grid/goto-newcard! #(routing.core/goto! routing.pages/new-card)
@@ -93,7 +88,7 @@
   "An instance for the new-card view."
   []
   [new-card/main {:http-fn http-fn
-                  :state (r/cursor state [:views.new-card])
+                  :state (state-cursor :views.new-card)
                   kws.new-card/goto-home! #(routing.core/goto! routing.pages/home)}])
 
 (defn edit-card-page
@@ -102,7 +97,7 @@
   [edit-card/main {kws.edit-card/goto-home! #(routing.core/goto! routing.pages/home)
                    :http-fn http-fn
                    :state (edit-card.state-management/init!
-                           (r/cursor state [:viws.edit-card])
+                           (state-cursor :views.edit-card)
                            (-> @state lenses.routing/match :parameters :query :id)
                            #(services.cards-crud/read! {:http-fn http-fn} %))}])
 
@@ -111,7 +106,7 @@
   []
   [cards-grid.config-dashboard/main
    {:state
-    (r/cursor state [:views.cards-grid.config-dashboard])
+    (state-cursor :views.cards-grid.config-dashboard)
 
     kws.cards-grid.config-dashboard/goto-cards-grid!
     #(routing.core/goto! routing.pages/home)

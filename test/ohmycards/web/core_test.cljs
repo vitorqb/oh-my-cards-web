@@ -3,8 +3,7 @@
             [cljs.test :refer-macros [is are deftest testing use-fixtures async]]
             [ohmycards.web.components.current-view.core :as components.current-view]
             [ohmycards.web.kws.lenses.login :as lenses.login]
-            [ohmycards.web.kws.lenses.routing :as lenses.routing]
-            [ohmycards.web.common.focused-atom :as focused-atom]))
+            [ohmycards.web.kws.lenses.routing :as lenses.routing]))
 
 (deftest test-current-view*
 
