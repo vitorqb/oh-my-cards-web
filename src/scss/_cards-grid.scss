@@ -23,8 +23,8 @@
     flex-direction: column;
     max-width: 300px;
     min-width: 250px;
-    max-height: 300px;
-    min-height: 300px;
+    max-height: 320px;
+    min-height: 320px;
     margin: 5px;
     padding: 5px;
     background-color: #f4eeff;
@@ -50,4 +50,24 @@
         
     }
     
+}
+
+.tags-displayer {
+    line-height: 1em;
+    max-height: 3.2em;
+    overflow: auto;
+    &__tag {
+        display: inline-block;
+        background-color: #DFF280;
+        margin-right: 5px;
+        margin-bottom: 5px;
+        padding: 2px;
+        border: 1px solid darkgrey;
+        border-radius: 2px;
+        font-size: 0.75rem;
+
+        text-rendering: optimizelegibility;
+        letter-spacing: .1em;
+        font-weight: bold;
+    }
 }

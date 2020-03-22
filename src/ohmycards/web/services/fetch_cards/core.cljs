@@ -8,8 +8,11 @@
 (def ^:private default-page-size 20)
 
 (defn- parse-card-from-response
-  [{:keys [id title body]}]
-  {kws.card/id id kws.card/title title kws.card/body body})
+  [{:keys [id title body tags]}]
+  {kws.card/id    id
+   kws.card/title title
+   kws.card/body  body
+   kws.card/tags  tags})
 
 (defn- parse-fetch-response
   [{::kws.http/keys [success? body]}]

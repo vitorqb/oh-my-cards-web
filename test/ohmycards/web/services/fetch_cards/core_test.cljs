@@ -18,12 +18,12 @@
     (let [http-resp {kws.http/success? true
                      kws.http/body     {:page 2
                                         :pageSize 1
-                                        :items [{:id 1 :title "Foo" :body "Bar"}]
+                                        :items [{:id 1 :title "Foo" :body "Bar" :tags ["A"]}]
                                         :countOfItems 100}}
           result    (sut/parse-fetch-response http-resp)]
 
       (testing "Returns cards"
-        (is (= [{kws.card/id 1 kws.card/title "Foo" kws.card/body "Bar"}]
+        (is (= [{kws.card/id 1 kws.card/title "Foo" kws.card/body "Bar" kws.card/tags ["A"]}]
                (kws/cards result))))
 
       (testing "Returns page"
