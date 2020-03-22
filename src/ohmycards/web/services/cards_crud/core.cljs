@@ -9,7 +9,10 @@
 
 ;; Helpers
 (defn- http-body->card [body]
-  {kws.card/id (:id body) kws.card/body (:body body) kws.card/title (:title body)})
+  {kws.card/id    (:id body)
+   kws.card/body  (:body body)
+   kws.card/title (:title body)
+   kws.card/tags  (:tags body)})
 
 (defn- http-body->read-err [b]
   (http.utils/body->err-msg b "Could not read card!"))
@@ -74,7 +77,8 @@
    kws.http/method :POST
    kws.http/url (str "/v1/cards/" (kws.card/id card-input))
    kws.http/json-params {:title (kws.card/title card-input)
-                         :body (kws.card/body card-input)}))
+                         :body (kws.card/body card-input)
+                         :tags (remove empty? (kws.card/tags card-input))}))
 
 ;; Delete Impl
 (defmethod parse-response* kws.actions/delete

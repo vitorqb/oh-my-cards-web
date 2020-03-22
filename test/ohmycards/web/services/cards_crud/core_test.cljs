@@ -15,15 +15,17 @@
             {kws.http/success? false kws.http/body "errmsg"}))))
 
   (testing "Success -> returns created card"
-    (is (= {kws/created-card {kws.card/id "ID"
-                              kws.card/body "BODY"
-                              kws.card/title "TITLE"}}
+    (is (= {kws/created-card {kws.card/id    "ID"
+                              kws.card/body  "BODY"
+                              kws.card/title "TITLE"
+                              kws.card/tags  ["TAG"]}}
            (sut/parse-response*
             kws.actions/create
             {kws.http/success? true
-             kws.http/body {:id "ID"
-                            :body "BODY"
-                            :title "TITLE"}})))))
+             kws.http/body     {:id    "ID"
+                                :body  "BODY"
+                                :title "TITLE"
+                                :tags  ["TAG"]}})))))
 
 (deftest test-parse-read-response
 
@@ -32,9 +34,15 @@
            (sut/parse-response* kws.actions/read {kws.http/success? false kws.http/body "errmsg"}))))
 
   (testing "Success -> returns read card"
-    (is (= {kws/read-card {kws.card/id "1" kws.card/body "2" kws.card/title "3"}}
+    (is (= {kws/read-card {kws.card/id "1"
+                           kws.card/body "2"
+                           kws.card/title "3"
+                           kws.card/tags ["4"]}}
            (sut/parse-response* kws.actions/read {kws.http/success? true
-                                                 kws.http/body {:id "1":body "2" :title "3"}})))))
+                                                  kws.http/body {:id "1"
+                                                                 :body "2"
+                                                                 :title "3"
+                                                                 :tags ["4"]}})))))
 
 (deftest test-parse-update-response
 
@@ -44,7 +52,7 @@
       (is (= (sut/http-body->card {:id 1})
              (kws/updated-card
               (sut/parse-response* kws.actions/update {kws.http/success? true
-                                                      kws.http/body {:id 1}}))))))
+                                                       kws.http/body {:id 1}}))))))
 
   (testing "Failure"
 
@@ -56,11 +64,12 @@
 (deftest test-run-update-call!
   (is (= {kws.http/method :POST
           kws.http/url "/v1/cards/foo"
-          kws.http/json-params {:body "body" :title "title"}}
+          kws.http/json-params {:body "body" :title "title" :tags ["A"]}}
          (sut/run-http-call!* kws.actions/update {:http-fn hash-map
                                                  kws/card-input {kws.card/id "foo"
                                                                  kws.card/body "body"
-                                                                 kws.card/title "title"}}))))
+                                                                 kws.card/title "title"
+                                                                 kws.card/tags ["A"]}}))))
 
 (deftest test-run-create-call!
 

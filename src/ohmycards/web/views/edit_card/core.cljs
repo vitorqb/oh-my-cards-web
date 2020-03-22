@@ -3,6 +3,7 @@
             [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
+            [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.card :as kws.card]
@@ -38,22 +39,29 @@
   [{:keys [state]}]
   [form/row {}
    [:span.edit-card__label "Id"]
-   [form.input/main (form.input/build-props state [kws/card-input kws.card/id]
+   [form.input/main (form.input/build-props state
+                                            [kws/card-input kws.card/id]
                                             :disabled true)]])
 
 (defn- title-input-row
   [{:keys [state]}]
   [form/row {}
    [:span.edit-card__label "Title"]
-   [form.input/main {:value (-> @state kws/card-input kws.card/title)
-                     :on-change #(swap! state assoc-in [kws/card-input kws.card/title] %)}]])
+   [form.input/main (form.input/build-props state [kws/card-input kws.card/title])]])
 
 (defn- body-input-row
   [{:keys [state]}]
   [form/row {}
    [:span.edit-card__label "Body"]
-   [form.input/main {:value (-> @state kws/card-input kws.card/body)
-                     :on-change #(swap! state assoc-in [kws/card-input kws.card/body] %)}]])
+   [form.input/main (form.input/build-props state [kws/card-input kws.card/body])]])
+
+(defn- tags-input-row
+  "An input for tags"
+  [{:keys [state]}]
+  [form/row {}
+   [:span.edit-card__label "Tags"]
+   [:div.simple-form__input
+    [inputs.tags/main (form.input/build-props state [kws/card-input kws.card/tags])]]])
 
 (defn- form
   "The form for the card inputs."
@@ -61,7 +69,8 @@
   [form/main {}
    [id-input-row props]
    [title-input-row props]
-   [body-input-row props]])
+   [body-input-row props]
+   [tags-input-row props]])
 
 (defn main
   "Main view to edit an existing card."
@@ -69,6 +78,7 @@
   [:div.edit-card
    [loading-wrapper/main {:loading? (kws/loading? @state)}
     [header props]
-    [error-message-box/main {:value (kws/error-message @state)}]
-    [good-message-box/main {:value (kws/good-message @state)}]
+    [:div.u-center
+     [error-message-box/main {:value (kws/error-message @state)}]
+     [good-message-box/main {:value (kws/good-message @state)}]]
     [form props]]])
