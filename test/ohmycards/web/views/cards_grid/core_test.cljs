@@ -6,6 +6,19 @@
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.components.error-message-box.core :as error-message-box]))
 
+(deftest test-tags-displayer
+  (testing "Renders a span for each tags"
+    (let [comp (sut/tags-displayer {::sut/tags ["A" "B"]})]
+      (is (tu/exists-in-component? [:span.tags-displayer__tag "A"] comp))
+      (is (tu/exists-in-component? [:span.tags-displayer__tag "B"] comp)))))
+
+(deftest test-card-display
+  (testing "Renders tags-displayer"
+    (is
+     (tu/exists-in-component?
+      [sut/tags-displayer {::sut/tags ["A"]}]
+      (sut/card-display {::sut/card {kws.card/tags ["A"]}})))))
+
 (deftest test-main*
 
   (testing "Top level component is div with correct class"

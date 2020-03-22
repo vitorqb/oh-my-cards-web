@@ -1,19 +1,14 @@
 (ns ohmycards.web.services.cards-crud.core
   (:require [cljs.core.async :as a]
+            [ohmycards.web.common.cards.core :as common.cards]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.cards-crud.actions :as kws.actions]
             [ohmycards.web.kws.services.cards-crud.core :as kws]
-            [ohmycards.web.services.http.utils :as http.utils]
-            [ohmycards.web.services.events-bus.core :as events-bus]))
+            [ohmycards.web.services.events-bus.core :as events-bus]
+            [ohmycards.web.services.http.utils :as http.utils]))
 
 ;; Helpers
-(defn- http-body->card [body]
-  {kws.card/id    (:id body)
-   kws.card/body  (:body body)
-   kws.card/title (:title body)
-   kws.card/tags  (:tags body)})
-
 (defn- http-body->read-err [b]
   (http.utils/body->err-msg b "Could not read card!"))
 
@@ -39,7 +34,7 @@
 (defmethod parse-response* kws.actions/create
   [_ {::kws.http/keys [success? body]}]
   (if success?
-    {kws/created-card (http-body->card body)}
+    {kws/created-card (common.cards/from-http body)}
     {kws/error-message body}))
 
 (defmethod run-http-call!* kws.actions/create
@@ -47,15 +42,13 @@
   (http-fn
    kws.http/method :POST
    kws.http/url "/v1/cards"
-   kws.http/json-params {:title (kws.card/title card-input)
-                         :body  (kws.card/body card-input)
-                         :tags  (remove empty? (kws.card/tags card-input))}))
+   kws.http/json-params (-> card-input common.cards/to-http (dissoc :id))))
 
 ;; Read Impl
 (defmethod parse-response* kws.actions/read
   [_ {::kws.http/keys [success? body]}]
   (if success?
-    {kws/read-card (http-body->card body)}
+    {kws/read-card (common.cards/from-http body)}
     {kws/error-message (http-body->read-err body)}))
 
 (defmethod run-http-call!* kws.actions/read
@@ -68,7 +61,7 @@
 (defmethod parse-response* kws.actions/update
   [_ {::kws.http/keys [success? body]}]
   (if success?
-    {kws/updated-card (http-body->card body)}
+    {kws/updated-card (common.cards/from-http body)}
     {kws/error-message (http-body->update-err body)}))
 
 (defmethod run-http-call!* kws.actions/update
@@ -76,9 +69,7 @@
   (http-fn
    kws.http/method :POST
    kws.http/url (str "/v1/cards/" (kws.card/id card-input))
-   kws.http/json-params {:title (kws.card/title card-input)
-                         :body (kws.card/body card-input)
-                         :tags (remove empty? (kws.card/tags card-input))}))
+   kws.http/json-params (-> card-input common.cards/to-http (dissoc :id))))
 
 ;; Delete Impl
 (defmethod parse-response* kws.actions/delete

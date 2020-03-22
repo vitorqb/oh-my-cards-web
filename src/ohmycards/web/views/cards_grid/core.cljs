@@ -13,12 +13,20 @@
   [:button.clear-button.u-color-good {:on-click #(goto-editcard! card)}
    [icons/edit]])
 
+(defn- tags-displayer
+  "A component to display cards in a single line."
+  [{::keys [tags]}]
+  [:div.tags-displayer {}
+   (for [tag tags]
+     [:span.tags-displayer__tag tag])])
+
 (defn- card-display
   "A component to display a single card."
-  [{{::kws.card/keys [id title body] :as card} ::card :as props}]
+  [{{::kws.card/keys [id title body tags] :as card} ::card :as props}]
   [:div.card-display
    [:div.card-display__title title]
    [:div.card-display__body body]
+   [tags-displayer {::tags tags}]
    [:div.card-display__foot [card-edit-btn props]]])
 
 (defn- main*
