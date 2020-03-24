@@ -5,10 +5,6 @@
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]))
 
 (defn- label [x] [:span.cards-grid-config-dashboard__label x])
-(defn- input [state kw] [form.input/main {:class "cards-grid-config-dashboard__input"
-                                     :type "number"
-                                     :on-change #(swap! state assoc kw %)
-                                     :value (kw @state)}])
 (defn- set-btn [f] [:button.cards-grid-config-dashboard__set {:on-click #(f)} "Set"])
 
 (defn- header
@@ -23,7 +19,9 @@
   [{:keys [state] ::kws/keys [set-page!]}]
   [:div.cards-grid-config-dashboard__row
    (label "Page")
-   (input state kws/page)
+   [form.input/main (form.input/build-props
+                     state [kws/page]
+                     :class "cards-grid-config-dashboard__input")]
    (set-btn #(set-page! (kws/page @state)))])
 
 (defn- page-size-config
@@ -31,7 +29,9 @@
   [{:keys [state] ::kws/keys [set-page-size!]}]
   [:div.cards-grid-config-dashboard__row
    (label "Page Size")
-   (input state kws/page-size)
+   [form.input/main (form.input/build-props
+                     state [kws/page-size]
+                     :class "cards-grid-config-dashboard__input")]
    (set-btn #(set-page-size! (kws/page-size @state)))])
 
 (defn main
