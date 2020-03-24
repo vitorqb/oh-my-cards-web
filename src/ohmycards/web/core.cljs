@@ -115,7 +115,10 @@
     #(cards-grid.state-management/set-page-from-props! cards-grid-page-props %)
 
     kws.cards-grid.config-dashboard/set-page-size!
-    #(cards-grid.state-management/set-page-size-from-props! cards-grid-page-props %)}])
+    #(cards-grid.state-management/set-page-size-from-props! cards-grid-page-props %)
+
+    kws.cards-grid.config-dashboard/set-include-tags!
+    #(cards-grid.state-management/set-include-tags-from-props! cards-grid-page-props %)}])
 
 (defn- current-view*
   "Returns an instance of the `current-view` component."

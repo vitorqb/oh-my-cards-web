@@ -13,6 +13,8 @@
               index     (if (= i (count tags)) :append i)]]
     [tag-value key index]))
 
+(defn- get-class [class] (or class "tags-input"))
+
 ;; Handlers
 (defn- tag-change-handler
   "Returns a on-change handler function for a tag.
@@ -34,7 +36,7 @@
 
 (defn main
   "An input for tags."
-  [{:keys [value on-change] :as props}]
-  [:div.tags-input
+  [{:keys [value on-change class] :as props}]
+  [:div {:class (get-class class)}
    (for [[tag key index] (zip-tags value)]
      [single-tag-input {:key key :value tag :on-change (tag-change-handler props index)}])])

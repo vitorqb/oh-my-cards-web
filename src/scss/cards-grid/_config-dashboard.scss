@@ -5,13 +5,20 @@
         width: 10%;
     }
 
-    &__input {
+    &__input-wrapper {
         margin-left: 10px;
         margin-right: 10px;
         width: 20%;
+        display: inline-block;
     }
 
-    &__set {
-        
+    &__input {
+        width: 100%;
+        display: inline-block;
+    }
+
+    &__row {
+        display: flex;
+        flex-wrap: wrap;
     }
 }

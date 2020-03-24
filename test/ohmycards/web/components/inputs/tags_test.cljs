@@ -35,6 +35,7 @@
       (is (= [::change ["A" "B" "C"]] (handler "C"))))))
 
 (deftest test-single-tag-input
+
   (testing "Base"
     (is
      (= [form.input/main {:class "tags-input__input"
@@ -59,3 +60,7 @@
        (tu/exists-in-component?
         [sut/single-tag-input {:key 0 :value nil :on-change [::change {} :append]}]
         (sut/main {}))))))
+
+(deftest get-class
+  (is (= "tags-input" (sut/get-class nil)))
+  (is (= "foo" (sut/get-class "foo"))))
