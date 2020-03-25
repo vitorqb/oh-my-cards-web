@@ -2,22 +2,16 @@
   (:require [cljs.core.async :as a]
             [ohmycards.web.kws.services.fetch-cards.core :as kws]
             [ohmycards.web.kws.card :as kws.card]
-            [ohmycards.web.kws.http :as kws.http]))
+            [ohmycards.web.kws.http :as kws.http]
+            [ohmycards.web.common.cards.core :as common.cards]))
 
 (def ^:private default-page 1)
 (def ^:private default-page-size 20)
 
-(defn- parse-card-from-response
-  [{:keys [id title body tags]}]
-  {kws.card/id    id
-   kws.card/title title
-   kws.card/body  body
-   kws.card/tags  tags})
-
 (defn- parse-fetch-response
   [{::kws.http/keys [success? body]}]
   (if success?
-    {kws/cards          (->> body :items (map parse-card-from-response))
+    {kws/cards          (->> body :items (map common.cards/from-http))
      kws/page           (:page body)
      kws/page-size      (:pageSize body)
      kws/count-of-cards (:countOfItems body)}
