@@ -26,8 +26,10 @@
 
 (defn- fetch-cards-params
   "Maps the state to the params for fetching cards"
-  [{::kws.cards-grid/keys [page page-size]}]
-  {::kws.fetch-cards/page page ::kws.fetch-cards/page-size page-size})
+  [{::kws.cards-grid/keys [page page-size include-tags]}]
+  {kws.fetch-cards/page page
+   kws.fetch-cards/page-size page-size
+   kws.fetch-cards/include-tags include-tags})
 
 (defn- refetch!
   "Refetches the data from the BE"
@@ -71,6 +73,12 @@
   "Set's page size on the state"
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-page-size]
   (swap! state assoc kws.cards-grid/page-size new-page-size)
+  (refetch! state fetch-cards!))
+
+(defn set-include-tags-from-props!
+  "Set's the tags the cards must include from props"
+  [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-include-tags]
+  (swap! state assoc kws.cards-grid/include-tags new-include-tags)
   (refetch! state fetch-cards!))
 
 (defn goto-previous-page!

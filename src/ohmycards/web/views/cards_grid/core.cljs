@@ -18,7 +18,7 @@
   [{::keys [tags]}]
   [:div.tags-displayer {}
    (for [tag tags]
-     [:span.tags-displayer__tag tag])])
+     ^{:key tag} [:span.tags-displayer__tag tag])])
 
 (defn- card-display
   "A component to display a single card."

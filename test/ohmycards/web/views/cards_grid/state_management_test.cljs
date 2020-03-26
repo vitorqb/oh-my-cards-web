@@ -44,8 +44,12 @@
 (deftest test-fetch-cards-params
 
   (testing "Base"
-    (is (= {kws.fetch-cards/page 1 kws.fetch-cards/page-size 2}
-           (sut/fetch-cards-params {kws.cards-grid/page 1 kws.cards-grid/page-size 2})))))
+    (is (= {kws.fetch-cards/page 1
+            kws.fetch-cards/page-size 2
+            kws.fetch-cards/include-tags ["A"]}
+           (sut/fetch-cards-params {kws.cards-grid/page 1
+                                    kws.cards-grid/page-size 2
+                                    kws.cards-grid/include-tags ["A"]})))))
 
 (deftest test-state-not-initialized?
 
