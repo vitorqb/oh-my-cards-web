@@ -1,5 +1,6 @@
 (ns ohmycards.web.common.cards.core
-  (:require [ohmycards.web.kws.card :as kws.card]))
+  (:require [ohmycards.web.common.tags.core :as tags]
+            [ohmycards.web.kws.card :as kws.card]))
 
 (defn to-http
   "Parses a card so it can be sent in an http request."
@@ -7,7 +8,7 @@
   {:id id
    :title title
    :body body
-   :tags (remove empty? tags)})
+   :tags (tags/sanitize tags)})
 
 (defn from-http
   "Parses a card from an http response."

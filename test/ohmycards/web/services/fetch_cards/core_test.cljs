@@ -6,8 +6,14 @@
             [ohmycards.web.kws.card :as kws.card]))
 
 (deftest test-fetch-query-params
-  (let [props {kws/page 2 kws/page-size 20 kws/include-tags ["A" "B"]}
-        result {:page 2 :pageSize 20 :tags "A,B"}]
+  (let [props {kws/page 2
+               kws/page-size 20
+               kws/include-tags ["A" "B"]
+               kws/exclude-tags ["C" "D"]}
+        result {:page 2
+                :pageSize 20
+                :tags "A,B"
+                :tagsNot "C,D"}]
 
     (testing "Defaults page"
       (is (= (assoc result :page sut/default-page)
@@ -19,7 +25,11 @@
 
     (testing "Ignore tags if not on params"
       (is (= (dissoc result :tags)
-             (sut/fetch-query-params (dissoc props kws/include-tags)))))))
+             (sut/fetch-query-params (dissoc props kws/include-tags)))))
+
+    (testing "Ignore tagsNot if not on params"
+      (is (= (dissoc result :tagsNot)
+             (sut/fetch-query-params (dissoc props kws/exclude-tags)))))))
 
 (deftest test-parse-fetch-response
 

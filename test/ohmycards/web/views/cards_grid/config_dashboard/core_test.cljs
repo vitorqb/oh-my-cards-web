@@ -50,3 +50,18 @@
             [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
                                           (tu/comp-seq comp))]
         (is (= (:value input-props) ["A"]))))))
+
+(deftest test-exclude-tags-config
+
+  (let [get-state #(atom (apply hash-map kws/exclude-tags ["A"] %&))]
+
+    (testing "Includes label"
+      (let [props {:state (get-state)}]
+        (is (tu/exists-in-component? (sut/label "Not ANY tags") (sut/exclude-tags-config props)))))
+
+    (testing "Contains input with value"
+      (let [props {:state (get-state)}
+            comp (sut/exclude-tags-config props)
+            [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
+                                          (tu/comp-seq comp))]
+        (is (= (:value input-props) ["A"]))))))
