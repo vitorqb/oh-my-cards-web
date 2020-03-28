@@ -6,6 +6,7 @@
 (def page "The current page of cards the user is seeing." ::page)
 (def page-size "The number of cards per page the user is seeing." ::page-size)
 (def include-tags "Tags that all cards must include." ::include-tags)
+(def exclude-tags "Tags that all cards must NOT include." ::exclude-tags)
 (def count-of-cards "The total number of cards available for the state." ::count-of-cards)
 (def status "A keyword indicating the current status for the state." ::status)
 

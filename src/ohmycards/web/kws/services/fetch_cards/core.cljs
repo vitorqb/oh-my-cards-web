@@ -7,4 +7,5 @@
 (def page "The current page of fetched cards." ::page)
 (def page-size "The current number of cards per page." ::page-size)
 (def include-tags "Tags that must be on the fetched cards" ::include-tags)
+(def exclude-tags "Tags that must be NOT on the fetched cards" ::exclude-tags)
 (def count-of-cards "The total number of cards available (in the BE)" ::count-of-cards)

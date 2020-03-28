@@ -1,7 +1,8 @@
 (ns ohmycards.web.views.cards-grid.state-management
-  (:require [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
-            [cljs.core.async :as a]
+  (:require [cljs.core.async :as a]
+            [ohmycards.web.common.tags.core :as tags]
             [ohmycards.web.kws.services.fetch-cards.core :as kws.fetch-cards]
+            [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
             [ohmycards.web.utils.pagination :as utils.pagination]))
 
 (defn- state-initialized?
@@ -26,10 +27,11 @@
 
 (defn- fetch-cards-params
   "Maps the state to the params for fetching cards"
-  [{::kws.cards-grid/keys [page page-size include-tags]}]
+  [{::kws.cards-grid/keys [page page-size include-tags exclude-tags]}]
   {kws.fetch-cards/page page
    kws.fetch-cards/page-size page-size
-   kws.fetch-cards/include-tags include-tags})
+   kws.fetch-cards/include-tags include-tags
+   kws.fetch-cards/exclude-tags exclude-tags})
 
 (defn- refetch!
   "Refetches the data from the BE"
@@ -78,7 +80,13 @@
 (defn set-include-tags-from-props!
   "Set's the tags the cards must include from props"
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-include-tags]
-  (swap! state assoc kws.cards-grid/include-tags new-include-tags)
+  (swap! state assoc kws.cards-grid/include-tags (tags/sanitize new-include-tags))
+  (refetch! state fetch-cards!))
+
+(defn set-exclude-tags-from-props!
+  "Set's the tags the cards must not have (exclude-tags) from props"
+  [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-exclude-tags]
+  (swap! state assoc kws.cards-grid/exclude-tags (tags/sanitize new-exclude-tags))
   (refetch! state fetch-cards!))
 
 (defn goto-previous-page!

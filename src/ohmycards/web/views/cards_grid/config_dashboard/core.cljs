@@ -1,5 +1,6 @@
 (ns ohmycards.web.views.cards-grid.config-dashboard.core
-  (:require [ohmycards.web.components.form.core :as form]
+  (:require [ohmycards.web.common.tags.core :as tags]
+            [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.icons :as icons]
@@ -53,9 +54,20 @@
    (label "ALL tags")
    [input-wrapper {}
     [inputs.tags/main (input-props state [kws/include-tags])]]
-   (set-btn #(let [tags (->> @state kws/include-tags (remove empty?) vec)]
+   (set-btn #(let [tags (->> @state kws/include-tags tags/sanitize vec)]
                (swap! state assoc kws/include-tags tags)
                (set-include-tags! tags)))])
+
+(defn- exclude-tags-config
+  "A config for tags to exclude"
+  [{:keys [state] ::kws/keys [set-exclude-tags!]}]
+  [:div.cards-grid-config-dashboard__row
+   (label "Not ANY tags")
+   [input-wrapper {}
+    [inputs.tags/main (input-props state [kws/exclude-tags])]]
+   (set-btn #(let [tags (->> @state kws/exclude-tags tags/sanitize vec)]
+               (swap! state assoc kws/exclude-tags tags)
+               (set-exclude-tags! tags)))])
 
 ;; Main
 (defn main
@@ -65,4 +77,5 @@
    [header props]
    [page-config props]
    [page-size-config props]
-   [include-tags-config props]])
+   [include-tags-config props]
+   [exclude-tags-config props]])

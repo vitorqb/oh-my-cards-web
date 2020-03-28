@@ -4,6 +4,7 @@
   See make test-ns-requires"
   (:require
 [ohmycards.web.common.cards.core-test]
+[ohmycards.web.common.tags.core-test]
 [ohmycards.web.common.utils-test]
 [ohmycards.web.components.current-view.core-test]
 [ohmycards.web.components.form.core-test]
