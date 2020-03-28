@@ -1,26 +1,38 @@
 # Check https://circleci.com/docs/2.0/language-clojure/ for more details
 version: 2
 jobs:
+
   test:
     docker: 
       - image: vitorqb23/oh-my-cards-circle-ci-primary
     steps:
       - checkout
+      - restore_cache:
+          key: ohmycardsweb
       - run: |
           npm install
           make build/test 
           make karma KARMA_OPTS='--single-run'
+      - save_cache:
+          paths: [~/.m2]
+          key: ohmycardsweb          
+
   create_docker_image:
     docker:
       - image: vitorqb23/oh-my-cards-circle-ci-primary
     steps:
       - checkout
+      - restore_cache:
+          key: ohmycardsweb
       - setup_remote_docker
       - run: |
           cd devops && make images/prod DOCKER='docker'
           docker login -u $DOCKER_USER -p $DOCKER_PASS
           docker push "vitorqb23/ohmycards-web:$(git describe --tags)"    
-          
+      - save_cache:
+          paths: [~/.m2]
+          key: ohmycardsweb          
+
 workflows:
   version: 2
   test:
