@@ -33,6 +33,13 @@
         (is (= "FOO" (get-in (on-change "FOO") path)))
         (is (= "FOO" (get-in @state path)))))
 
+    (testing "Set's on change function using parse-fn"
+      (let [state     (gen-state)
+            result    (sut/build-props state path :parse-fn #(do [::foo %1]))
+            on-change (:on-change result)]
+        (is (= [::foo "FOO"] (get-in (on-change "FOO") path)))
+        (is (= [::foo "FOO"] (get-in @state path)))))
+
     (testing "Set's extra kargs"
       (is (= "FOO" (:foo (sut/build-props (gen-state) path :foo "FOO")))))
 
