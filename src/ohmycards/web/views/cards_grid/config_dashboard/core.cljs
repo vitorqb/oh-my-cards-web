@@ -1,9 +1,13 @@
 (ns ohmycards.web.views.cards-grid.config-dashboard.core
-  (:require [ohmycards.web.common.tags.core :as tags]
+  (:require [ohmycards.web.common.coercion.coercers :as coercers]
+            [ohmycards.web.common.coercion.core :as coercion]
+            [ohmycards.web.common.tags.core :as tags]
+            [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.icons :as icons]
+            [ohmycards.web.kws.common.coercion.result :as kws.coercion.result]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]))
 
 ;; Helpers
@@ -18,8 +22,8 @@
   (into [:div.cards-grid-config-dashboard__input-wrapper] children))
 
 (defn input-props
-  [state path]
-  (form.input/build-props state path :class "cards-grid-config-dashboard__input"))
+  [state path & args]
+  (apply form.input/build-props state path :class "cards-grid-config-dashboard__input" args))
 
 (defn- header
   "A header with options"
@@ -32,11 +36,16 @@
 (defn- page-config
   "A config input for a page"
   [{:keys [state] ::kws/keys [set-page!]}]
-  [:div.cards-grid-config-dashboard__row
-   (label "Page")
-   [input-wrapper {}
-    [form.input/main (input-props state [kws/page])]]
-   (set-btn #(set-page! (kws/page @state)))])
+  (let [coercer (coercion/->Or [#(-> % coercers/empty)
+                                #(-> % coercers/integer coercers/positive)])]
+    [:div.cards-grid-config-dashboard__row
+     (label "Page")
+     [input-wrapper {}
+      [form.input/main (input-props state [kws/page]
+                                    :parse-fn #(coercion/main % coercer)
+                                    :unparse-fn kws.coercion.result/raw-value)]
+      [error-message-box/main {:value (-> @state kws/page kws.coercion.result/error-message)}]]
+     (set-btn #(set-page! (-> @state kws/page kws.coercion.result/value)))]))
 
 (defn- page-size-config
   "A config input for page size"
