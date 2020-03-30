@@ -37,13 +37,14 @@
 
 (deftest test-page-site-config
 
-  (let [get-state #(atom (apply hash-map kws/page-size 20 %&))]
+  (let [coerced-value (coercion.result/success "20" 20)
+        get-state #(atom (apply hash-map kws/page-size coerced-value %&))]
 
     (testing "Contains input with value"
       (let [props {:state (get-state)}
             [_ input-props] (tu/get-first #(= (tu/safe-first %) form.input/main)
                                           (tu/comp-seq (sut/page-size-config props)))]
-        (is (= (:value input-props) 20))))))
+        (is (= (:value input-props) "20"))))))
 
 (deftest test-include-tags-config
 

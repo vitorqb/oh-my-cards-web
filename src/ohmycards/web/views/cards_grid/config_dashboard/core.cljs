@@ -32,20 +32,24 @@
    [:button.clear-button {:on-click #(goto-cards-grid!)}
     [icons/arrow-left]]])
 
+;; Coercers
+(def positive-int-or-nil-coercer
+  (coercion/->Or [#(-> % coercers/empty)
+                  #(-> % coercers/integer coercers/positive)]))
+
 ;; Inputs
 (defn- page-config
   "A config input for a page"
   [{:keys [state] ::kws/keys [set-page!]}]
-  (let [coercer (coercion/->Or [#(-> % coercers/empty)
-                                #(-> % coercers/integer coercers/positive)])]
-    [:div.cards-grid-config-dashboard__row
-     (label "Page")
-     [input-wrapper {}
-      [form.input/main (input-props state [kws/page]
-                                    :parse-fn #(coercion/main % coercer)
-                                    :unparse-fn kws.coercion.result/raw-value)]
-      [error-message-box/main {:value (-> @state kws/page kws.coercion.result/error-message)}]]
-     (set-btn #(set-page! (-> @state kws/page kws.coercion.result/value)))]))
+  [:div.cards-grid-config-dashboard__row
+   (label "Page")
+   [input-wrapper {}
+    [form.input/main (input-props state [kws/page]
+                                  :parse-fn #(coercion/main % positive-int-or-nil-coercer)
+                                  :unparse-fn kws.coercion.result/raw-value)]]
+   (if-let [err-msg (-> @state kws/page kws.coercion.result/error-message)]
+     [error-message-box/main {:value (-> @state kws/page kws.coercion.result/error-message)}]
+     (set-btn #(set-page! (-> @state kws/page kws.coercion.result/value))))])
 
 (defn- page-size-config
   "A config input for page size"
@@ -53,8 +57,12 @@
   [:div.cards-grid-config-dashboard__row
    (label "Page Size")
    [input-wrapper {}
-    [form.input/main (input-props state [kws/page-size])]]
-   (set-btn #(set-page-size! (kws/page-size @state)))])
+    [form.input/main (input-props state [kws/page-size]
+                                  :parse-fn #(coercion/main % positive-int-or-nil-coercer)
+                                  :unparse-fn kws.coercion.result/raw-value)]]
+   (if-let [err-msg (-> @state kws/page-size kws.coercion.result/error-message) ]
+     [error-message-box/main {:value err-msg}]
+     (set-btn #(set-page-size! (-> @state kws/page-size kws.coercion.result/value))))])
 
 (defn- include-tags-config
   "A config for tags to include"
