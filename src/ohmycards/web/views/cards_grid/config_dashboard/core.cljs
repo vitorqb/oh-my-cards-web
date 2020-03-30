@@ -9,7 +9,8 @@
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.common.coercion.result :as kws.coercion.result]
-            [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]))
+            [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
+            [ohmycards.web.kws.views.cards-grid.config :as kws.config]))
 
 ;; Helpers
 (defn- label [x] [:span.cards-grid-config-dashboard__label x])
@@ -56,50 +57,54 @@
 (defn- page-config
   "A config input for a page"
   [{:keys [state] ::kws/keys [set-page!]}]
-  [:div.cards-grid-config-dashboard__row
-   (label "Page")
-   [input-wrapper {}
-    [form.input/main (input-props state [kws/page] positive-int-or-nil-coercer)]]
-   [set-btn {:state state
-             :path [kws/page]
-             :set-fn #(-> @state kws/page kws.coercion.result/value set-page!)}]])
+  (let [path [kws/config kws.config/page]]
+    [:div.cards-grid-config-dashboard__row
+     (label "Page")
+     [input-wrapper {}
+      [form.input/main (input-props state path positive-int-or-nil-coercer)]]
+     [set-btn {:state state
+               :path path
+               :set-fn #(-> @state (get-in path) kws.coercion.result/value set-page!)}]]))
 
 (defn- page-size-config
   "A config input for page size"
   [{:keys [state] ::kws/keys [set-page-size!]}]
-  [:div.cards-grid-config-dashboard__row
-   (label "Page Size")
-   [input-wrapper {}
-    [form.input/main (input-props state [kws/page-size] positive-int-or-nil-coercer)]]
-   [set-btn {:state state
-             :path [kws/page-size]
-             :set-fn #(-> @state kws/page-size kws.coercion.result/value set-page-size!)}]])
+  (let [path [kws/config kws.config/page-size]]
+    [:div.cards-grid-config-dashboard__row
+     (label "Page Size")
+     [input-wrapper {}
+      [form.input/main (input-props state path positive-int-or-nil-coercer)]]
+     [set-btn {:state state
+               :path path
+               :set-fn #(-> @state (get-in path) kws.coercion.result/value set-page-size!)}]]))
 
 (defn- include-tags-config
   "A config for tags to include"
   [{:keys [state] ::kws/keys [set-include-tags!]}]
-  [:div.cards-grid-config-dashboard__row
-   (label "ALL tags")
-   [input-wrapper {}
-    [inputs.tags/main (input-props state [kws/include-tags] coercers/tags)]]
-   [set-btn
-    {:state state
-     :path [kws/include-tags]
-     :set-fn #(do (swap! state update kws/include-tags coercion.result/copy-value-to-raw-value)
-                  (-> @state kws/include-tags kws.coercion.result/value set-include-tags!))}]])
+  (let [path [kws/config kws.config/include-tags]]
+    [:div.cards-grid-config-dashboard__row
+     (label "ALL tags")
+     [input-wrapper {}
+      [inputs.tags/main (input-props state path coercers/tags)]]
+     [set-btn
+      {:state state
+       :path path
+       :set-fn #(do (swap! state update-in path coercion.result/copy-value-to-raw-value)
+                    (-> @state (get-in path) kws.coercion.result/value set-include-tags!))}]]))
 
 (defn- exclude-tags-config
   "A config for tags to exclude"
   [{:keys [state] ::kws/keys [set-exclude-tags!]}]
-  [:div.cards-grid-config-dashboard__row
-   (label "Not ANY tags")
-   [input-wrapper {}
-    [inputs.tags/main (input-props state [kws/exclude-tags] coercers/tags)]]
-   [set-btn
-    {:state state
-     :path [kws/exclude-tags]
-     :set-fn #(do (swap! state update kws/exclude-tags coercion.result/copy-value-to-raw-value)
-                  (-> @state kws/exclude-tags kws.coercion.result/value set-exclude-tags!))}]])
+  (let [path [kws/config kws.config/exclude-tags]]
+    [:div.cards-grid-config-dashboard__row
+     (label "Not ANY tags")
+     [input-wrapper {}
+      [inputs.tags/main (input-props state path coercers/tags)]]
+     [set-btn
+      {:state state
+       :path path
+       :set-fn #(do (swap! state update-in path coercion.result/copy-value-to-raw-value)
+                    (-> @state (get-in path) kws.coercion.result/value set-exclude-tags!))}]]))
 
 ;; Main
 (defn main

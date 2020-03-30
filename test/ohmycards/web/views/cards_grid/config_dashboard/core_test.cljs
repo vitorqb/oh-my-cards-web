@@ -4,6 +4,7 @@
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
+            [ohmycards.web.kws.views.cards-grid.config :as kws.config]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.cards-grid.config-dashboard.core :as sut]))
@@ -20,22 +21,20 @@
 
 (deftest test-page-config
 
-  (let [coerced-value (coercion.result/success "2" 2)
-        get-state     #(atom (apply hash-map kws/page coerced-value %&))]
+  (let [coerced-value (coercion.result/success "2" 2)]
 
     (testing "Contains input with value"
-      (let [props {:state (get-state)}
+      (let [props {:state (atom {kws/config {kws.config/page coerced-value}})}
             [_ input-props] (tu/get-first #(= (tu/safe-first %) form.input/main)
                                           (tu/comp-seq (sut/page-config props)))]
         (is (= (:value input-props) "2"))))))
 
 (deftest test-page-site-config
 
-  (let [coerced-value (coercion.result/success "20" 20)
-        get-state #(atom (apply hash-map kws/page-size coerced-value %&))]
+  (let [coerced-value (coercion.result/success "20" 20)]
 
     (testing "Contains input with value"
-      (let [props {:state (get-state)}
+      (let [props {:state (atom {kws/config {kws.config/page-size coerced-value}})}
             [_ input-props] (tu/get-first #(= (tu/safe-first %) form.input/main)
                                           (tu/comp-seq (sut/page-size-config props)))]
         (is (= (:value input-props) "20"))))))
@@ -43,30 +42,27 @@
 (deftest test-include-tags-config
 
   (let [coerced-value (coercion.result/success ["A"] ["A"])
-        get-state #(atom (apply hash-map kws/include-tags coerced-value %&))]
+        props {:state (atom {kws/config {kws.config/include-tags coerced-value}})}]
 
     (testing "Includes label"
-      (let [props {:state (get-state)}]
-        (is (tu/exists-in-component? (sut/label "ALL tags") (sut/include-tags-config props)))))
+      (is (tu/exists-in-component? (sut/label "ALL tags") (sut/include-tags-config props))))
 
     (testing "Contains input with value"
-      (let [props {:state (get-state)}
-            comp (sut/include-tags-config props)
+      (let [comp (sut/include-tags-config props)
             [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
                                           (tu/comp-seq comp))]
         (is (= (:value input-props) ["A"]))))))
 
 (deftest test-exclude-tags-config
 
-  (let [coerced-value (coercion.result/success ["A"] ["A"])
-        get-state #(atom (apply hash-map kws/exclude-tags coerced-value %&))]
+  (let [coerced-value (coercion.result/success ["A"] ["A"])]
 
     (testing "Includes label"
-      (let [props {:state (get-state)}]
+      (let [props {:state (atom {kws/config {kws.config/exclude-tags coerced-value}})}]
         (is (tu/exists-in-component? (sut/label "Not ANY tags") (sut/exclude-tags-config props)))))
 
     (testing "Contains input with value"
-      (let [props {:state (get-state)}
+      (let [props {:state (atom {kws/config {kws.config/exclude-tags coerced-value}})}
             comp (sut/exclude-tags-config props)
             [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
                                           (tu/comp-seq comp))]
