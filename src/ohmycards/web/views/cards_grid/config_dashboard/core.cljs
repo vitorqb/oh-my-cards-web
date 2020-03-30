@@ -32,8 +32,13 @@
   (into [:div.cards-grid-config-dashboard__input-wrapper] children))
 
 (defn input-props
-  [state path & args]
-  (apply form.input/build-props state path :class "cards-grid-config-dashboard__input" args))
+  "Applies smart default to input props before sending it to `input/build-props`."
+  [state path coercer & args]
+  (apply form.input/build-props state path
+         :class "cards-grid-config-dashboard__input"
+         :parse-fn #(coercion/main % coercer)
+         :unparse-fn kws.coercion.result/raw-value
+         args))
 
 (defn- header
   "A header with options"
@@ -54,9 +59,7 @@
   [:div.cards-grid-config-dashboard__row
    (label "Page")
    [input-wrapper {}
-    [form.input/main (input-props state [kws/page]
-                                  :parse-fn #(coercion/main % positive-int-or-nil-coercer)
-                                  :unparse-fn kws.coercion.result/raw-value)]]
+    [form.input/main (input-props state [kws/page] positive-int-or-nil-coercer)]]
    [set-btn {:state state
              :path [kws/page]
              :set-fn #(-> @state kws/page kws.coercion.result/value set-page!)}]])
@@ -67,9 +70,7 @@
   [:div.cards-grid-config-dashboard__row
    (label "Page Size")
    [input-wrapper {}
-    [form.input/main (input-props state [kws/page-size]
-                                  :parse-fn #(coercion/main % positive-int-or-nil-coercer)
-                                  :unparse-fn kws.coercion.result/raw-value)]]
+    [form.input/main (input-props state [kws/page-size] positive-int-or-nil-coercer)]]
    [set-btn {:state state
              :path [kws/page-size]
              :set-fn #(-> @state kws/page-size kws.coercion.result/value set-page-size!)}]])
@@ -80,9 +81,7 @@
   [:div.cards-grid-config-dashboard__row
    (label "ALL tags")
    [input-wrapper {}
-    [inputs.tags/main (input-props state [kws/include-tags]
-                                   :parse-fn #(coercion/main % coercers/tags)
-                                   :unparse-fn kws.coercion.result/raw-value)]]
+    [inputs.tags/main (input-props state [kws/include-tags] coercers/tags)]]
    [set-btn
     {:state state
      :path [kws/include-tags]
@@ -96,9 +95,7 @@
   [:div.cards-grid-config-dashboard__row
    (label "Not ANY tags")
    [input-wrapper {}
-    [inputs.tags/main (input-props state [kws/exclude-tags]
-                                   :parse-fn #(coercion/main % coercers/tags)
-                                   :unparse-fn kws.coercion.result/raw-value)]]
+    [inputs.tags/main (input-props state [kws/exclude-tags] coercers/tags)]]
    [set-btn
     {:state state
      :path [kws/exclude-tags]
