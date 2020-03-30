@@ -1,5 +1,6 @@
 (ns ohmycards.web.common.coercion.result
-  (:require [ohmycards.web.kws.common.coercion.result :as kws]))
+  (:require [ohmycards.web.common.utils :as utils]
+            [ohmycards.web.kws.common.coercion.result :as kws]))
 
 (defn raw-value->success
   "Returns a successfull result from a raw value."
@@ -22,3 +23,8 @@
   (-> result
       (assoc kws/error-message error-message kws/success? false)
       (dissoc kws/value)))
+
+(defn copy-value-to-raw-value
+  "Copies the `value` of a successfull result to it's raw-value."
+  [{::kws/keys [success? value] :as result}]
+  (cond-> result success? (assoc kws/raw-value value)))

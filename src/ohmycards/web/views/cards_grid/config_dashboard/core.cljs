@@ -85,9 +85,8 @@
    [set-btn
     {:state state
      :path [kws/include-tags]
-     :set-fn #(let [tags (->> @state kws/include-tags kws.coercion.result/value)]
-                (swap! state assoc kws/include-tags (coercion.result/raw-value->success tags))
-                (set-include-tags! tags))}]])
+     :set-fn #(do (swap! state update kws/include-tags coercion.result/copy-value-to-raw-value)
+                  (-> @state kws/include-tags kws.coercion.result/value set-include-tags!))}]])
 
 (defn- exclude-tags-config
   "A config for tags to exclude"
@@ -99,9 +98,8 @@
    [set-btn
     {:state state
      :path [kws/exclude-tags]
-     :set-fn #(let [tags (->> @state kws/exclude-tags kws.coercion.result/value)]
-                (swap! state assoc kws/exclude-tags (coercion.result/raw-value->success tags))
-                (set-exclude-tags! tags))}]])
+     :set-fn #(do (swap! state update kws/exclude-tags coercion.result/copy-value-to-raw-value)
+                  (-> @state kws/exclude-tags kws.coercion.result/value set-exclude-tags!))}]])
 
 ;; Main
 (defn main
