@@ -1,5 +1,7 @@
 (ns ohmycards.web.views.cards-grid.config-dashboard.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.common.coercion.result :as coercion.result]
+            [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
@@ -18,27 +20,30 @@
 
 (deftest test-page-config
 
-  (let [get-state #(atom (apply hash-map kws/page 2 %&))]
+  (let [coerced-value (coercion.result/success "2" 2)
+        get-state     #(atom (apply hash-map kws/page coerced-value %&))]
 
     (testing "Contains input with value"
       (let [props {:state (get-state)}
             [_ input-props] (tu/get-first #(= (tu/safe-first %) form.input/main)
                                           (tu/comp-seq (sut/page-config props)))]
-        (is (= (:value input-props) 2))))))
+        (is (= (:value input-props) "2"))))))
 
 (deftest test-page-site-config
 
-  (let [get-state #(atom (apply hash-map kws/page-size 20 %&))]
+  (let [coerced-value (coercion.result/success "20" 20)
+        get-state #(atom (apply hash-map kws/page-size coerced-value %&))]
 
     (testing "Contains input with value"
       (let [props {:state (get-state)}
             [_ input-props] (tu/get-first #(= (tu/safe-first %) form.input/main)
                                           (tu/comp-seq (sut/page-size-config props)))]
-        (is (= (:value input-props) 20))))))
+        (is (= (:value input-props) "20"))))))
 
 (deftest test-include-tags-config
 
-  (let [get-state #(atom (apply hash-map kws/include-tags ["A"] %&))]
+  (let [coerced-value (coercion.result/success ["A"] ["A"])
+        get-state #(atom (apply hash-map kws/include-tags coerced-value %&))]
 
     (testing "Includes label"
       (let [props {:state (get-state)}]
@@ -53,7 +58,8 @@
 
 (deftest test-exclude-tags-config
 
-  (let [get-state #(atom (apply hash-map kws/exclude-tags ["A"] %&))]
+  (let [coerced-value (coercion.result/success ["A"] ["A"])
+        get-state #(atom (apply hash-map kws/exclude-tags coerced-value %&))]
 
     (testing "Includes label"
       (let [props {:state (get-state)}]
@@ -65,3 +71,33 @@
             [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
                                           (tu/comp-seq comp))]
         (is (= (:value input-props) ["A"]))))))
+
+(deftest test-set-btn
+
+  (letfn [(find-btn [comp] (tu/get-first
+                            #(= (tu/safe-first %) :button.cards-grid-config-dashboard__set)
+                            comp))]
+
+    (testing "Renders the text Set inside a button"
+      (let [comp        (sut/set-btn {:state (atom {}) :path [:foo] :set-fn #(do)})
+            [_ _ label] (find-btn comp)]
+        (is (= label "Set"))))
+
+    (testing "Passe set-fn to button"
+      (let [state  (atom {})
+            set-fn #(swap! state assoc :foo 1)
+            [_ props _] (find-btn (sut/set-btn {:state state :path [:foo] :set-fn set-fn}))]
+        ((:on-click props))
+        (is (= 1 (:foo @state)))))
+
+    (testing "If has coercion error..."
+      (let [state (atom {:foo (coercion.result/failure "" "err")})
+            comp  (sut/set-btn {:state state :path [:foo] :set-fn #(do)})]
+
+        (testing "does not render button"
+          (is (nil? (find-btn comp))))
+
+        (testing "renders an error message box with correct value"
+          (let [[c props] comp]
+            (is (= c error-message-box/main))
+            (is (= "err" (:value props)))))))))
