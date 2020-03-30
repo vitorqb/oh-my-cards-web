@@ -14,9 +14,18 @@
 ;; Helpers
 (defn- label [x] [:span.cards-grid-config-dashboard__label x])
 
-(defn- set-btn [f]
-  [:div.cards-grid-config-dashboard__set-wrapper
-   [:button.cards-grid-config-dashboard__set {:on-click #(f)} "Set"]])
+(defn- set-btn
+  "Renders a `set` button to set the value, or an error message if the coercion for the value
+  failed.
+  `state`: The state.
+  `path`: A path inside the state with a coercion result for the input.
+  `set-fn`: 0-arg callback called to set the value."
+  [{:keys [state path set-fn]}]
+  (if-let [err-msg (-> @state (get-in path) kws.coercion.result/error-message)]
+    [error-message-box/main {:value err-msg}]
+    [:div.cards-grid-config-dashboard__set-wrapper
+     [:button.cards-grid-config-dashboard__set {:on-click #(set-fn)}
+      "Set"]]))
 
 (defn- input-wrapper
   [_ & children]
@@ -48,9 +57,9 @@
     [form.input/main (input-props state [kws/page]
                                   :parse-fn #(coercion/main % positive-int-or-nil-coercer)
                                   :unparse-fn kws.coercion.result/raw-value)]]
-   (if-let [err-msg (-> @state kws/page kws.coercion.result/error-message)]
-     [error-message-box/main {:value (-> @state kws/page kws.coercion.result/error-message)}]
-     (set-btn #(set-page! (-> @state kws/page kws.coercion.result/value))))])
+   [set-btn {:state state
+             :path [kws/page]
+             :set-fn #(set-page! (-> @state kws/page kws.coercion.result/value))}]])
 
 (defn- page-size-config
   "A config input for page size"
@@ -61,9 +70,9 @@
     [form.input/main (input-props state [kws/page-size]
                                   :parse-fn #(coercion/main % positive-int-or-nil-coercer)
                                   :unparse-fn kws.coercion.result/raw-value)]]
-   (if-let [err-msg (-> @state kws/page-size kws.coercion.result/error-message) ]
-     [error-message-box/main {:value err-msg}]
-     (set-btn #(set-page-size! (-> @state kws/page-size kws.coercion.result/value))))])
+   [set-btn {:state state
+             :path [kws/page-size]
+             :set-fn #(set-page-size! (-> @state kws/page-size kws.coercion.result/value))}]])
 
 (defn- include-tags-config
   "A config for tags to include"
@@ -74,11 +83,11 @@
     [inputs.tags/main (input-props state [kws/include-tags]
                                    :parse-fn #(coercion/main % coercers/tags)
                                    :unparse-fn kws.coercion.result/raw-value)]]
-   (if-let [err-msg (-> @state kws/include-tags kws.coercion.result/error-message)]
-     [error-message-box/main {:value err-msg}]
-     (set-btn #(let [tags (->> @state kws/include-tags kws.coercion.result/value)]
-                 (swap! state assoc kws/include-tags (coercion.result/raw-value->success tags))
-                 (set-include-tags! tags))))])
+   [set-btn {:state state
+             :path [kws/include-tags]
+             :set-fn #(let [tags (->> @state kws/include-tags kws.coercion.result/value)]
+                        (swap! state assoc kws/include-tags (coercion.result/raw-value->success tags))
+                        (set-include-tags! tags))}]])
 
 (defn- exclude-tags-config
   "A config for tags to exclude"
@@ -87,9 +96,11 @@
    (label "Not ANY tags")
    [input-wrapper {}
     [inputs.tags/main (input-props state [kws/exclude-tags])]]
-   (set-btn #(let [tags (->> @state kws/exclude-tags tags/sanitize vec)]
-               (swap! state assoc kws/exclude-tags tags)
-               (set-exclude-tags! tags)))])
+   [set-btn {:state state
+             :path [kws/exclude-tags]
+             :set-fn #(let [tags (->> @state kws/exclude-tags tags/sanitize vec)]
+                        (swap! state assoc kws/exclude-tags tags)
+                        (set-exclude-tags! tags))}]])
 
 ;; Main
 (defn main

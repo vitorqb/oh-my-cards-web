@@ -27,13 +27,7 @@
       (let [props {:state (get-state)}
             [_ input-props] (tu/get-first #(= (tu/safe-first %) form.input/main)
                                           (tu/comp-seq (sut/page-config props)))]
-        (is (= (:value input-props) "2"))))
-
-    (testing "Contains error box with error if coercion fails"
-      (let [props {:state (get-state kws/page (coercion.result/failure "" "err"))}
-            [_ error-props] (tu/get-first #(= (tu/safe-first %) error-message-box/main)
-                                          (tu/comp-seq (sut/page-config props)))]
-        (is (= (:value error-props) "err"))))))
+        (is (= (:value input-props) "2"))))))
 
 (deftest test-page-site-config
 
@@ -76,3 +70,33 @@
             [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
                                           (tu/comp-seq comp))]
         (is (= (:value input-props) ["A"]))))))
+
+(deftest test-set-btn
+
+  (letfn [(find-btn [comp] (tu/get-first
+                            #(= (tu/safe-first %) :button.cards-grid-config-dashboard__set)
+                            comp))]
+
+    (testing "Renders the text Set inside a button"
+      (let [comp        (sut/set-btn {:state (atom {}) :path [:foo] :set-fn #(do)})
+            [_ _ label] (find-btn comp)]
+        (is (= label "Set"))))
+
+    (testing "Passe set-fn to button"
+      (let [state  (atom {})
+            set-fn #(swap! state assoc :foo 1)
+            [_ props _] (find-btn (sut/set-btn {:state state :path [:foo] :set-fn set-fn}))]
+        ((:on-click props))
+        (is (= 1 (:foo @state)))))
+
+    (testing "If has coercion error..."
+      (let [state (atom {:foo (coercion.result/failure "" "err")})
+            comp  (sut/set-btn {:state state :path [:foo] :set-fn #(do)})]
+
+        (testing "does not render button"
+          (is (nil? (find-btn comp))))
+
+        (testing "renders an error message box with correct value"
+          (let [[c props] comp]
+            (is (= c error-message-box/main))
+            (is (= "err" (:value props)))))))))
