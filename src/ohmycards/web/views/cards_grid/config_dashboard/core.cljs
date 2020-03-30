@@ -1,6 +1,7 @@
 (ns ohmycards.web.views.cards-grid.config-dashboard.core
   (:require [ohmycards.web.common.coercion.coercers :as coercers]
             [ohmycards.web.common.coercion.core :as coercion]
+            [ohmycards.web.common.coercion.result :as coercion.result]
             [ohmycards.web.common.tags.core :as tags]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
@@ -70,10 +71,14 @@
   [:div.cards-grid-config-dashboard__row
    (label "ALL tags")
    [input-wrapper {}
-    [inputs.tags/main (input-props state [kws/include-tags])]]
-   (set-btn #(let [tags (->> @state kws/include-tags tags/sanitize vec)]
-               (swap! state assoc kws/include-tags tags)
-               (set-include-tags! tags)))])
+    [inputs.tags/main (input-props state [kws/include-tags]
+                                   :parse-fn #(coercion/main % coercers/tags)
+                                   :unparse-fn kws.coercion.result/raw-value)]]
+   (if-let [err-msg (-> @state kws/include-tags kws.coercion.result/error-message)]
+     [error-message-box/main {:value err-msg}]
+     (set-btn #(let [tags (->> @state kws/include-tags kws.coercion.result/value)]
+                 (swap! state assoc kws/include-tags (coercion.result/raw-value->success tags))
+                 (set-include-tags! tags))))])
 
 (defn- exclude-tags-config
   "A config for tags to exclude"

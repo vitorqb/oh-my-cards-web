@@ -61,3 +61,13 @@
   (testing "Failed coercion"
     (is (= (coercion.result/failure 1 sut/not-empty)
            (sut/empty (coercion.result/raw-value->success 1))))))
+
+(deftest test-tags
+
+  (testing "Valid coercion with valid tags"
+    (is (= (coercion.result/success ["foo" "bar" ""] ["foo" "bar"])
+           (sut/tags (coercion.result/raw-value->success ["foo" "bar" ""])))))
+
+  (testing "Invalid coercion with an invalid tag"
+    (is (= (coercion.result/failure ["foo bar"] sut/not-valid-tags)
+           (sut/tags (coercion.result/raw-value->success ["foo bar"]))))))

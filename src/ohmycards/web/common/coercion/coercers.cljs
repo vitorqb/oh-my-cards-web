@@ -1,6 +1,7 @@
 (ns ohmycards.web.common.coercion.coercers
   (:refer-clojure :exclude [empty not-empty])
   (:require [ohmycards.web.common.coercion.result :as result]
+            [ohmycards.web.common.tags.core :as tags]
             [ohmycards.web.common.utils :as utils]
             [ohmycards.web.kws.common.coercion.result :as kws.result]))
 
@@ -8,6 +9,7 @@
 (def not-an-integer "Not an integer!")
 (def not-positive "Not a positive number!")
 (def not-empty "Expected an empty value!")
+(def not-valid-tags "Invalid values for tags!")
 
 ;; Helpers methods to construct coercers
 (defn wrap-success
@@ -47,3 +49,15 @@
      (if (and (seqable? value) (empty? value))
        (assoc result kws.result/value nil)
        (result/->failure result not-empty)))))
+
+(def tags
+  "Validator and coercer that fails if what it receives is not valid tags. Also eliminates
+  empty strings from the tags."
+  (wrap-success
+   (fn [{::kws.result/keys [value] :as result}]
+     (or
+      (if (seqable? value)
+        (let [value' (into [] (remove empty? value))]
+          (if (every? tags/valid? value')
+            (assoc result kws.result/value value'))))
+      (result/->failure result not-valid-tags)))))
