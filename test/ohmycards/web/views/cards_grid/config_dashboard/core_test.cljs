@@ -58,7 +58,8 @@
 
 (deftest test-exclude-tags-config
 
-  (let [get-state #(atom (apply hash-map kws/exclude-tags ["A"] %&))]
+  (let [coerced-value (coercion.result/success ["A"] ["A"])
+        get-state #(atom (apply hash-map kws/exclude-tags coerced-value %&))]
 
     (testing "Includes label"
       (let [props {:state (get-state)}]

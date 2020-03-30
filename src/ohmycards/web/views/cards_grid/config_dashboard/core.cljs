@@ -59,7 +59,7 @@
                                   :unparse-fn kws.coercion.result/raw-value)]]
    [set-btn {:state state
              :path [kws/page]
-             :set-fn #(set-page! (-> @state kws/page kws.coercion.result/value))}]])
+             :set-fn #(-> @state kws/page kws.coercion.result/value set-page!)}]])
 
 (defn- page-size-config
   "A config input for page size"
@@ -72,7 +72,7 @@
                                   :unparse-fn kws.coercion.result/raw-value)]]
    [set-btn {:state state
              :path [kws/page-size]
-             :set-fn #(set-page-size! (-> @state kws/page-size kws.coercion.result/value))}]])
+             :set-fn #(-> @state kws/page-size kws.coercion.result/value set-page-size!)}]])
 
 (defn- include-tags-config
   "A config for tags to include"
@@ -83,11 +83,12 @@
     [inputs.tags/main (input-props state [kws/include-tags]
                                    :parse-fn #(coercion/main % coercers/tags)
                                    :unparse-fn kws.coercion.result/raw-value)]]
-   [set-btn {:state state
-             :path [kws/include-tags]
-             :set-fn #(let [tags (->> @state kws/include-tags kws.coercion.result/value)]
-                        (swap! state assoc kws/include-tags (coercion.result/raw-value->success tags))
-                        (set-include-tags! tags))}]])
+   [set-btn
+    {:state state
+     :path [kws/include-tags]
+     :set-fn #(let [tags (->> @state kws/include-tags kws.coercion.result/value)]
+                (swap! state assoc kws/include-tags (coercion.result/raw-value->success tags))
+                (set-include-tags! tags))}]])
 
 (defn- exclude-tags-config
   "A config for tags to exclude"
@@ -95,12 +96,15 @@
   [:div.cards-grid-config-dashboard__row
    (label "Not ANY tags")
    [input-wrapper {}
-    [inputs.tags/main (input-props state [kws/exclude-tags])]]
-   [set-btn {:state state
-             :path [kws/exclude-tags]
-             :set-fn #(let [tags (->> @state kws/exclude-tags tags/sanitize vec)]
-                        (swap! state assoc kws/exclude-tags tags)
-                        (set-exclude-tags! tags))}]])
+    [inputs.tags/main (input-props state [kws/exclude-tags]
+                                   :parse-fn #(coercion/main % coercers/tags)
+                                   :unparse-fn kws.coercion.result/raw-value)]]
+   [set-btn
+    {:state state
+     :path [kws/exclude-tags]
+     :set-fn #(let [tags (->> @state kws/exclude-tags kws.coercion.result/value)]
+                (swap! state assoc kws/exclude-tags (coercion.result/raw-value->success tags))
+                (set-exclude-tags! tags))}]])
 
 ;; Main
 (defn main
