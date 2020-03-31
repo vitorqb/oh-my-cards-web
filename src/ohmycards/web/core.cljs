@@ -29,6 +29,9 @@
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
              cards-grid.config-dashboard]
+            [ohmycards.web.views.cards-grid.config-dashboard.state-management
+             :as
+             cards-grid.config-dashboard.state-management]
             [ohmycards.web.views.cards-grid.core :as cards-grid]
             [ohmycards.web.views.cards-grid.state-management
              :as

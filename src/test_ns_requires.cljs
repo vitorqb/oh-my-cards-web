@@ -28,6 +28,7 @@
 [ohmycards.web.utils.components-test]
 [ohmycards.web.utils.pagination-test]
 [ohmycards.web.views.cards-grid.config-dashboard.core-test]
+[ohmycards.web.views.cards-grid.config-dashboard.state-management-test]
 [ohmycards.web.views.cards-grid.control-header-test]
 [ohmycards.web.views.cards-grid.core-test]
 [ohmycards.web.views.cards-grid.state-management-test]
