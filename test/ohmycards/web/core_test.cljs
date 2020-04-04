@@ -1,6 +1,9 @@
 (ns ohmycards.web.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.current-view.core :as components.current-view]
+            [ohmycards.web.controllers.action-dispatcher.core
+             :as
+             controllers.action-dispatcher]
             [ohmycards.web.core :as sut]
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
@@ -21,7 +24,7 @@
                   ::components.current-view/login-view       ::login-view
                   ::components.current-view/view             ::current-view
                   ::components.current-view/header-component ::header-component}]
-                [sut/action-dispatcher-dialog]]
+                [controllers.action-dispatcher/component]]
                (sut/current-view* state ::home-view ::login-view ::header-component))))
 
       (testing "Defaults view to home-view"

@@ -24,3 +24,8 @@
   [:div.action-dispatcher
    [:div.action-dispatcher__hydra-wrapper
     [hydra props]]])
+
+(defn reset-state
+  "Resets the state of an action dispatcher."
+  [state]
+  (reset! state nil))

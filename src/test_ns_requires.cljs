@@ -18,6 +18,7 @@
 [ohmycards.web.components.hydra.core-test]
 [ohmycards.web.components.inputs.tags-test]
 [ohmycards.web.components.loading-wrapper.core-test]
+[ohmycards.web.controllers.action-dispatcher.core-test]
 [ohmycards.web.core-test]
 [ohmycards.web.services.cards-crud.core-test]
 [ohmycards.web.services.events-bus.core-test]

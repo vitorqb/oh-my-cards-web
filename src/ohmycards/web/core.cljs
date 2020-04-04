@@ -1,11 +1,11 @@
 (ns ohmycards.web.core
   (:require [ohmycards.web.common.utils :as utils]
-            [ohmycards.web.components.action-dispatcher.core :as action-dispatcher]
             [ohmycards.web.components.current-view.core :as components.current-view]
-            [ohmycards.web.components.dialog.core :as dialog]
             [ohmycards.web.components.header.core :as header]
+            [ohmycards.web.controllers.action-dispatcher.core
+             :as
+             controllers.action-dispatcher]
             [ohmycards.web.kws.card :as kws.card]
-            [ohmycards.web.kws.components.dialog.core :as kws.dialog]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
             [ohmycards.web.kws.hydra.core :as kws.hydra]
@@ -54,10 +54,7 @@
              edit-card.state-management]
             [ohmycards.web.views.login.core :as views.login]
             [ohmycards.web.views.new-card.core :as new-card]
-            [reagent.core :as r]
-            [ohmycards.web.kws.components.action-dispatcher.core :as kws.action-dispatcher]))
-
-(declare close-action-dispatcher-dialog)
+            [reagent.core :as r]))
 
 ;; -------------------------
 ;; State
@@ -166,28 +163,6 @@
     kws.cards-grid.config-dashboard/set-exclude-tags!
     #(cards-grid.state-management/set-exclude-tags-from-props! cards-grid-page-props %)}])
 
-(def action-dispatcher-dialog-props
-  {:state (state-cursor :dialogs.action-dispatcher)})
-
-(defn- action-dispatcher-dialog
-  "An instance of a dialog with an action-dispatcher inside."
-  []
-  [dialog/main action-dispatcher-dialog-props
-   [action-dispatcher/main
-    {:state (state-cursor :components.action-dispatcher)
-     kws.action-dispatcher/actions-hydra-head actions-dispatcher-hydra-options
-     kws.action-dispatcher/dispatch-action! (fn [f]
-                                              (f)
-                                              (close-action-dispatcher-dialog))}]])
-
-;; !!!! TODO Check if we are logged in!
-(defn- show-action-dispatcher-dialog []
-  (reset! (state-cursor :components.action-dispatcher) {})
-  (swap! (:state action-dispatcher-dialog-props) assoc kws.dialog/active? true))
-
-(defn- close-action-dispatcher-dialog []
-  (swap! (:state action-dispatcher-dialog-props) assoc kws.dialog/active? false))
-
 (defn- current-view*
   "Returns an instance of the `current-view` component."
   [state home-view login-view header-component]
@@ -198,7 +173,7 @@
                                                     home-view)
      ::components.current-view/login-view       login-view
      ::components.current-view/header-component header-component}]
-   [action-dispatcher-dialog]])
+   [controllers.action-dispatcher/component]])
 
 (defn current-view [] (current-view* @state cards-grid-page login header))
 
@@ -246,7 +221,7 @@
   "All shortcuts to be registered in the app."
   [{kws.services.shortcuts-register/id       ::action-dispatcher
     kws.services.shortcuts-register/key-desc "shift+alt+j"
-    kws.services.shortcuts-register/callback show-action-dispatcher-dialog}
+    kws.services.shortcuts-register/callback #(controllers.action-dispatcher/show!)}
    {kws.services.shortcuts-register/id       ::hello
     kws.services.shortcuts-register/key-desc "shift+alt+h"
     kws.services.shortcuts-register/callback #(js/alert "Hello!")}])
@@ -261,4 +236,7 @@
   (routing.core/start-routing! routes set-routing-match!)
   (services.login/init-state! {:state state :http-fn http-fn})
   (services.shortcuts-register/init! shortcuts)
+  (controllers.action-dispatcher/init!
+   {:state (state-cursor :components.action-dispatcher)
+    :actions-dispatcher-hydra-options actions-dispatcher-hydra-options})
   (mount-root))
