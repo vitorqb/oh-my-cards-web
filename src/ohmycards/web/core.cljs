@@ -70,31 +70,6 @@
   (let [token (-> @state lenses.login/current-user kws.user/token)]
     (apply services.http/http kws.http/token token args)))
 
-;; ------------------------------
-;; Common actions from actions dispatcher
-(def actions-dispatcher-hydra-options
-  "The hydra root head for the action dispatcher."
-  {kws.hydra/type kws.hydra/branch
-   kws.hydra.branch/name "Action Dispatcher Hydra"
-   kws.hydra.branch/heads 
-   [{kws.hydra/shortcut    \c
-     kws.hydra/description "Cards Grid Configuration"
-     kws.hydra/type        kws.hydra/branch
-     kws.hydra.branch/name "Cards Grid Configuration"
-     kws.hydra.branch/heads
-     [{kws.hydra/shortcut    \l
-       kws.hydra/description "Load Profile"
-       kws.hydra/type        kws.hydra/leaf
-       kws.hydra.leaf/value  #(do)}
-      {kws.hydra/shortcut    \s
-       kws.hydra/description "Save Profile"
-       kws.hydra/type        kws.hydra/leaf
-       kws.hydra.leaf/value  #(do)}]}
-    {kws.hydra/shortcut    \q
-     kws.hydra/description "Quit"
-     kws.hydra/type        kws.hydra/leaf
-     kws.hydra.leaf/value  #(do)}]})
-
 ;; -------------------------
 ;; View instances
 (defn login
@@ -226,15 +201,46 @@
     kws.services.shortcuts-register/key-desc "shift+alt+h"
     kws.services.shortcuts-register/callback #(js/alert "Hello!")}])
 
+
+;; ------------------------------
+;; Common actions from actions dispatcher
+(def actions-dispatcher-hydra-options
+  "The hydra root head for the action dispatcher."
+  {kws.hydra/type kws.hydra/branch
+   kws.hydra.branch/name "Action Dispatcher Hydra"
+   kws.hydra.branch/heads 
+   [{kws.hydra/shortcut    \c
+     kws.hydra/description "Cards Grid Configuration"
+     kws.hydra/type        kws.hydra/branch
+     kws.hydra.branch/name "Cards Grid Configuration"
+     kws.hydra.branch/heads
+     [{kws.hydra/shortcut    \l
+       kws.hydra/description "Load Profile"
+       kws.hydra/type        kws.hydra/leaf
+       kws.hydra.leaf/value  #(do)}
+      {kws.hydra/shortcut    \s
+       kws.hydra/description "Save Profile"
+       kws.hydra/type        kws.hydra/leaf
+       kws.hydra.leaf/value  #(do)}
+      {kws.hydra/shortcut    \g
+       kws.hydra/description "Go!"
+       kws.hydra/type        kws.hydra/leaf
+       kws.hydra.leaf/value #(routing.core/goto! routing.pages/cards-grid-config)}]}
+    {kws.hydra/shortcut    \q
+     kws.hydra/description "Quit"
+     kws.hydra/type        kws.hydra/leaf
+     kws.hydra.leaf/value  #(do)}]})
+
 ;; -------------------------
 ;; Initialize app
 (defn mount-root []
   (r/render [current-view] (.getElementById js/document "app")))
 
 (defn ^:export init! []
+  ;; Services
+  (services.login/init-state! {:state state :http-fn http-fn})
   (events-bus/init! {kws.events-bus/handler events-bus-handler})
   (routing.core/start-routing! routes set-routing-match!)
-  (services.login/init-state! {:state state :http-fn http-fn})
   (services.shortcuts-register/init! shortcuts)
   (controllers.action-dispatcher/init!
    {:state (state-cursor :components.action-dispatcher)
