@@ -1,13 +1,14 @@
 (ns ohmycards.web.services.shortcuts-register.core
   (:require goog.events
-            [ohmycards.web.kws.services.shortcuts-register.core :as kws])
+            [ohmycards.web.kws.services.shortcuts-register.core :as kws]
+            [ohmycards.web.utils.logging :as logging])
   (:import goog.ui.KeyboardShortcutHandler))
 
 ;; Constants
 (def ^:private SHORTCUT-TRIGGERED goog.ui.KeyboardShortcutHandler.EventType.SHORTCUT_TRIGGERED)
 
 ;; Helpers
-(defn- log [x] (js/console.log (str "[Services.ShortcutsRegister] " x)))
+(logging/deflogger log "Services.ShortcutsRegister")
 
 (defn- register-shortcut!
   [{::kws/keys [id key-desc callback]}]

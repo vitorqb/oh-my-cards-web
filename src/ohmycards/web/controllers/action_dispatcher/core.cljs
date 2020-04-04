@@ -5,15 +5,14 @@
              :as
              kws.action-dispatcher]
             [ohmycards.web.kws.components.dialog.core :as kws.dialog]
+            [ohmycards.web.utils.logging :as utils.logging]
             [reagent.core :as r]))
 
 (declare close!)
+(utils.logging/deflogger log "Controllers.ActionDispatcher")
 
 ;; Private dynamic variable with the controller opts.
 (defonce ^:dynamic ^:private *controller* nil)
-
-;; Helpers
-(defn- log [& xs] (apply js/console.log "[Controllers.ActionDispatcher] " xs))
 
 ;; Impl
 (defn- show*

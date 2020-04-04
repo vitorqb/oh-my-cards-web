@@ -3,7 +3,10 @@
             [ohmycards.web.common.tags.core :as tags]
             [ohmycards.web.kws.services.fetch-cards.core :as kws.fetch-cards]
             [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
+            [ohmycards.web.utils.logging :as logging]
             [ohmycards.web.utils.pagination :as utils.pagination]))
+
+(logging/deflogger log "Views.CardsGrid.StateManagement")
 
 (defn- state-initialized?
   "Returns a boolean indicating whether the state has been initialized."
@@ -37,7 +40,7 @@
   "Refetches the data from the BE"
   [state fetch-cards!]
   (a/go
-    (js/console.log "Fetching cards...")
+    (log "Fetching cards...")
     (swap! state reduce-on-fetched-cards (-> @state fetch-cards-params fetch-cards! a/<!))))
 
 (defn- has-previous-page?
@@ -55,14 +58,14 @@
 (defn initialize-from-props!
   "Initializes the component's state."
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]}]
-  (js/console.log "Initilizing state for cards-grid...")
+  (log "Initilizing state...")
   (when (not (state-initialized? @state))
     (init-state! state fetch-cards!)))
 
 (defn refetch-from-props!
   "Refetches the cards data using the props."
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]}]
-  (js/console.log "Refetching cards grid data...")
+  (log "Refetching data...")
   (refetch! state fetch-cards!))
 
 (defn set-page-from-props!

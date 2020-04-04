@@ -1,7 +1,10 @@
 (ns ohmycards.web.services.login.get-token
-  (:require [ohmycards.web.kws.services.login.core :as kws]
-            [cljs.core.async :as a]
-            [ohmycards.web.kws.http :as kws.http]))
+  (:require [cljs.core.async :as a]
+            [ohmycards.web.kws.http :as kws.http]
+            [ohmycards.web.kws.services.login.core :as kws]
+            [ohmycards.web.utils.logging :as logging]))
+
+(logging/deflogger log "Services.Loging.GetToken")
 
 (defn- parse-response
   [{::kws.http/keys [success? body status] :as resp}]
@@ -18,7 +21,7 @@
 (defn send!
   "Sends a get-token request to the BE and parses the response."
   [{::kws/keys [email onetime-password]} {:keys [http-fn]}]
-  (js/console.log "Asking for token...")
+  (log "Asking for token...")
   (a/map
    parse-response
    [(http-fn
