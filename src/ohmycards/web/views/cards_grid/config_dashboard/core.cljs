@@ -6,11 +6,14 @@
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.common.coercion.result :as kws.coercion.result]
+            [ohmycards.web.kws.views.cards-grid.config :as kws.config]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
-            [ohmycards.web.kws.views.cards-grid.config :as kws.config]))
+            [ohmycards.web.kws.components.inputs.combobox.core :as kws.combobox]
+            [ohmycards.web.kws.components.inputs.combobox.options :as kws.combobox.options]))
 
 ;; Helpers
 (defn- label [x] [:span.cards-grid-config-dashboard__label x])
@@ -106,6 +109,28 @@
        :set-fn #(do (swap! state update-in path coercion.result/copy-value-to-raw-value)
                     (-> @state (get-in path) kws.coercion.result/value set-exclude-tags!))}]]))
 
+(defn- load-profile-name
+  "A row for the user to load a profile by it's name."
+  [{:keys [state] ::kws/keys [profiles-names]}]
+  (let [path [kws/load-profile-name]
+        options (map #(do {kws.combobox.options/value %}) profiles-names)]
+    [:div.cards-grid-config-dashboard__row
+     (label "Load Profile")
+     [input-wrapper {}
+      [inputs.combobox/main (input-props state path (coercers/is-in profiles-names)
+                                         kws.combobox/options options)]]
+     [set-btn
+      {:state state
+       :path path
+       :set-fn #(do (throw (js/Error. "Not Implemented")))}]]))
+
+(defn- profile-manager
+  "A profile manager for the cards grid configuration."
+  [{:keys [state] :as props}]
+  [:div.cards-grid-config-dashboard__profile-manager
+   (label "Profile Manager")
+   [load-profile-name props]])
+
 ;; Main
 (defn main
   "A configuration dashboard for the cards grid."
@@ -115,4 +140,5 @@
    [page-config props]
    [page-size-config props]
    [include-tags-config props]
-   [exclude-tags-config props]])
+   [exclude-tags-config props]
+   [profile-manager props]])

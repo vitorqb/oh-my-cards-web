@@ -1,9 +1,15 @@
 (ns ohmycards.web.views.cards-grid.config-dashboard.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.common.coercion.coercers :as coercers]
             [ohmycards.web.common.coercion.result :as coercion.result]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
+            [ohmycards.web.kws.components.inputs.combobox.core :as kws.combobox]
+            [ohmycards.web.kws.components.inputs.combobox.options
+             :as
+             kws.combobox.options]
             [ohmycards.web.kws.views.cards-grid.config :as kws.config]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
             [ohmycards.web.test-utils :as tu]
@@ -11,13 +17,57 @@
 
 (deftest test-main
 
-  (testing "Contains header"
-    (let [props {::foo 1}]
-      (is (tu/exists-in-component? [sut/header props] (sut/main props)))))
+  (let [props {::foo 1}
+        comp  (sut/main props)]
 
-  (testing "Contains include-tags config"
-    (let [props {::foo 1}]
-      (is (tu/exists-in-component? [sut/include-tags-config props] (sut/main props))))))
+    (testing "Contains header"
+      (is (tu/exists-in-component? [sut/header props] comp)))
+
+    (testing "Contains include-tags config"
+      (is (tu/exists-in-component? [sut/include-tags-config props] comp)))
+
+    (testing "Contains profile-manager"
+      (is (tu/exists-in-component? [sut/profile-manager props] comp)))))
+
+(deftest test-profile-manager
+
+  (let [state (atom {})
+        props {:state state}
+        comp  (sut/profile-manager props)]
+
+    (testing "Renders the label"
+      (is (tu/exists-in-component? (sut/label "Profile Manager") comp)))
+
+    (testing "Renders the load-profile-name"
+      (is (tu/exists-in-component? [sut/load-profile-name props] comp)))))
+
+(deftest test-load-profile-name
+
+  (with-redefs [sut/input-props (fn [a b c & xs] {:a a :b b :c c :xs xs})
+                coercers/is-in  (fn [& xs] [::is-n xs])]
+
+    (let [state (atom {})
+          props {:state state kws/profiles-names ["Foo"]}
+          comp  (sut/load-profile-name props)
+          exists-in-comp? #(tu/exists-in-component? % comp)
+          props-for #(tu/get-props-for % comp)]
+
+      (testing "Renders label"
+        (is (exists-in-comp? (sut/label "Load Profile"))))
+
+      (testing "Renders input-wrapper"
+        (is
+         (exists-in-comp?
+          [sut/input-wrapper {}
+           [inputs.combobox/main
+            (sut/input-props state [kws/load-profile-name] (coercers/is-in ["Foo"])
+                             kws.combobox/options [{kws.combobox.options/value "Foo"}])]])))
+
+      (testing "Renders set-btn"
+        (let [btn-props (props-for sut/set-btn)]
+          (is (fn? (:set-fn btn-props)))
+          (is (= state (:state btn-props)))
+          (is (= [kws/load-profile-name] (:path btn-props))))))))
 
 (deftest test-page-config
 

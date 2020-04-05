@@ -136,7 +136,11 @@
     #(cards-grid.state-management/set-include-tags-from-props! cards-grid-page-props %)
 
     kws.cards-grid.config-dashboard/set-exclude-tags!
-    #(cards-grid.state-management/set-exclude-tags-from-props! cards-grid-page-props %)}])
+    #(cards-grid.state-management/set-exclude-tags-from-props! cards-grid-page-props %)
+
+    ;; !!!! TODO pass real options
+    kws.cards-grid.config-dashboard/profiles-names
+    ["OhMyCards Base" "OhMyCards Done"]}])
 
 (defn- current-view*
   "Returns an instance of the `current-view` component."

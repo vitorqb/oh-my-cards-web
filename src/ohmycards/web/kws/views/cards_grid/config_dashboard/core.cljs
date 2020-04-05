@@ -7,5 +7,8 @@
   ::set-include-tags!)
 (def set-exclude-tags! "A fn that sets the tags that must NOT be included in the cards."
   ::set-exclude-tags!)
+(def profiles-names "A list of names for available profiles for the user to load." ::profiles-names)
 
 (def config "The cards grid configuration map." ::config)
+
+(def load-profile-name "The name of the profile to be loaded." ::load-profile-name)
