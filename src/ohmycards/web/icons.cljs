@@ -7,4 +7,5 @@
 (defn home [p] [:i.fa.fa-home p])
 (defn check [p] [:i.fa.fa-check-square p])
 (defn edit [p] [:i.fa.fa-edit p])
+(defn close [p] [:i.fa.fa-window-close p])
 (defn trash [p] [:i.fa.fa-trash p])

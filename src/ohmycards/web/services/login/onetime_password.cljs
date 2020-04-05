@@ -1,8 +1,10 @@
 (ns ohmycards.web.services.login.onetime-password
-  (:require [ohmycards.web.kws.http :as kws.http]
-            [cljs.core.async :as a]
-            [ohmycards.web.kws.services.login.core :as kws]))
+  (:require [cljs.core.async :as a]
+            [ohmycards.web.kws.http :as kws.http]
+            [ohmycards.web.kws.services.login.core :as kws]
+            [ohmycards.web.utils.logging :as logging]))
 
+(logging/deflogger log "Services.Login.OnetimePassword")
 
 (defn- parse-response
   "Parses the http response from a post to sendOnetimePassword."
@@ -14,7 +16,7 @@
 (defn send!
   "Asks BE to send a one time password to the user's email."
   [{::kws/keys [email]} {:keys [http-fn]}]
-  (js/console.log "Sending onetime password...")
+  (log "Sending onetime password...")
   (a/map
    parse-response
    [(http-fn

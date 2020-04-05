@@ -1,8 +1,10 @@
 (ns ohmycards.web.views.cards-grid.state-management-test
-  (:require [ohmycards.web.views.cards-grid.state-management :as sut]
-            [cljs.test :refer-macros [is are deftest testing use-fixtures async]]
+  (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.kws.cards-grid.config.core :as kws.config]
+            [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
+            [ohmycards.web.kws.services.fetch-cards.core :as kws.fetch-cards]
             [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
-            [ohmycards.web.kws.services.fetch-cards.core :as kws.fetch-cards]))
+            [ohmycards.web.views.cards-grid.state-management :as sut]))
 
 (deftest test-reduce-on-fetched-cards
 
@@ -39,7 +41,19 @@
                                    ::kws.cards-grid/page-size 2})))
   (is (true? (sut/has-next-page? {::kws.cards-grid/count-of-cards 11
                                    ::kws.cards-grid/page 5
-                                   ::kws.cards-grid/page-size 2}))))
+                                  ::kws.cards-grid/page-size 2}))))
+
+(deftest test-set-config-profile
+  (let [profile {kws.profile/name "FOO"
+                 kws.profile/config {kws.config/exclude-tags ["A"]
+                                     kws.config/include-tags ["B"]
+                                     kws.config/page 1
+                                     kws.config/page-size 2}}]
+    (is (= {kws.cards-grid/exclude-tags ["A"]
+            kws.cards-grid/include-tags ["B"]
+            kws.cards-grid/page 1
+            kws.cards-grid/page-size 2}
+           (sut/set-config-profile {} profile)))))
 
 (deftest test-fetch-cards-params
 

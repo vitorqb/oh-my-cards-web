@@ -1,9 +1,16 @@
 (ns ohmycards.web.core
-  (:require [ohmycards.web.common.utils :as utils]
+  (:require [cljs.core.async :as async]
+            [ohmycards.web.common.utils :as utils]
             [ohmycards.web.components.current-view.core :as components.current-view]
             [ohmycards.web.components.header.core :as header]
+            [ohmycards.web.controllers.action-dispatcher.core
+             :as
+             controllers.action-dispatcher]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.http :as kws.http]
+            [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
+            [ohmycards.web.kws.hydra.core :as kws.hydra]
+            [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
             [ohmycards.web.kws.routing.core :as kws.routing]
@@ -13,6 +20,9 @@
              kws.cards-crud.actions]
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
             [ohmycards.web.kws.services.events-bus.core :as kws.events-bus]
+            [ohmycards.web.kws.services.shortcuts-register.core
+             :as
+             kws.services.shortcuts-register]
             [ohmycards.web.kws.user :as kws.user]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core
              :as
@@ -22,13 +32,22 @@
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
             [ohmycards.web.routing.core :as routing.core]
             [ohmycards.web.services.cards-crud.core :as services.cards-crud]
+            [ohmycards.web.services.cards-grid-profile-loader.core
+             :as
+             services.cards-grid-profile-loader]
             [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.http :as services.http]
             [ohmycards.web.services.login.core :as services.login]
+            [ohmycards.web.services.shortcuts-register.core
+             :as
+             services.shortcuts-register]
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
              cards-grid.config-dashboard]
+            [ohmycards.web.views.cards-grid.config-dashboard.state-management
+             :as
+             cards-grid.config-dashboard.state-management]
             [ohmycards.web.views.cards-grid.core :as cards-grid]
             [ohmycards.web.views.cards-grid.state-management
              :as
@@ -55,6 +74,11 @@
   (let [token (-> @state lenses.login/current-user kws.user/token)]
     (apply services.http/http kws.http/token token args)))
 
+(defn fetch-cards!
+  "A shortcut to fetch cards using the fetch-cards svc"
+  [opts]
+  (services.fetch-cards/main (assoc opts :http-fn http-fn)))
+
 ;; -------------------------
 ;; View instances
 (defn login
@@ -72,7 +96,7 @@
 (def cards-grid-page-props
   "Props given to the cards-grid-page."
   {:state (state-cursor :views.cards-grid)
-   kws.cards-grid/fetch-cards! #(services.fetch-cards/main (assoc % :http-fn http-fn))
+   kws.cards-grid/fetch-cards! fetch-cards!
    kws.cards-grid/goto-settings! #(routing.core/goto! routing.pages/cards-grid-config)
    kws.cards-grid/goto-newcard! #(routing.core/goto! routing.pages/new-card)
    kws.cards-grid/goto-editcard! #(routing.core/goto!
@@ -104,34 +128,48 @@
 (defn cards-grid-config-page
   "An instance for the cards-grid-config view."
   []
-  [cards-grid.config-dashboard/main
-   {:state
-    (state-cursor :views.cards-grid.config-dashboard)
+  (let [state (state-cursor :views.cards-grid.config-dashboard)]
+    [cards-grid.config-dashboard/main
+     {:state
+      state
 
-    kws.cards-grid.config-dashboard/goto-cards-grid!
-    #(routing.core/goto! routing.pages/home)
+      kws.cards-grid.config-dashboard/goto-cards-grid!
+      #(routing.core/goto! routing.pages/home)
 
-    kws.cards-grid.config-dashboard/set-page!
-    #(cards-grid.state-management/set-page-from-props! cards-grid-page-props %)
+      kws.cards-grid.config-dashboard/set-page!
+      #(cards-grid.state-management/set-page-from-props! cards-grid-page-props %)
 
-    kws.cards-grid.config-dashboard/set-page-size!
-    #(cards-grid.state-management/set-page-size-from-props! cards-grid-page-props %)
+      kws.cards-grid.config-dashboard/set-page-size!
+      #(cards-grid.state-management/set-page-size-from-props! cards-grid-page-props %)
 
-    kws.cards-grid.config-dashboard/set-include-tags!
-    #(cards-grid.state-management/set-include-tags-from-props! cards-grid-page-props %)
+      kws.cards-grid.config-dashboard/set-include-tags!
+      #(cards-grid.state-management/set-include-tags-from-props! cards-grid-page-props %)
 
-    kws.cards-grid.config-dashboard/set-exclude-tags!
-    #(cards-grid.state-management/set-exclude-tags-from-props! cards-grid-page-props %)}])
+      kws.cards-grid.config-dashboard/set-exclude-tags!
+      #(cards-grid.state-management/set-exclude-tags-from-props! cards-grid-page-props %)
+
+      ;; !!!! TODO pass real options
+      kws.cards-grid.config-dashboard/profiles-names
+      ["OhMyCards Base" "OhMyCards Done"]
+
+      kws.cards-grid.config-dashboard/load-profile!
+      #(async/go
+         (let [chan (services.cards-grid-profile-loader/main! {:http-fn http-fn} %)
+               resp (async/<! chan)]
+           (cards-grid.config-dashboard.state-management/set-config-from-loader! state resp)
+           (cards-grid.state-management/set-config-from-loader! cards-grid-page-props resp)))}]))
 
 (defn- current-view*
   "Returns an instance of the `current-view` component."
   [state home-view login-view header-component]
-  [components.current-view/main
-   {::components.current-view/current-user     (::lenses.login/current-user state)
-    ::components.current-view/view             (or (-> state ::lenses.routing/match :data :view)
-                                                   home-view)
-    ::components.current-view/login-view       login-view
-    ::components.current-view/header-component header-component}])
+  [:<>
+   [components.current-view/main
+    {::components.current-view/current-user     (::lenses.login/current-user state)
+     ::components.current-view/view             (or (-> state ::lenses.routing/match :data :view)
+                                                    home-view)
+     ::components.current-view/login-view       login-view
+     ::components.current-view/header-component header-component}]
+   [controllers.action-dispatcher/component]])
 
 (defn current-view [] (current-view* @state cards-grid-page login header))
 
@@ -173,13 +211,55 @@
   #(do
      (handle-cards-crud-action %1 %2)))
 
+;; ------------------------------
+;; Shortcuts
+(def shortcuts
+  "All shortcuts to be registered in the app."
+  [{kws.services.shortcuts-register/id       ::action-dispatcher
+    kws.services.shortcuts-register/key-desc "shift+alt+j"
+    kws.services.shortcuts-register/callback #(controllers.action-dispatcher/show!)}
+   {kws.services.shortcuts-register/id       ::hello
+    kws.services.shortcuts-register/key-desc "shift+alt+h"
+    kws.services.shortcuts-register/callback #(js/alert "Hello!")}])
+
+
+;; ------------------------------
+;; Common actions from actions dispatcher
+(def actions-dispatcher-hydra-options
+  "The hydra root head for the action dispatcher."
+  {kws.hydra/type kws.hydra/branch
+   kws.hydra.branch/name "Action Dispatcher Hydra"
+   kws.hydra.branch/heads 
+   [{kws.hydra/shortcut    \c
+     kws.hydra/description "Cards Grid Configuration"
+     kws.hydra/type        kws.hydra/branch
+     kws.hydra.branch/name "Cards Grid Configuration"
+     kws.hydra.branch/heads
+     [{kws.hydra/shortcut    \g
+       kws.hydra/description "Go!"
+       kws.hydra/type        kws.hydra/leaf
+       kws.hydra.leaf/value #(routing.core/goto! routing.pages/cards-grid-config)}]}
+    {kws.hydra/shortcut    \h
+     kws.hydra/description "Home"
+     kws.hydra/type        kws.hydra/leaf
+     kws.hydra.leaf/value  #(routing.core/goto! routing.pages/home)}
+    {kws.hydra/shortcut    \q
+     kws.hydra/description "Quit"
+     kws.hydra/type        kws.hydra/leaf
+     kws.hydra.leaf/value  #(do)}]})
+
 ;; -------------------------
 ;; Initialize app
 (defn mount-root []
   (r/render [current-view] (.getElementById js/document "app")))
 
 (defn ^:export init! []
+  ;; Services
+  (services.login/init-state! {:state state :http-fn http-fn})
   (events-bus/init! {kws.events-bus/handler events-bus-handler})
   (routing.core/start-routing! routes set-routing-match!)
-  (services.login/init-state! {:state state :http-fn http-fn})
+  (services.shortcuts-register/init! shortcuts)
+  (controllers.action-dispatcher/init!
+   {:state (state-cursor :components.action-dispatcher)
+    :actions-dispatcher-hydra-options actions-dispatcher-hydra-options})
   (mount-root))

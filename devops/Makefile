@@ -45,7 +45,7 @@ artifacts/prod: build/prod
 	$(MAKE) -C $(BUILD_DIR) ci scss/once release/app
 
 	$(call msg,"Creating .tar.gz file...")
-	tar -vzcf $(target_prod) -C $(BUILD_DIR)/public css js vendor index.html
+	tar --dereference -vzcf $(target_prod) -C $(BUILD_DIR)/public css js vendor index.html
 
 # Creates an image ready for deploy in a production environment.
 images/prod: artifacts/prod

@@ -10,6 +10,7 @@
 (def not-positive "Not a positive number!")
 (def not-empty "Expected an empty value!")
 (def not-valid-tags "Invalid values for tags!")
+(def not-in-acceptable-vals "Value is not among the acceptable values.")
 
 ;; Helpers methods to construct coercers
 (defn wrap-success
@@ -61,3 +62,13 @@
           (if (every? tags/valid? value')
             (assoc result kws.result/value value'))))
       (result/->failure result not-valid-tags)))))
+
+(defn is-in
+  "Factory for a Validator that fails if a value is not inside a set of values."
+  [acceptable-values]
+  (wrap-success
+   (fn [{::kws.result/keys [value] :as result}]
+     (if ((set acceptable-values) value)
+       result
+       (result/->failure result not-in-acceptable-vals)))))
+

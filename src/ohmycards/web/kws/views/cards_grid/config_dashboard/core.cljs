@@ -7,8 +7,10 @@
   ::set-include-tags!)
 (def set-exclude-tags! "A fn that sets the tags that must NOT be included in the cards."
   ::set-exclude-tags!)
+(def load-profile! "A fn that is called with a profile name for loading a profile" ::load-profile!)
 
-(def page "The settings value for the current page." ::page)
-(def page-size "The settings value for the current page size." ::page-size)
-(def include-tags "The settings value for tags that must be included in all cards." ::include-tags)
-(def exclude-tags "The settings value for tags that must be excluded in all cards." ::exclude-tags)
+(def profiles-names "A list of names for available profiles for the user to load." ::profiles-names)
+
+(def config "The cards grid configuration map." ::config)
+
+(def load-profile-name "The name of the profile to be loaded." ::load-profile-name)

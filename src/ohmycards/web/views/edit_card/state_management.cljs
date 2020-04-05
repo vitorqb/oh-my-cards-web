@@ -2,7 +2,10 @@
   (:require [cljs.core.async :as a]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
-            [ohmycards.web.kws.views.edit-card.core :as kws]))
+            [ohmycards.web.kws.views.edit-card.core :as kws]
+            [ohmycards.web.utils.logging :as logging]))
+
+(logging/deflogger log "Views.EditCard.StateManagement")
 
 (defn- should-fetch-card?
   "Given the current state and a card-id, decides whether we should go fetch the card or not."
@@ -36,7 +39,7 @@
   Returns the initializes state."
   [state card-id fetch-card!]
   (when (should-fetch-card? @state card-id)
-    (js/console.log (str "Initializing edit-card state for id " card-id))
+    (log (str "Initializing edit-card state for id " card-id))
     (swap! state reduce-before-card-fetch card-id)
     (a/go
       (swap! state reduce-on-card-fetch (a/<! (fetch-card! card-id)))))

@@ -14,3 +14,9 @@
   "Returns logical true of a given element is found on the component tree."
   [element component]
   (some #(= element %) (comp-seq component)))
+
+(defn get-props-for
+  "Returns THE FIRST props for a component of a `type` t."
+  [t component]
+  (let [[_ props] (get-first #(= (safe-first %) t) component)]
+    props))

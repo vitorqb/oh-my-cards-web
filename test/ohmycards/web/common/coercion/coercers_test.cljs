@@ -71,3 +71,14 @@
   (testing "Invalid coercion with an invalid tag"
     (is (= (coercion.result/failure ["foo bar"] sut/not-valid-tags)
            (sut/tags (coercion.result/raw-value->success ["foo bar"]))))))
+
+(deftest test-is-in
+
+  (testing "Valid coercion with a value that is in the set"
+    (let [in (coercion.result/success "foo" "foo")]
+      (is (= in ((sut/is-in ["bar" "foo"]) in)))))
+
+  (testing "Invalid coercion with a value that is not the set"
+    (let [in (coercion.result/success "baz" "baz")]
+      (is (= (coercion.result/failure "baz" sut/not-in-acceptable-vals)
+             ((sut/is-in ["bar" "foo"]) in))))))

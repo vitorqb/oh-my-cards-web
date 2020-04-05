@@ -15,7 +15,8 @@
                  :asset-path "/js"
                  :modules    {:app {:entries [ohmycards.web.core]}}
                  :devtools   {:after-load ohmycards.web.core/mount-root
-                              :preloads [pjstadig.humane-test-output]}}
+                              :preloads [pjstadig.humane-test-output]
+                              :repl-pprint true}}
 
           :test {:target     :karma
                  :output-to  "target/test.js"

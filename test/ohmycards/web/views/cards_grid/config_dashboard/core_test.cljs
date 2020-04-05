@@ -1,41 +1,91 @@
 (ns ohmycards.web.views.cards-grid.config-dashboard.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.common.coercion.coercers :as coercers]
             [ohmycards.web.common.coercion.result :as coercion.result]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
+            [ohmycards.web.kws.components.inputs.combobox.core :as kws.combobox]
+            [ohmycards.web.kws.components.inputs.combobox.options
+             :as
+             kws.combobox.options]
+            [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.cards-grid.config-dashboard.core :as sut]))
 
 (deftest test-main
 
-  (testing "Contains header"
-    (let [props {::foo 1}]
-      (is (tu/exists-in-component? [sut/header props] (sut/main props)))))
+  (let [props {::foo 1}
+        comp  (sut/main props)]
 
-  (testing "Contains include-tags config"
-    (let [props {::foo 1}]
-      (is (tu/exists-in-component? [sut/include-tags-config props] (sut/main props))))))
+    (testing "Contains header"
+      (is (tu/exists-in-component? [sut/header props] comp)))
+
+    (testing "Contains include-tags config"
+      (is (tu/exists-in-component? [sut/include-tags-config props] comp)))
+
+    (testing "Contains profile-manager"
+      (is (tu/exists-in-component? [sut/profile-manager props] comp)))))
+
+(deftest test-profile-manager
+
+  (let [state (atom {})
+        props {:state state}
+        comp  (sut/profile-manager props)]
+
+    (testing "Renders the label"
+      (is (tu/exists-in-component? (sut/label "Profile Manager") comp)))
+
+    (testing "Renders the load-profile-name"
+      (is (tu/exists-in-component? [sut/load-profile-name props] comp)))))
+
+(deftest test-load-profile-name
+
+  (with-redefs [sut/input-props (fn [a b c & xs] {:a a :b b :c c :xs xs})
+                coercers/is-in  (fn [& xs] [::is-n xs])]
+
+    (let [state (atom {})
+          props {:state state kws/profiles-names ["Foo"]}
+          comp  (sut/load-profile-name props)
+          exists-in-comp? #(tu/exists-in-component? % comp)
+          props-for #(tu/get-props-for % comp)]
+
+      (testing "Renders label"
+        (is (exists-in-comp? (sut/label "Load Profile"))))
+
+      (testing "Renders input-wrapper"
+        (is
+         (exists-in-comp?
+          [sut/input-wrapper {}
+           [inputs.combobox/main
+            (sut/input-props state [kws/load-profile-name] (coercers/is-in ["Foo"])
+                             kws.combobox/options [{kws.combobox.options/value "Foo"}])]])))
+
+      (testing "Renders set-btn"
+        (let [btn-props (props-for sut/set-btn)]
+          (is (fn? (:set-fn btn-props)))
+          (is (= state (:state btn-props)))
+          (is (= "Load!" (:label btn-props)))
+          (is (= [kws/load-profile-name] (:path btn-props))))))))
 
 (deftest test-page-config
 
-  (let [coerced-value (coercion.result/success "2" 2)
-        get-state     #(atom (apply hash-map kws/page coerced-value %&))]
+  (let [coerced-value (coercion.result/success "2" 2)]
 
     (testing "Contains input with value"
-      (let [props {:state (get-state)}
+      (let [props {:state (atom {kws/config {kws.config/page coerced-value}})}
             [_ input-props] (tu/get-first #(= (tu/safe-first %) form.input/main)
                                           (tu/comp-seq (sut/page-config props)))]
         (is (= (:value input-props) "2"))))))
 
 (deftest test-page-site-config
 
-  (let [coerced-value (coercion.result/success "20" 20)
-        get-state #(atom (apply hash-map kws/page-size coerced-value %&))]
+  (let [coerced-value (coercion.result/success "20" 20)]
 
     (testing "Contains input with value"
-      (let [props {:state (get-state)}
+      (let [props {:state (atom {kws/config {kws.config/page-size coerced-value}})}
             [_ input-props] (tu/get-first #(= (tu/safe-first %) form.input/main)
                                           (tu/comp-seq (sut/page-size-config props)))]
         (is (= (:value input-props) "20"))))))
@@ -43,30 +93,27 @@
 (deftest test-include-tags-config
 
   (let [coerced-value (coercion.result/success ["A"] ["A"])
-        get-state #(atom (apply hash-map kws/include-tags coerced-value %&))]
+        props {:state (atom {kws/config {kws.config/include-tags coerced-value}})}]
 
     (testing "Includes label"
-      (let [props {:state (get-state)}]
-        (is (tu/exists-in-component? (sut/label "ALL tags") (sut/include-tags-config props)))))
+      (is (tu/exists-in-component? (sut/label "ALL tags") (sut/include-tags-config props))))
 
     (testing "Contains input with value"
-      (let [props {:state (get-state)}
-            comp (sut/include-tags-config props)
+      (let [comp (sut/include-tags-config props)
             [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
                                           (tu/comp-seq comp))]
         (is (= (:value input-props) ["A"]))))))
 
 (deftest test-exclude-tags-config
 
-  (let [coerced-value (coercion.result/success ["A"] ["A"])
-        get-state #(atom (apply hash-map kws/exclude-tags coerced-value %&))]
+  (let [coerced-value (coercion.result/success ["A"] ["A"])]
 
     (testing "Includes label"
-      (let [props {:state (get-state)}]
+      (let [props {:state (atom {kws/config {kws.config/exclude-tags coerced-value}})}]
         (is (tu/exists-in-component? (sut/label "Not ANY tags") (sut/exclude-tags-config props)))))
 
     (testing "Contains input with value"
-      (let [props {:state (get-state)}
+      (let [props {:state (atom {kws/config {kws.config/exclude-tags coerced-value}})}
             comp (sut/exclude-tags-config props)
             [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
                                           (tu/comp-seq comp))]
