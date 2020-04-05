@@ -235,15 +235,7 @@
      kws.hydra/type        kws.hydra/branch
      kws.hydra.branch/name "Cards Grid Configuration"
      kws.hydra.branch/heads
-     [{kws.hydra/shortcut    \l
-       kws.hydra/description "Load Profile"
-       kws.hydra/type        kws.hydra/leaf
-       kws.hydra.leaf/value  #(do)}
-      {kws.hydra/shortcut    \s
-       kws.hydra/description "Save Profile"
-       kws.hydra/type        kws.hydra/leaf
-       kws.hydra.leaf/value  #(do)}
-      {kws.hydra/shortcut    \g
+     [{kws.hydra/shortcut    \g
        kws.hydra/description "Go!"
        kws.hydra/type        kws.hydra/leaf
        kws.hydra.leaf/value #(routing.core/goto! routing.pages/cards-grid-config)}]}
