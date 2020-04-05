@@ -1,7 +1,7 @@
 (ns ohmycards.web.views.cards-grid.config-dashboard.state-management-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.common.coercion.result :as coercion.result]
-            [ohmycards.web.kws.views.cards-grid.config :as kws.config]
+            [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
             [ohmycards.web.views.cards-grid.config-dashboard.state-management
              :as

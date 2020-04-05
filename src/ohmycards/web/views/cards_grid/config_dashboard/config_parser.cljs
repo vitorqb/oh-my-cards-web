@@ -1,6 +1,6 @@
 (ns ohmycards.web.views.cards-grid.config-dashboard.config-parser
   (:require [ohmycards.web.common.coercion.result :as coercion.result]
-            [ohmycards.web.kws.views.cards-grid.config :as kws.config]))
+            [ohmycards.web.kws.cards-grid.config.core :as kws.config]))
 
 (defn to-coercion-result
   "Transforms the value for a given config keyword into a coercion result object."

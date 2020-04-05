@@ -1,5 +1,4 @@
-(ns ohmycards.web.kws.views.cards-grid.config
-  "Keywords for the configuration of a cards' grid.")
+(ns ohmycards.web.kws.cards-grid.config.core)
 
 (def page "The settings value for the current page." ::page)
 (def page-size "The settings value for the current page size." ::page-size)

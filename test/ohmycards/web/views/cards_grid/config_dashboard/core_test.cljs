@@ -10,7 +10,7 @@
             [ohmycards.web.kws.components.inputs.combobox.options
              :as
              kws.combobox.options]
-            [ohmycards.web.kws.views.cards-grid.config :as kws.config]
+            [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.cards-grid.config-dashboard.core :as sut]))

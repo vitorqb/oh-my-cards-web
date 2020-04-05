@@ -10,7 +10,7 @@
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.common.coercion.result :as kws.coercion.result]
-            [ohmycards.web.kws.views.cards-grid.config :as kws.config]
+            [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
             [ohmycards.web.kws.components.inputs.combobox.core :as kws.combobox]
             [ohmycards.web.kws.components.inputs.combobox.options :as kws.combobox.options]))
