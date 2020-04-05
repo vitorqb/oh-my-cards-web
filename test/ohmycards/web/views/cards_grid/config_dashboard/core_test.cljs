@@ -67,6 +67,7 @@
         (let [btn-props (props-for sut/set-btn)]
           (is (fn? (:set-fn btn-props)))
           (is (= state (:state btn-props)))
+          (is (= "Load!" (:label btn-props)))
           (is (= [kws/load-profile-name] (:path btn-props))))))))
 
 (deftest test-page-config

@@ -1,5 +1,6 @@
 (ns ohmycards.web.core
-  (:require [ohmycards.web.common.utils :as utils]
+  (:require [cljs.core.async :as async]
+            [ohmycards.web.common.utils :as utils]
             [ohmycards.web.components.current-view.core :as components.current-view]
             [ohmycards.web.components.header.core :as header]
             [ohmycards.web.controllers.action-dispatcher.core
@@ -31,6 +32,9 @@
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
             [ohmycards.web.routing.core :as routing.core]
             [ohmycards.web.services.cards-crud.core :as services.cards-crud]
+            [ohmycards.web.services.cards-grid-profile-loader.core
+             :as
+             services.cards-grid-profile-loader]
             [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.http :as services.http]
@@ -119,28 +123,36 @@
 (defn cards-grid-config-page
   "An instance for the cards-grid-config view."
   []
-  [cards-grid.config-dashboard/main
-   {:state
-    (state-cursor :views.cards-grid.config-dashboard)
+  (let [state (state-cursor :views.cards-grid.config-dashboard)]
+    [cards-grid.config-dashboard/main
+     {:state
+      state
 
-    kws.cards-grid.config-dashboard/goto-cards-grid!
-    #(routing.core/goto! routing.pages/home)
+      kws.cards-grid.config-dashboard/goto-cards-grid!
+      #(routing.core/goto! routing.pages/home)
 
-    kws.cards-grid.config-dashboard/set-page!
-    #(cards-grid.state-management/set-page-from-props! cards-grid-page-props %)
+      kws.cards-grid.config-dashboard/set-page!
+      #(cards-grid.state-management/set-page-from-props! cards-grid-page-props %)
 
-    kws.cards-grid.config-dashboard/set-page-size!
-    #(cards-grid.state-management/set-page-size-from-props! cards-grid-page-props %)
+      kws.cards-grid.config-dashboard/set-page-size!
+      #(cards-grid.state-management/set-page-size-from-props! cards-grid-page-props %)
 
-    kws.cards-grid.config-dashboard/set-include-tags!
-    #(cards-grid.state-management/set-include-tags-from-props! cards-grid-page-props %)
+      kws.cards-grid.config-dashboard/set-include-tags!
+      #(cards-grid.state-management/set-include-tags-from-props! cards-grid-page-props %)
 
-    kws.cards-grid.config-dashboard/set-exclude-tags!
-    #(cards-grid.state-management/set-exclude-tags-from-props! cards-grid-page-props %)
+      kws.cards-grid.config-dashboard/set-exclude-tags!
+      #(cards-grid.state-management/set-exclude-tags-from-props! cards-grid-page-props %)
 
-    ;; !!!! TODO pass real options
-    kws.cards-grid.config-dashboard/profiles-names
-    ["OhMyCards Base" "OhMyCards Done"]}])
+      ;; !!!! TODO pass real options
+      kws.cards-grid.config-dashboard/profiles-names
+      ["OhMyCards Base" "OhMyCards Done"]
+
+      kws.cards-grid.config-dashboard/load-profile!
+      #(async/go
+         (->> %
+              (services.cards-grid-profile-loader/main! {:http-fn http-fn})
+              async/<!
+              (cards-grid.config-dashboard.state-management/set-config-from-loader! state)))}]))
 
 (defn- current-view*
   "Returns an instance of the `current-view` component."

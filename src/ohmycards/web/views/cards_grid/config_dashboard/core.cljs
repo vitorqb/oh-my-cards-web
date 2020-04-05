@@ -24,12 +24,12 @@
   `state`: The state.
   `path`: A path inside the state with a coercion result for the input.
   `set-fn`: 0-arg callback called to set the value."
-  [{:keys [state path set-fn]}]
+  [{:keys [state path set-fn label]}]
   (if-let [err-msg (-> @state (get-in path) kws.coercion.result/error-message)]
     [error-message-box/main {:value err-msg}]
     [:div.cards-grid-config-dashboard__set-wrapper
      [:button.cards-grid-config-dashboard__set {:on-click #(set-fn)}
-      "Set"]]))
+      (or label "Set")]]))
 
 (defn- input-wrapper
   [_ & children]
@@ -111,7 +111,7 @@
 
 (defn- load-profile-name
   "A row for the user to load a profile by it's name."
-  [{:keys [state] ::kws/keys [profiles-names]}]
+  [{:keys [state] ::kws/keys [profiles-names load-profile!]}]
   (let [path [kws/load-profile-name]
         options (map #(do {kws.combobox.options/value %}) profiles-names)]
     [:div.cards-grid-config-dashboard__row
@@ -120,9 +120,10 @@
       [inputs.combobox/main (input-props state path (coercers/is-in profiles-names)
                                          kws.combobox/options options)]]
      [set-btn
-      {:state state
+      {:label "Load!"
+       :state state
        :path path
-       :set-fn #(do (throw (js/Error. "Not Implemented")))}]]))
+       :set-fn #(-> @state (get-in path) kws.coercion.result/value load-profile!)}]]))
 
 (defn- profile-manager
   "A profile manager for the cards grid configuration."
