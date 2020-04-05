@@ -74,6 +74,11 @@
   (let [token (-> @state lenses.login/current-user kws.user/token)]
     (apply services.http/http kws.http/token token args)))
 
+(defn fetch-cards!
+  "A shortcut to fetch cards using the fetch-cards svc"
+  [opts]
+  (services.fetch-cards/main (assoc opts :http-fn http-fn)))
+
 ;; -------------------------
 ;; View instances
 (defn login
@@ -91,7 +96,7 @@
 (def cards-grid-page-props
   "Props given to the cards-grid-page."
   {:state (state-cursor :views.cards-grid)
-   kws.cards-grid/fetch-cards! #(services.fetch-cards/main (assoc % :http-fn http-fn))
+   kws.cards-grid/fetch-cards! fetch-cards!
    kws.cards-grid/goto-settings! #(routing.core/goto! routing.pages/cards-grid-config)
    kws.cards-grid/goto-newcard! #(routing.core/goto! routing.pages/new-card)
    kws.cards-grid/goto-editcard! #(routing.core/goto!
@@ -149,10 +154,10 @@
 
       kws.cards-grid.config-dashboard/load-profile!
       #(async/go
-         (->> %
-              (services.cards-grid-profile-loader/main! {:http-fn http-fn})
-              async/<!
-              (cards-grid.config-dashboard.state-management/set-config-from-loader! state)))}]))
+         (let [chan (services.cards-grid-profile-loader/main! {:http-fn http-fn} %)
+               resp (async/<! chan)]
+           (cards-grid.config-dashboard.state-management/set-config-from-loader! state resp)
+           (cards-grid.state-management/set-config-from-loader! cards-grid-page-props resp)))}]))
 
 (defn- current-view*
   "Returns an instance of the `current-view` component."
