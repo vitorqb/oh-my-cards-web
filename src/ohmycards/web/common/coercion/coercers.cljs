@@ -11,6 +11,8 @@
 (def not-empty "Expected an empty value!")
 (def not-valid-tags "Invalid values for tags!")
 (def not-in-acceptable-vals "Value is not among the acceptable values.")
+(def not-valid-string "Not a valid string.")
+(def not-min-length "Does not has the minimal required length!.")
 
 ;; Helpers methods to construct coercers
 (defn wrap-success
@@ -50,6 +52,23 @@
      (if (and (seqable? value) (empty? value))
        (assoc result kws.result/value nil)
        (result/->failure result not-empty)))))
+
+(def string
+  "Coerces to string."
+  (wrap-success
+   (fn [{::kws.result/keys [value] :as result}]
+     (try (assoc result kws.result/value (str value))
+          (catch js/Error e
+            (result/->failure result not-valid-string))))))
+
+(defn min-length
+  "Factory for a validator that checks if a result has a min length."
+  [min-length]
+  (wrap-success
+   (fn [{::kws.result/keys [value] :as result}]
+     (or (try (if (>= (count value) min-length) result)
+              (catch js/Error e nil))
+         (result/->failure result not-min-length)))))
 
 (def tags
   "Validator and coercer that fails if what it receives is not valid tags. Also eliminates

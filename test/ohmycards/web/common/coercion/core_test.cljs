@@ -82,3 +82,26 @@
 (deftest test-coerce-for-fns
   (is (= 1 (sut/-coerce #(do %) 1)))
   (is (= 1 (sut/-coerce (constantly 1) nil))))
+
+(deftest test-extract-values
+
+  (testing "Empty -> Empty Map"
+    (is (= {} (sut/extract-values []))))
+
+  (testing "One success -> Map"
+    (is (= {::foo 1}
+           (sut/extract-values {::foo (result/success "1" 1)}))))
+
+  (testing "Three success -> Map"
+    (is (= {::foo 1 ::bar 2 ::baz 3}
+           (sut/extract-values {::foo (result/success "1" 1)
+                                ::bar (result/success "2" 2)
+                                ::baz (result/success 3 3)}))))
+
+  (testing "One failure -> nil"
+    (is (nil? (sut/extract-values {::foo (result/failure "" "")}))))
+
+  (testing "One failure among mane -> nil"
+    (is (nil? (sut/extract-values {::bar (result/success 1 1)
+                                   ::baz (result/success 1 1)
+                                   ::foo (result/failure "" "")})))))

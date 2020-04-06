@@ -62,6 +62,26 @@
     (is (= (coercion.result/failure 1 sut/not-empty)
            (sut/empty (coercion.result/raw-value->success 1))))))
 
+(deftest test-string
+
+  (testing "Valid coercion with string"
+    (is (= (coercion.result/success "foo" "foo")
+           (sut/string (coercion.result/raw-value->success "foo"))))))
+
+(deftest test-not-min-length
+
+  (testing "Valid coercion with string"
+    (is (= (coercion.result/success "foo" "foo")
+           ((sut/min-length 3) (coercion.result/raw-value->success "foo")))))
+
+  (testing "Invalid coercion with string"
+    (is (= (coercion.result/failure "foo" sut/not-min-length)
+           ((sut/min-length 5) (coercion.result/raw-value->success "foo")))))
+
+  (testing "Invalid coercion with number"
+    (is (= (coercion.result/failure 123 sut/not-min-length)
+           ((sut/min-length 0) (coercion.result/raw-value->success 123))))))
+
 (deftest test-tags
 
   (testing "Valid coercion with valid tags"

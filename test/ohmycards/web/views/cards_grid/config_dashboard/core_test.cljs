@@ -6,11 +6,12 @@
             [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
+            [ohmycards.web.kws.cards-grid.config.core :as kws.config]
+            [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
             [ohmycards.web.kws.components.inputs.combobox.core :as kws.combobox]
             [ohmycards.web.kws.components.inputs.combobox.options
              :as
              kws.combobox.options]
-            [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.cards-grid.config-dashboard.core :as sut]))
@@ -39,7 +40,10 @@
       (is (tu/exists-in-component? (sut/label "Profile Manager") comp)))
 
     (testing "Renders the load-profile-name"
-      (is (tu/exists-in-component? [sut/load-profile-name props] comp)))))
+      (is (tu/exists-in-component? [sut/load-profile-name props] comp)))
+
+    (testing "Renders the save-profile-name"
+      (is (tu/exists-in-component? [sut/save-profile-name props] comp)))))
 
 (deftest test-load-profile-name
 
@@ -69,6 +73,71 @@
           (is (= state (:state btn-props)))
           (is (= "Load!" (:label btn-props)))
           (is (= [kws/load-profile-name] (:path btn-props))))))))
+
+(deftest test-save-profile-name
+
+  (with-redefs [sut/input-props vector]
+
+    (testing "With valid profile" 
+      (let [state (atom {kws/save-profile-name (coercion.result/success "" "")
+                         kws/config {}})
+            props {:state state}
+            comp  (sut/save-profile-name props)
+            exists-in-comp? #(tu/exists-in-component? % comp)
+            props-for #(tu/get-props-for % comp)]
+
+        (testing "Renders label"
+          (is (exists-in-comp? (sut/label "Save Profile"))))
+
+        (testing "Renders input-wrapper"
+          (is
+           (exists-in-comp?
+            [sut/input-wrapper {}
+             [form.input/main
+              (sut/input-props state [kws/save-profile-name] sut/string-with-min-len-2)]])))
+
+        (testing "Renders set-btn"
+          (let [props (props-for sut/set-btn)]
+            (is (= "Save!" (:label props)))
+            (is (= state (:state props)))
+            (is (= [kws/save-profile-name] (:path props)))
+            (is (fn? (:set-fn props)))))))
+    
+    (testing "With invalid profile" 
+      (let [state (atom {kws/config {kws.config/page (coercion.result/failure "" "")}})
+            props {:state state}
+            comp  (sut/save-profile-name props)
+            exists-in-comp? #(tu/exists-in-component? % comp)
+            props-for #(tu/get-props-for % comp)]
+
+        (testing "Renders error"
+          (exists-in-comp? [error-message-box/main {:value "Invalid values prevent save!"}]))))))
+
+(deftest test-get-profile-for-save
+
+  (let [profile-name (coercion.result/raw-value->success "FOO")
+        exclude-tags (coercion.result/raw-value->success ["A"])
+        include-tags (coercion.result/raw-value->success ["B"])
+        page (coercion.result/raw-value->success 1)
+        page-size (coercion.result/raw-value->success 2)
+        state {kws/save-profile-name profile-name
+               kws/config {kws.config/exclude-tags exclude-tags
+                           kws.config/include-tags include-tags
+                           kws.config/page page
+                           kws.config/page-size page-size}}]
+
+    (testing "When all coerced values are fined, return the profile"
+      (is (= {kws.profile/name "FOO"
+              kws.profile/config {kws.config/exclude-tags ["A"]
+                                  kws.config/include-tags ["B"]
+                                  kws.config/page 1
+                                  kws.config/page-size 2}}
+             (sut/get-profile-for-save state))))
+
+    (testing "When the coerced values are not fine, results nil"
+      (let [page' (coercion.result/failure "" "")
+            state' (assoc-in state [kws/config kws.config/page] page')]
+        (is (nil? (sut/get-profile-for-save state')))))))
 
 (deftest test-page-config
 

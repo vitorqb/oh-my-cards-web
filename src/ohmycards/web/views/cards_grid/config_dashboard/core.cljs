@@ -9,11 +9,14 @@
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.icons :as icons]
-            [ohmycards.web.kws.common.coercion.result :as kws.coercion.result]
             [ohmycards.web.kws.cards-grid.config.core :as kws.config]
-            [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
+            [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
+            [ohmycards.web.kws.common.coercion.result :as kws.coercion.result]
             [ohmycards.web.kws.components.inputs.combobox.core :as kws.combobox]
-            [ohmycards.web.kws.components.inputs.combobox.options :as kws.combobox.options]))
+            [ohmycards.web.kws.components.inputs.combobox.options
+             :as
+             kws.combobox.options]
+            [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]))
 
 ;; Helpers
 (defn- label [x] [:span.cards-grid-config-dashboard__label x])
@@ -51,10 +54,20 @@
    [:button.clear-button {:on-click #(goto-cards-grid!)}
     [icons/arrow-left]]])
 
+(defn- get-profile-for-save
+  "Get's the profile from the state ready to be saved."
+  [state]
+  (if-let [config (some-> state kws/config coercion/extract-values)]
+    (let [name (-> state kws/save-profile-name kws.coercion.result/value)]
+      {kws.profile/name name kws.profile/config config})))
+
 ;; Coercers
 (def positive-int-or-nil-coercer
   (coercion/->Or [#(-> % coercers/empty)
                   #(-> % coercers/integer coercers/positive)]))
+
+(def string-with-min-len-2
+  #(-> % coercers/string ((coercers/min-length 2))))
 
 ;; Inputs
 (defn- page-config
@@ -125,12 +138,29 @@
        :path path
        :set-fn #(-> @state (get-in path) kws.coercion.result/value load-profile!)}]]))
 
+(defn- save-profile-name
+  "A row for the user to save a profile by it's name."
+  [{:keys [state] ::kws/keys [save-profile!]}]
+  (let [path [kws/save-profile-name]]
+    [:div.cards-grid-config-dashboard__row
+     (label "Save Profile")
+     [input-wrapper {}
+      [form.input/main (input-props state path string-with-min-len-2)]]
+     (if-let [profile-for-save (get-profile-for-save @state)]
+       [set-btn
+        {:label "Save!"
+         :state state
+         :path path
+         :set-fn #(save-profile! profile-for-save)}]
+       [error-message-box/main {:value "Invalid values prevent save!"}])]))
+
 (defn- profile-manager
   "A profile manager for the cards grid configuration."
   [{:keys [state] :as props}]
   [:div.cards-grid-config-dashboard__profile-manager
    (label "Profile Manager")
-   [load-profile-name props]])
+   [load-profile-name props]
+   [save-profile-name props]])
 
 ;; Main
 (defn main
