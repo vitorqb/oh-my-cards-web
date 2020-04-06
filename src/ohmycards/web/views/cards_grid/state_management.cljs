@@ -3,9 +3,9 @@
             [ohmycards.web.common.tags.core :as tags]
             [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
-            [ohmycards.web.kws.services.cards-grid-profile-loader.core
+            [ohmycards.web.kws.services.cards-grid-profile-manager.core
              :as
-             kws.cards-grid-profile-loader]
+             kws.cards-grid-profile-manager]
             [ohmycards.web.kws.services.fetch-cards.core :as kws.fetch-cards]
             [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
             [ohmycards.web.utils.logging :as logging]
@@ -109,9 +109,9 @@
   (refetch! state fetch-cards!))
 
 (defn set-config-from-loader!
-  "Set's the entire config from the response of `services.cards-grid-profile-loader`"
+  "Set's the entire config from the response of `services.cards-grid-profile-manager`"
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]}
-   {::kws.cards-grid-profile-loader/keys [fetched-profile success?] :as loader-response}]
+   {::kws.cards-grid-profile-manager/keys [fetched-profile success?] :as loader-response}]
   (log "Setting config from loader response:" loader-response)
   (if success?
     (do

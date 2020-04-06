@@ -32,9 +32,9 @@
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
             [ohmycards.web.routing.core :as routing.core]
             [ohmycards.web.services.cards-crud.core :as services.cards-crud]
-            [ohmycards.web.services.cards-grid-profile-loader.core
+            [ohmycards.web.services.cards-grid-profile-manager.core
              :as
-             services.cards-grid-profile-loader]
+             services.cards-grid-profile-manager]
             [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.http :as services.http]
@@ -65,6 +65,11 @@
 (defonce state (r/atom {}))
 
 (defn- state-cursor [path] (r/cursor state (utils/to-path path)))
+
+(defn- init-state! []
+  (swap!
+   (state-cursor :views.cards-grid.config-dashboard)
+   cards-grid.config-dashboard.state-management/init-state))
 
 ;; -------------------------
 ;; Http helpers
@@ -154,10 +159,13 @@
 
       kws.cards-grid.config-dashboard/load-profile!
       #(async/go
-         (let [chan (services.cards-grid-profile-loader/main! {:http-fn http-fn} %)
+         (let [chan (services.cards-grid-profile-manager/load! {:http-fn http-fn} %) 
                resp (async/<! chan)]
            (cards-grid.config-dashboard.state-management/set-config-from-loader! state resp)
-           (cards-grid.state-management/set-config-from-loader! cards-grid-page-props resp)))}]))
+           (cards-grid.state-management/set-config-from-loader! cards-grid-page-props resp)))
+
+      kws.cards-grid.config-dashboard/save-profile!
+      #(services.cards-grid-profile-manager/save! {:http-fn http-fn} %)}]))
 
 (defn- current-view*
   "Returns an instance of the `current-view` component."
@@ -255,6 +263,7 @@
 
 (defn ^:export init! []
   ;; Services
+  (init-state!)
   (services.login/init-state! {:state state :http-fn http-fn})
   (events-bus/init! {kws.events-bus/handler events-bus-handler})
   (routing.core/start-routing! routes set-routing-match!)

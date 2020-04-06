@@ -33,3 +33,13 @@
   "Coerces a value."
   [value coercer]
   (-coerce coercer (result/raw-value->success value)))
+
+(defn extract-values
+  "Given a map of coercion results, returns a map with the same keys and the coerced values.
+  Returns `nil` if any of the coercions is a fialure."
+  [results]
+  (loop [out {} [k v :as kv] (first results) todo (rest results)]
+    (cond
+      (nil? kv) out
+      (not (kws.result/success? v)) nil
+      :else (recur (assoc out k (kws.result/value v)) (first todo) (rest todo)))))
