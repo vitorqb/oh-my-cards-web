@@ -31,8 +31,7 @@
   "Runs the http call for loading a profile."
   [{:keys [http-fn]} profile-name]
   (http-fn kws.http/method :GET
-           kws.http/query-params {:profile-name profile-name}
-           kws.http/url "/v1/cards-grid-profile"))
+           kws.http/url (str "/v1/cards-grid-profile/" profile-name)))
 
 (defn run-save-http-call!
   "Runs the http call for saving a profile."

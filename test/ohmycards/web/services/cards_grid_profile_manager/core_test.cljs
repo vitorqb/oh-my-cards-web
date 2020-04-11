@@ -40,8 +40,7 @@
   (is
    (=
     {kws.http/method :GET
-     kws.http/url "/v1/cards-grid-profile"
-     kws.http/query-params {:profile-name "FOO"}}
+     kws.http/url "/v1/cards-grid-profile/FOO"}
     (sut/run-load-http-call! {:http-fn hash-map} "FOO"))))
 
 (deftest test-run-save-http-call!
