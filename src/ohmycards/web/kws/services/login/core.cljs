@@ -13,3 +13,5 @@
 (def onetime-password "The onetime password the user is inputting." ::onetime-password)
 (def error-message "An error message." ::error-message)
 (def token "The returned token." ::token)
+
+(def new-user "An event representing that a new user was logged in." ::new-user)

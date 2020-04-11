@@ -91,7 +91,7 @@
   []
   [views.login/main {:state (state-cursor :views.login)
                      :http-fn http-fn
-                     :save-user-fn #(swap! state assoc lenses.login/current-user %)}])
+                     :save-user-fn #(services.login/set-user! %)}])
 
 (defn header
   "An instance for the headerer component."
@@ -264,7 +264,7 @@
 (defn ^:export init! []
   ;; Services
   (init-state!)
-  (services.login/init-state! {:state state :http-fn http-fn})
+  (services.login/init! {:state state :http-fn http-fn})
   (events-bus/init! {kws.events-bus/handler events-bus-handler})
   (routing.core/start-routing! routes set-routing-match!)
   (services.shortcuts-register/init! shortcuts)
@@ -272,3 +272,4 @@
    {:state (state-cursor :components.action-dispatcher)
     :actions-dispatcher-hydra-options actions-dispatcher-hydra-options})
   (mount-root))
+ 
