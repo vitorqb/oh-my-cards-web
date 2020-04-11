@@ -4,6 +4,9 @@
             [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.cards-grid-profile-manager.core :as kws]
+            [ohmycards.web.services.cards-grid-profile-manager.fetch-metadata
+             :as
+             fetch-metadata]
             [ohmycards.web.utils.logging :as logging]))
 
 (logging/deflogger log "Services.CardsGridProfileLoader")
@@ -33,7 +36,7 @@
   (http-fn kws.http/method :GET
            kws.http/url (str "/v1/cards-grid-profile/" profile-name)))
 
-(defn run-save-http-call!
+(defn- run-save-http-call!
   "Runs the http call for saving a profile."
   [{:keys [http-fn]}
    {{::kws.config/keys [page page-size include-tags exclude-tags]} ::kws.profile/config
@@ -46,7 +49,21 @@
                                           :includeTags include-tags
                                           :excludeTags exclude-tags}}))
 
+(defn- fetch-metadata!*
+  "Pure version of fetch-metadata!"
+  [{::kws/keys [on-metadata-fetch] :as opts} do-fetch-metadata!]
+  {:pre [(ifn? on-metadata-fetch)]}
+  (async/go
+    (-> opts do-fetch-metadata! async/<! on-metadata-fetch)))
+
 ;; API
+(defn fetch-metadata!
+  "Asynchronously loads the metadata for card grid profiles from the BE. This is needed,
+  for example, every time a new user logs in."
+  [opts]
+  (log "Fetching metadata... ")
+  (fetch-metadata!* opts fetch-metadata/main!))
+
 (defn load!
   "Asynchronously loads a profile from the BE."
   [opts profile-name]
@@ -57,4 +74,6 @@
   "Asynchronously saves a profile to the BE."
   [opts profile]
   (log "Saving profile:" profile)
-  (async/map parse-save-result [(run-save-http-call! opts profile)]))
+  (async/go
+    (async/<! (async/map parse-save-result [(run-save-http-call! opts profile)]))
+    (async/<! (fetch-metadata! opts))))

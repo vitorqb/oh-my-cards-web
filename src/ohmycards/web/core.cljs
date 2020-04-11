@@ -7,11 +7,13 @@
              :as
              controllers.action-dispatcher]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.cards-grid.metadata.core :as kws.cards-grid.metadata]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
             [ohmycards.web.kws.hydra.core :as kws.hydra]
             [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
             [ohmycards.web.kws.lenses.login :as lenses.login]
+            [ohmycards.web.kws.lenses.metadata :as lenses.metadata]
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
             [ohmycards.web.kws.routing.core :as kws.routing]
             [ohmycards.web.kws.routing.pages :as routing.pages]
@@ -19,7 +21,11 @@
              :as
              kws.cards-crud.actions]
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
+            [ohmycards.web.kws.services.cards-grid-profile-manager.core
+             :as
+             kws.services.cards-grid-profile-manager]
             [ohmycards.web.kws.services.events-bus.core :as kws.events-bus]
+            [ohmycards.web.kws.services.login.core :as kws.services.login]
             [ohmycards.web.kws.services.shortcuts-register.core
              :as
              kws.services.shortcuts-register]
@@ -85,6 +91,15 @@
   (services.fetch-cards/main (assoc opts :http-fn http-fn)))
 
 ;; -------------------------
+;; Services > Cards Grid Profile Manager
+(def cards-grid-profile-manager-opts
+  {:http-fn
+   http-fn
+
+   kws.services.cards-grid-profile-manager/on-metadata-fetch
+   #(swap! state assoc lenses.metadata/cards-grid %)})
+
+;; -------------------------
 ;; View instances
 (defn login
   "An instance for the login page."
@@ -133,7 +148,8 @@
 (defn cards-grid-config-page
   "An instance for the cards-grid-config view."
   []
-  (let [state (state-cursor :views.cards-grid.config-dashboard)]
+  (let [profile-names (-> @state lenses.metadata/cards-grid kws.cards-grid.metadata/profile-names)
+        state (state-cursor :views.cards-grid.config-dashboard)]
     [cards-grid.config-dashboard/main
      {:state
       state
@@ -153,9 +169,8 @@
       kws.cards-grid.config-dashboard/set-exclude-tags!
       #(cards-grid.state-management/set-exclude-tags-from-props! cards-grid-page-props %)
 
-      ;; !!!! TODO pass real options
       kws.cards-grid.config-dashboard/profiles-names
-      ["OhMyCards Base" "OhMyCards Done"]
+      profile-names
 
       kws.cards-grid.config-dashboard/load-profile!
       #(async/go
@@ -165,7 +180,7 @@
            (cards-grid.state-management/set-config-from-loader! cards-grid-page-props resp)))
 
       kws.cards-grid.config-dashboard/save-profile!
-      #(services.cards-grid-profile-manager/save! {:http-fn http-fn} %)}]))
+      #(services.cards-grid-profile-manager/save! cards-grid-profile-manager-opts %)}]))
 
 (defn- current-view*
   "Returns an instance of the `current-view` component."
@@ -214,10 +229,18 @@
   (when (and (not error-message) (kws.cards-crud.actions/cdu event-kw))
     (cards-grid.state-management/refetch-from-props! cards-grid-page-props)))
 
+(defn handle-user-logged-in
+  "Handles action for an user logging in"
+  [event-kw new-user]
+  (when (= event-kw kws.services.login/new-user)
+    (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)))
+
 (def events-bus-handler
   "The main handler for all events send to the event bus."
   #(do
-     (handle-cards-crud-action %1 %2)))
+     (handle-cards-crud-action %1 %2)
+     (handle-user-logged-in %1 %2)))
+
 
 ;; ------------------------------
 ;; Shortcuts
@@ -262,14 +285,22 @@
   (r/render [current-view] (.getElementById js/document "app")))
 
 (defn ^:export init! []
-  ;; Services
+
+  ;; Initialize state
   (init-state!)
+
+  ;; Initialize services
   (services.login/init! {:state state :http-fn http-fn})
+
   (events-bus/init! {kws.events-bus/handler events-bus-handler})
+
   (routing.core/start-routing! routes set-routing-match!)
+
   (services.shortcuts-register/init! shortcuts)
+
   (controllers.action-dispatcher/init!
    {:state (state-cursor :components.action-dispatcher)
     :actions-dispatcher-hydra-options actions-dispatcher-hydra-options})
+
   (mount-root))
  

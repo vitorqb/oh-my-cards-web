@@ -6,11 +6,11 @@
 
 (logging/deflogger log "Services.Login.GetUser")
 
-(defn- parse-get-user-response
+(defn- parse-response
   [{{:keys [email]} ::kws.http/body} token]
   {kws.user/email email kws.user/token token})
 
-(defn- run-get-user-http-call!
+(defn- run-http-call!
   "Runs the http call to get a user from a token."
   [{:keys [http-fn]} token]
   (http-fn
@@ -18,7 +18,13 @@
    ::kws.http/method :get
    ::kws.http/token token))
 
+(defn main!*
+  "Pure version of main!"
+  [opts token run-http-call!]
+  (a/map #(parse-response % token) [(run-http-call! opts token)]))
+
 (defn main!
+  "Fetches an user from the BE. Returns a channel with a map of `kws.user` keys."
   [opts token]
   (log "Getting user")
-  (a/map #(parse-get-user-response % token) [(run-get-user-http-call! opts token)]))
+  (main!* opts token run-http-call!))
