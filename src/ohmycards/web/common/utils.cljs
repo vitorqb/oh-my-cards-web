@@ -1,4 +1,5 @@
-(ns ohmycards.web.common.utils)
+(ns ohmycards.web.common.utils
+  (:require-macros ohmycards.web.common.utils))
 
 (defn to-path [x]
   (cond

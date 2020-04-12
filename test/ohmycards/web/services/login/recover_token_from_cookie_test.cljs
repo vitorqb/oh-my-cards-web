@@ -8,13 +8,13 @@
   (let [state {:foo :bar}
         response {::kws.http/body {:value "foo"} ::kws.http/success? true}]
 
-    (testing "Nil"
+    (testing "Nil if no body"
       (let [response* (assoc response ::kws.http/body nil)]
-        (is (= :notoken (sut/extract-token-from-token-recovery-response response*)))))
+        (is (nil? (sut/extract-token-from-token-recovery-response response*)))))
 
-    (testing "Identity if not success"
+    (testing "Nil if not success"
       (let [response* (assoc response ::kws.http/success? false)]
-        (is (= :notoken (sut/extract-token-from-token-recovery-response response*)))))
+        (is (false? (sut/extract-token-from-token-recovery-response response*)))))
 
     (testing "Assocs login"
       (is (= {:value "foo"} (sut/extract-token-from-token-recovery-response response))))))
