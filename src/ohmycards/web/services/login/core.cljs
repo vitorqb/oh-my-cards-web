@@ -4,19 +4,52 @@
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.services.login.core :as kws]
             [ohmycards.web.kws.user :as kws.user]
+            [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.services.login.get-token :as get-token]
+            [ohmycards.web.services.login.get-user :as get-user]
             [ohmycards.web.services.login.onetime-password :as onetime-password]
+            [ohmycards.web.services.login.recover-token-from-cookie
+             :as
+             recover-token-from-cookie]
             [ohmycards.web.utils.logging :as logging]))
+
+;; Constants and declarations
+(declare set-user!)
 
 (logging/deflogger log "Services.Login")
 
-;; Constants
+(def ^:dynamic ^:private *state*
+  "The login state, with the keys described in `ohmycards.web.kws.lenses.login`."
+  nil)
+
 (def ^:private onetime-password-url "/api/v1/auth/oneTimePassword")
 
-(def actions "Possible login actions (interactions with BE)"
+(def actions
+  "Possible login actions (interactions with BE)"
   #{kws/send-onetime-password-action kws/get-token-action})
 
-;; Functions
+;; Helper functions
+(defn- try-login-from-cookies!
+  "Tries to log the user in using the browser cookies."
+  [opts]
+  (a/go
+    (log "Trying to log user in using cookies...")
+    (let [token (a/<! (recover-token-from-cookie/main! opts))]
+      (when (not= token :notoken)
+        (log "Token found: " token)
+        (let [user (a/<! (get-user/main! opts token))]
+          (set-user! user))))))
+
+;; API
+(defn init!
+  "Initialization logic for the service. Tries to log the user in if he is not yet logged in.
+  `opts.state`: An atom-like variable where we will store the login state.
+  `opts.http-fn`: A function for making http requests."
+  [{:keys [state http-fn] :as opts}]
+  (log "Initializing...")
+  (set! *state* state)
+  (try-login-from-cookies! opts))
+
 (defn main
   "Performs login for a given user.
   - `email`: The user email.
@@ -28,56 +61,13 @@
   For `::kws/send-onetime-password`, `::kws/token` is always nil.
   For `::kws/get-token`, the `::kws/token` contains the token object."
   [{::kws/keys [onetime-password] :as args} opts]
-  (log "Starting...")
   (if onetime-password
     (get-token/send! args opts)
     (onetime-password/send! args opts)))
 
-(defn- parse-token-recovery-response
-  [state {token ::kws.http/body success? ::kws.http/success?}]
-  (cond-> state
-    (and token success?)
-    (assoc-in [lenses.login/current-user kws.user/token] token)))
-
-(defn- recover-token-from-cookies!
-  "Tries to recover the token from cookies and store it in the state atom."
-  [{:keys [state http-fn]}]
-  (log "Trying to recover token...")
-  (a/map
-   #(swap! state parse-token-recovery-response %)
-   [(http-fn
-     ::kws.http/url "/v1/auth/tokenRecovery"
-     ::kws.http/method :post)]))
-
-(defn- should-try-to-recover-user?
-  "Defines whether we should try to recover the user from the token."
-  [{{::kws.user/keys [email token]} ::lenses.login/current-user}]
-  (and token (not email)))
-
-(defn- parse-get-user-response
-  [state {{:keys [email]} ::kws.http/body}]
-  (assoc-in state [lenses.login/current-user kws.user/email] email))
-
-(defn- get-user-from-token!
-  "Tries to get the user information from the token."
-  [{:keys [state http-fn]}]
-  (let [token (-> @state ::lenses.login/current-user ::kws.user/token)]
-    (log "Querying for user info...")
-    (a/map
-     #(swap! state parse-get-user-response %)
-     [(http-fn
-       ::kws.http/url "/v1/auth/user"
-       ::kws.http/method :get
-       ::kws.http/token token)])))
-
-(defn init-state!
-  "Performs initialization services for the login, trying to log the user in if he is not
-  yet logged in.
-  `opts.state`: An state atom to set the token.
-  `opts.http-fn`: A function for making http requests."
-  [{:keys [state http-fn] :as opts}]
-  (log "Initializing login state...")
-  (a/go
-    (a/<! (recover-token-from-cookies! opts))
-    (when (should-try-to-recover-user? @state)
-      (a/<! (get-user-from-token! opts)))))
+(defn set-user!
+  "Set's an user to the state."
+  [user]
+  (log "Setting new user: " user)
+  (swap! *state* assoc lenses.login/current-user user)
+  (events-bus/send! kws/new-user user))
