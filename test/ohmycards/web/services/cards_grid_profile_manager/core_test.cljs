@@ -11,28 +11,6 @@
              :as
              fetch-metadata]))
 
-(deftest test-parse-save-result
-
-  (testing "Failure"
-    (is (= {kws/success? false} (sut/parse-save-result {kws.http/success? false}))))
-
-  (testing "Success"
-    (is (= {kws/success? true} (sut/parse-save-result {kws.http/success? true})))))
-
-(deftest test-run-save-http-call!
-  (is
-   (=
-    {kws.http/method :POST
-     kws.http/url "/v1/cards-grid-profile"
-     kws.http/json-params {:name "Foo"
-                           :config {:page 1 :excludeTags [] :includeTags ["A"] :pageSize 2}}}
-    (sut/run-save-http-call! {:http-fn hash-map}
-                             {kws.profile/name "Foo"
-                              kws.profile/config {kws.config/page 1
-                                                  kws.config/exclude-tags []
-                                                  kws.config/include-tags ["A"]
-                                                  kws.config/page-size 2}}))))
-
 (deftest test-fetch-metadata!*__base
   (let [fetch-response {kws.http/body {:names ["FOO" "BAR"]}}
         parsed-response (fetch-metadata/parse-response fetch-response)

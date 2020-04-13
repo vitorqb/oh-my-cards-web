@@ -27,6 +27,7 @@
 [ohmycards.web.services.cards-grid-profile-manager.core-test]
 [ohmycards.web.services.cards-grid-profile-manager.impl.fetch-metadata-test]
 [ohmycards.web.services.cards-grid-profile-manager.impl.load-test]
+[ohmycards.web.services.cards-grid-profile-manager.impl.save-test]
 [ohmycards.web.services.events-bus.core-test]
 [ohmycards.web.services.fetch-cards.core-test]
 [ohmycards.web.services.http-test]
