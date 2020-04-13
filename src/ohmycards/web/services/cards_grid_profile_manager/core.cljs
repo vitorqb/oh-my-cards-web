@@ -4,7 +4,7 @@
             [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.cards-grid-profile-manager.core :as kws]
-            [ohmycards.web.services.cards-grid-profile-manager.fetch-metadata
+            [ohmycards.web.services.cards-grid-profile-manager.impl.fetch-metadata
              :as
              fetch-metadata]
             [ohmycards.web.utils.logging :as logging]))

@@ -1,5 +1,5 @@
-(ns ohmycards.web.services.cards-grid-profile-manager.fetch-metadata-test
-  (:require [ohmycards.web.services.cards-grid-profile-manager.fetch-metadata :as sut]
+(ns ohmycards.web.services.cards-grid-profile-manager.impl.fetch-metadata-test
+  (:require [ohmycards.web.services.cards-grid-profile-manager.impl.fetch-metadata :as sut]
             [cljs.test :refer-macros [is are deftest testing use-fixtures async]]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.cards-grid.metadata.core :as kws.cards-grid.metadata]))

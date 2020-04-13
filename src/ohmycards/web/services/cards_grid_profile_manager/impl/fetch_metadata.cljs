@@ -1,4 +1,4 @@
-(ns ohmycards.web.services.cards-grid-profile-manager.fetch-metadata
+(ns ohmycards.web.services.cards-grid-profile-manager.impl.fetch-metadata
   (:require [cljs.core.async :as a]
             [ohmycards.web.kws.cards-grid.metadata.core :as kws.cards-grid.metadata]
             [ohmycards.web.kws.http :as kws.http]))
