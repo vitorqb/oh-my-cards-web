@@ -7,34 +7,16 @@
             [ohmycards.web.services.cards-grid-profile-manager.impl.fetch-metadata
              :as
              fetch-metadata]
-            [ohmycards.web.utils.logging :as logging]))
+            [ohmycards.web.utils.logging :as logging]
+            [ohmycards.web.services.cards-grid-profile-manager.impl.load :as load]))
 
 (logging/deflogger log "Services.CardsGridProfileLoader")
 
 ;; Helpers
-(defn- parse-load-result
-  "Parses the result from the load http call."
-  [{success? ::kws.http/success?
-    {name :name {:keys [excludeTags includeTags page pageSize]} :config} ::kws.http/body}]
-  (if success?
-    {kws/success? true
-     kws/fetched-profile {kws.profile/name name
-                          kws.profile/config {kws.config/exclude-tags excludeTags
-                                              kws.config/include-tags includeTags
-                                              kws.config/page page
-                                              kws.config/page-size pageSize}}}
-    {kws/success? false}))
-
 (defn- parse-save-result
   "Parses the result from the save http call."
   [{::kws.http/keys [success?]}]
   {kws/success? success?})
-
-(defn- run-load-http-call!
-  "Runs the http call for loading a profile."
-  [{:keys [http-fn]} profile-name]
-  (http-fn kws.http/method :GET
-           kws.http/url (str "/v1/cards-grid-profile/" profile-name)))
 
 (defn- run-save-http-call!
   "Runs the http call for saving a profile."
@@ -68,7 +50,7 @@
   "Asynchronously loads a profile from the BE."
   [opts profile-name]
   (log "Loading profile:" profile-name)
-  (async/map parse-load-result [(run-load-http-call! opts profile-name)]))
+  (load/main! opts profile-name))
 
 (defn save!
   "Asynchronously saves a profile to the BE."
