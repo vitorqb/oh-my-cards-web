@@ -1,5 +1,5 @@
-(ns ohmycards.web.services.cards-grid-profile-manager.impl.load-test
-  (:require [ohmycards.web.services.cards-grid-profile-manager.impl.load :as sut]
+(ns ohmycards.web.services.cards-grid-profile-manager.impl.read-test
+  (:require [ohmycards.web.services.cards-grid-profile-manager.impl.read :as sut]
             [cljs.test :refer-macros [is are deftest testing use-fixtures async]]
             [ohmycards.web.kws.services.cards-grid-profile-manager.core :as kws]
             [ohmycards.web.kws.http :as kws.http]
@@ -54,3 +54,18 @@
              result (a/<! (sut/main! {} "Foo"))]
          (is (= exp-result result))
          (done))))))
+
+(deftest test-profile-exists?
+  (async
+   done
+   (a/go
+
+     ;; Case 1: found
+     (with-redefs [sut/run-http-call! #(a/go {kws.http/success? true kws.http/status 200})]
+       (is (true? (a/<! (sut/profile-exists? {} "Foo")))))
+
+     ;; Case 2: not found
+     (with-redefs [sut/run-http-call! #(a/go {kws.http/success? false kws.http/status 404})]
+       (is (nil? (a/<! (sut/profile-exists? {} "FOo")))))
+
+     (done))))

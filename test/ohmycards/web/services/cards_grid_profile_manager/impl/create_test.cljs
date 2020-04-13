@@ -1,11 +1,11 @@
-(ns ohmycards.web.services.cards-grid-profile-manager.impl.save-test
+(ns ohmycards.web.services.cards-grid-profile-manager.impl.create-test
   (:require [cljs.core.async :as a]
             [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.cards-grid-profile-manager.core :as kws]
-            [ohmycards.web.services.cards-grid-profile-manager.impl.save :as sut]))
+            [ohmycards.web.services.cards-grid-profile-manager.impl.create :as sut]))
 
 (deftest test-parse-result
 
