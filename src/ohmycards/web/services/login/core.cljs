@@ -34,11 +34,10 @@
   [opts]
   (a/go
     (log "Trying to log user in using cookies...")
-    (let [token (a/<! (recover-token-from-cookie/main! opts))]
-      (when (not= token :notoken)
-        (log "Token found: " token)
-        (let [user (a/<! (get-user/main! opts token))]
-          (set-user! user))))))
+    (when-let [token (a/<! (recover-token-from-cookie/main! opts))]
+      (log "Token found: " token)
+      (let [user (a/<! (get-user/main! opts token))]
+        (set-user! user)))))
 
 ;; API
 (defn init!
