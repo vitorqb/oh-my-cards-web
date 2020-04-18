@@ -36,11 +36,12 @@
 
 (defn- fetch-cards-params
   "Maps the state to the params for fetching cards"
-  [{::kws.cards-grid/keys [page page-size include-tags exclude-tags]}]
-  {kws.fetch-cards/page page
-   kws.fetch-cards/page-size page-size
-   kws.fetch-cards/include-tags include-tags
-   kws.fetch-cards/exclude-tags exclude-tags})
+  [{::kws.cards-grid/keys [page page-size include-tags exclude-tags tags-filter-query]}]
+  (cond-> {kws.fetch-cards/page page
+           kws.fetch-cards/page-size page-size
+           kws.fetch-cards/include-tags include-tags
+           kws.fetch-cards/exclude-tags exclude-tags}
+    tags-filter-query (assoc kws.fetch-cards/tags-filter-query tags-filter-query)))
 
 (defn- refetch!
   "Refetches the data from the BE"
@@ -61,12 +62,15 @@
 
 (defn- set-config-profile
   "Reducer that set's the config given a `profile`"
-  [state {{::kws.config/keys [page page-size include-tags exclude-tags]} kws.profile/config}]
+  [state
+   {{::kws.config/keys [page page-size include-tags exclude-tags tags-filter-query]}
+    kws.profile/config}]
   (assoc state
          kws.cards-grid/page page
          kws.cards-grid/page-size page-size
          kws.cards-grid/include-tags include-tags
-         kws.cards-grid/exclude-tags exclude-tags))
+         kws.cards-grid/exclude-tags exclude-tags
+         kws.cards-grid/tags-filter-query tags-filter-query))
 
 ;; API
 (def init-state! refetch!)
@@ -106,6 +110,12 @@
   "Set's the tags the cards must not have (exclude-tags) from props"
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-exclude-tags]
   (swap! state assoc kws.cards-grid/exclude-tags (tags/sanitize new-exclude-tags))
+  (refetch! state fetch-cards!))
+
+(defn set-tags-filter-query-from-props!
+  "Set's the value for the tags filter query."
+  [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-tags-filter-query]
+  (swap! state assoc kws.cards-grid/tags-filter-query new-tags-filter-query)
   (refetch! state fetch-cards!))
 
 (defn set-config-from-loader!

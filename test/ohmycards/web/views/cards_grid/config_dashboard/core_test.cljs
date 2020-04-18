@@ -6,6 +6,7 @@
             [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
+            [ohmycards.web.components.inputs.textarea :as inputs.textarea]
             [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
             [ohmycards.web.kws.components.inputs.combobox.core :as kws.combobox]
@@ -26,6 +27,9 @@
 
     (testing "Contains include-tags config"
       (is (tu/exists-in-component? [sut/include-tags-config props] comp)))
+
+    (testing "Contains tags filter query config"
+      (is (tu/exists-in-component? [sut/tags-filter-query-config props] comp)))
 
     (testing "Contains profile-manager"
       (is (tu/exists-in-component? [sut/profile-manager props] comp)))))
@@ -187,6 +191,23 @@
             [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
                                           (tu/comp-seq comp))]
         (is (= (:value input-props) ["A"]))))))
+
+(deftest test-tags-filter-query-config
+
+  (let [value (coercion.result/raw-value->success "foo")
+        path [kws/config kws.config/tags-filter-query]
+        props {:state (atom (assoc-in {} path value))}
+        comp  (sut/tags-filter-query-config props)]
+
+    (testing "Includes label"
+      (is (tu/exists-in-component? (sut/label "Tag Filter Query") comp)))
+
+    (testing "Renders textarea"
+      (let [textarea-props (tu/get-props-for inputs.textarea/main (tu/comp-seq comp))]
+        (cljs.pprint/pprint comp)
+        (cljs.pprint/pprint textarea-props)
+        (is (ifn? (:on-change textarea-props)))
+        (is (= "foo" (:value textarea-props)))))))
 
 (deftest test-set-btn
 

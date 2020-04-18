@@ -48,24 +48,35 @@
                  kws.profile/config {kws.config/exclude-tags ["A"]
                                      kws.config/include-tags ["B"]
                                      kws.config/page 1
-                                     kws.config/page-size 2}}]
+                                     kws.config/page-size 2
+                                     kws.config/tags-filter-query "(FOO)"}}]
     (is (= {kws.cards-grid/exclude-tags ["A"]
             kws.cards-grid/include-tags ["B"]
             kws.cards-grid/page 1
-            kws.cards-grid/page-size 2}
+            kws.cards-grid/page-size 2
+            kws.cards-grid/tags-filter-query "(FOO)"}
            (sut/set-config-profile {} profile)))))
 
 (deftest test-fetch-cards-params
 
-  (testing "Base"
-    (is (= {kws.fetch-cards/page 1
-            kws.fetch-cards/page-size 2
-            kws.fetch-cards/include-tags ["A"]
-            kws.fetch-cards/exclude-tags ["C"]}
-           (sut/fetch-cards-params {kws.cards-grid/page 1
-                                    kws.cards-grid/page-size 2
-                                    kws.cards-grid/include-tags ["A"]
-                                    kws.cards-grid/exclude-tags ["C"]})))))
+  (let [source-params {kws.cards-grid/page 1
+                       kws.cards-grid/page-size 2
+                       kws.cards-grid/include-tags ["A"]
+                       kws.cards-grid/exclude-tags ["C"]
+                       kws.cards-grid/tags-filter-query "(tags CONTAINS 'foo')"}
+        expected-params {kws.fetch-cards/page 1
+                         kws.fetch-cards/page-size 2
+                         kws.fetch-cards/include-tags ["A"]
+                         kws.fetch-cards/exclude-tags ["C"]
+                         kws.fetch-cards/tags-filter-query "(tags CONTAINS 'foo')"}]
+
+    (testing "Base"
+      (is (= expected-params (sut/fetch-cards-params source-params))))
+
+    (testing "Without tags query filter"
+      (let [source-params   (dissoc source-params kws.cards-grid/tags-filter-query)
+            expected-params (dissoc expected-params kws.fetch-cards/tags-filter-query)]
+        (is (= expected-params (sut/fetch-cards-params source-params)))))))
 
 (deftest test-state-not-initialized?
 

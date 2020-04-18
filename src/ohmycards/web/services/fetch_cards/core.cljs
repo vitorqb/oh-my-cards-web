@@ -11,10 +11,11 @@
 
 (defn fetch-query-params
   "Prepares the query params for fetching cards."
-  [{::kws/keys [page page-size include-tags exclude-tags]}]
+  [{::kws/keys [page page-size include-tags exclude-tags tags-filter-query]}]
   (cond-> {:page (or page default-page) :pageSize (or page-size default-page-size)}
-    include-tags (assoc :tags (http.utils/list->query-arg include-tags))
-    exclude-tags (assoc :tagsNot (http.utils/list->query-arg exclude-tags))))
+    include-tags      (assoc :tags (http.utils/list->query-arg include-tags))
+    exclude-tags      (assoc :tagsNot (http.utils/list->query-arg exclude-tags))
+    tags-filter-query (assoc :query tags-filter-query)))
 
 (defn- parse-fetch-response
   [{::kws.http/keys [success? body]}]

@@ -13,7 +13,8 @@
                   :config {:page 1
                            :excludeTags []
                            :includeTags ["A"]
-                           :pageSize 2}}})
+                           :pageSize 2
+                           :query "(FOO)"}}})
 
 (deftest test-parse-result
 
@@ -22,7 +23,8 @@
                    kws.profile/config {kws.config/page 1
                                        kws.config/exclude-tags []
                                        kws.config/include-tags ["A"]
-                                       kws.config/page-size 2}}]
+                                       kws.config/page-size 2
+                                       kws.config/tags-filter-query "(FOO)"}}]
       (is
        (=
         {kws/success? true kws/fetched-profile profile}
@@ -48,7 +50,8 @@
                           kws.profile/config {kws.config/page 1
                                               kws.config/page-size 2
                                               kws.config/include-tags ["A"]
-                                              kws.config/exclude-tags []}}
+                                              kws.config/exclude-tags []
+                                              kws.config/tags-filter-query "(FOO)"}}
              exp-result {kws/success? true
                          kws/fetched-profile exp-profile}
              result (a/<! (sut/main! {} "Foo"))]
