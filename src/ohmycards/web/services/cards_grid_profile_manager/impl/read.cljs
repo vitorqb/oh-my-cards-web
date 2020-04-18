@@ -8,15 +8,18 @@
 
 (defn- parse-result
   "Parses the result from the load http call."
-  [{success? ::kws.http/success?
-    {name :name {:keys [excludeTags includeTags page pageSize]} :config} ::kws.http/body}]
+  [{success?
+    ::kws.http/success?
+    {name :name {:keys [excludeTags includeTags page pageSize query]} :config}
+    ::kws.http/body}]
   (if success?
     {kws/success? true
      kws/fetched-profile {kws.profile/name name
                           kws.profile/config {kws.config/exclude-tags excludeTags
                                               kws.config/include-tags includeTags
                                               kws.config/page page
-                                              kws.config/page-size pageSize}}}
+                                              kws.config/page-size pageSize
+                                              kws.config/tags-filter-query query}}}
     {kws/success? false})) 
 
 (defn- run-http-call!

@@ -21,7 +21,11 @@
     {kws.http/method :POST
      kws.http/url "/v1/cards-grid-profile"
      kws.http/json-params {:name "Foo"
-                           :config {:page 1 :excludeTags [] :includeTags ["A"] :pageSize 2}}}
+                           :config {:page 1
+                                    :excludeTags []
+                                    :includeTags ["A"]
+                                    :pageSize 2
+                                    :query nil}}}
     (sut/run-http-call! {:http-fn hash-map}
                         {kws.profile/name "Foo"
                          kws.profile/config {kws.config/page 1

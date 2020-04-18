@@ -9,11 +9,13 @@
   (let [props {kws/page 2
                kws/page-size 20
                kws/include-tags ["A" "B"]
-               kws/exclude-tags ["C" "D"]}
+               kws/exclude-tags ["C" "D"]
+               kws/tags-filter-query "(tags NOT CONTAINS 'bar')"}
         result {:page 2
                 :pageSize 20
                 :tags "A,B"
-                :tagsNot "C,D"}]
+                :tagsNot "C,D"
+                :query "(tags NOT CONTAINS 'bar')"}]
 
     (testing "Defaults page"
       (is (= (assoc result :page sut/default-page)
@@ -29,7 +31,11 @@
 
     (testing "Ignore tagsNot if not on params"
       (is (= (dissoc result :tagsNot)
-             (sut/fetch-query-params (dissoc props kws/exclude-tags)))))))
+             (sut/fetch-query-params (dissoc props kws/exclude-tags)))))
+
+    (testing "Ignore query if not on params"
+      (is (= (dissoc result :query)
+             (sut/fetch-query-params (dissoc props kws/tags-filter-query)))))))
 
 (deftest test-parse-fetch-response
 

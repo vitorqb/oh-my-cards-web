@@ -8,6 +8,7 @@
             [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
+            [ohmycards.web.components.inputs.textarea :as inputs.textarea]
             [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
@@ -122,6 +123,19 @@
        :set-fn #(do (swap! state update-in path coercion.result/copy-value-to-raw-value)
                     (-> @state (get-in path) kws.coercion.result/value set-exclude-tags!))}]]))
 
+(defn- tags-filter-query-config
+  "A config for the tags filter query."
+  [{:keys [state] ::kws/keys [set-tags-filter-query!]}]
+  (let [path [kws/config kws.config/tags-filter-query]]
+    [:div.cards-grid-config-dashboard__row
+     (label "Tag Filter Query")
+     [input-wrapper {}
+      [inputs.textarea/main (input-props state path coercers/string)]]
+     [set-btn
+      {:state state
+       :path path
+       :set-fn #(-> @state (get-in path) kws.coercion.result/value set-tags-filter-query!)}]]))
+
 (defn- load-profile-name
   "A row for the user to load a profile by it's name."
   [{:keys [state] ::kws/keys [profiles-names load-profile!]}]
@@ -172,4 +186,5 @@
    [page-size-config props]
    [include-tags-config props]
    [exclude-tags-config props]
+   [tags-filter-query-config props]
    [profile-manager props]])

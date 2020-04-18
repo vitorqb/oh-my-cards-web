@@ -7,6 +7,7 @@
   ::set-include-tags!)
 (def set-exclude-tags! "A fn that sets the tags that must NOT be included in the cards."
   ::set-exclude-tags!)
+(def set-tags-filter-query! "Set's the value for the tags filter query." ::set-tags-filter-query!)
 (def load-profile! "A fn that is called with a profile name for loading a profile" ::load-profile!)
 (def save-profile! "A fn that is called with a profile name for saving a profile" ::save-profile!)
 

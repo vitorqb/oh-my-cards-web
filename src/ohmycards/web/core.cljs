@@ -169,6 +169,9 @@
       kws.cards-grid.config-dashboard/set-exclude-tags!
       #(cards-grid.state-management/set-exclude-tags-from-props! cards-grid-page-props %)
 
+      kws.cards-grid.config-dashboard/set-tags-filter-query!
+      #(cards-grid.state-management/set-tags-filter-query-from-props! cards-grid-page-props %)
+
       kws.cards-grid.config-dashboard/profiles-names
       profile-names
 
