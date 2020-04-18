@@ -1,16 +1,18 @@
 (ns ohmycards.web.services.fetch-cards.core-test
-  (:require [ohmycards.web.services.fetch-cards.core :as sut]
-            [cljs.test :refer-macros [is are deftest testing use-fixtures async]]
+  (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.fetch-cards.core :as kws]
-            [ohmycards.web.kws.card :as kws.card]))
+            [ohmycards.web.services.fetch-cards.core :as sut]))
 
 (deftest test-fetch-query-params
-  (let [props {kws/page 2
-               kws/page-size 20
-               kws/include-tags ["A" "B"]
-               kws/exclude-tags ["C" "D"]
-               kws/tags-filter-query "(tags NOT CONTAINS 'bar')"}
+  (let [props {kws/config
+               {kws.config/page 2
+                kws.config/page-size 20
+                kws.config/include-tags ["A" "B"]
+                kws.config/exclude-tags ["C" "D"]
+                kws.config/tags-filter-query "(tags NOT CONTAINS 'bar')"}}
         result {:page 2
                 :pageSize 20
                 :tags "A,B"
@@ -18,24 +20,29 @@
                 :query "(tags NOT CONTAINS 'bar')"}]
 
     (testing "Defaults page"
-      (is (= (assoc result :page sut/default-page)
-             (sut/fetch-query-params (dissoc props kws/page)))))
+      (let [props  (update props kws/config dissoc kws.config/page)
+            result (assoc result :page sut/default-page)]
+        (is (= result (sut/fetch-query-params props)))))
 
     (testing "Defaults page-size"
-      (is (= (assoc result :pageSize sut/default-page-size)
-             (sut/fetch-query-params (dissoc props kws/page-size)))))
+      (let [props  (update props kws/config dissoc kws.config/page-size)
+            result (assoc result :pageSize sut/default-page-size)]
+        (is (= result (sut/fetch-query-params props)))))
 
     (testing "Ignore tags if not on params"
-      (is (= (dissoc result :tags)
-             (sut/fetch-query-params (dissoc props kws/include-tags)))))
+      (let [props  (update props kws/config dissoc kws.config/include-tags)
+            result (dissoc result :tags)]
+        (is (= result (sut/fetch-query-params props)))))
 
     (testing "Ignore tagsNot if not on params"
-      (is (= (dissoc result :tagsNot)
-             (sut/fetch-query-params (dissoc props kws/exclude-tags)))))
+      (let [props  (update props kws/config dissoc kws.config/exclude-tags)
+            result (dissoc result :tagsNot)]
+        (is (= result (sut/fetch-query-params props)))))
 
     (testing "Ignore query if not on params"
-      (is (= (dissoc result :query)
-             (sut/fetch-query-params (dissoc props kws/tags-filter-query)))))))
+      (let [props  (update props kws/config dissoc kws.config/tags-filter-query)
+            result (dissoc result :query)]
+        (is (= result (sut/fetch-query-params props)))))))
 
 (deftest test-parse-fetch-response
 
@@ -70,10 +77,11 @@
 (deftest test-fetch!
 
   (testing "Calls http-fn with correct args"
-    (is (= {kws.http/method :GET
-            kws.http/url "/v1/cards"
-            kws.http/query-params {:page 11 :pageSize 100}}
-           (sut/fetch! {:http-fn hash-map kws/page 11 kws/page-size 100}))))
+    (let [config {kws.config/page 11 kws.config/page-size 100}]
+      (is (= {kws.http/method :GET
+              kws.http/url "/v1/cards"
+              kws.http/query-params {:page 11 :pageSize 100}}
+             (sut/fetch! {:http-fn hash-map kws/config config})))))
 
   (testing "Defaults page"
     (is (= sut/default-page

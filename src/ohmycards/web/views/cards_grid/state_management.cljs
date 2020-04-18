@@ -22,26 +22,27 @@
 (defn- reduce-on-fetched-cards
   "Reduces the state after cards have been fetched."
   [state {::kws.fetch-cards/keys [cards error-message page page-size count-of-cards]}]
-  (if error-message
-    (assoc state
-           kws.cards-grid/error-message error-message
-           kws.cards-grid/status kws.cards-grid/status-error)
-    (assoc state
-           kws.cards-grid/error-message nil
-           kws.cards-grid/status kws.cards-grid/status-ready
-           kws.cards-grid/cards cards
-           kws.cards-grid/page page
-           kws.cards-grid/page-size page-size
-           kws.cards-grid/count-of-cards count-of-cards)))
+
+  (letfn [(on-error []
+            (assoc state
+                   kws.cards-grid/error-message error-message
+                   kws.cards-grid/status kws.cards-grid/status-error))
+
+          (on-success []
+            (-> state
+                (assoc kws.cards-grid/error-message nil
+                       kws.cards-grid/status kws.cards-grid/status-ready
+                       kws.cards-grid/cards cards
+                       kws.cards-grid/count-of-cards count-of-cards)
+                (assoc-in [kws.cards-grid/config kws.config/page] page)
+                (assoc-in [kws.cards-grid/config kws.config/page-size] page-size)))]
+
+    (if error-message (on-error) (on-success))))
 
 (defn- fetch-cards-params
   "Maps the state to the params for fetching cards"
-  [{::kws.cards-grid/keys [page page-size include-tags exclude-tags tags-filter-query]}]
-  (cond-> {kws.fetch-cards/page page
-           kws.fetch-cards/page-size page-size
-           kws.fetch-cards/include-tags include-tags
-           kws.fetch-cards/exclude-tags exclude-tags}
-    tags-filter-query (assoc kws.fetch-cards/tags-filter-query tags-filter-query)))
+  [{config kws.cards-grid/config}]
+  {kws.fetch-cards/config config})
 
 (defn- refetch!
   "Refetches the data from the BE"
@@ -52,25 +53,19 @@
 
 (defn- has-previous-page?
   "Returns true if we can go to a previous page given the current app state."
-  [{::kws.cards-grid/keys [page]}]
+  [{{page kws.config/page} kws.cards-grid/config}]
   (> page 1))
 
 (defn- has-next-page?
   "Returns true if we can go to a next page given the current app state."
-  [{::kws.cards-grid/keys [page count-of-cards page-size]}]
+  [{count-of-cards kws.cards-grid/count-of-cards
+    {page kws.config/page page-size kws.config/page-size} kws.cards-grid/config}]
   (< page (utils.pagination/last-page page-size count-of-cards)))
 
 (defn- set-config-profile
   "Reducer that set's the config given a `profile`"
-  [state
-   {{::kws.config/keys [page page-size include-tags exclude-tags tags-filter-query]}
-    kws.profile/config}]
-  (assoc state
-         kws.cards-grid/page page
-         kws.cards-grid/page-size page-size
-         kws.cards-grid/include-tags include-tags
-         kws.cards-grid/exclude-tags exclude-tags
-         kws.cards-grid/tags-filter-query tags-filter-query))
+  [state {config kws.profile/config}]
+  (assoc state kws.cards-grid/config config))
 
 ;; API
 (def init-state! refetch!)
@@ -91,31 +86,34 @@
 (defn set-page-from-props!
   "Set's page on the state"
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-page]
-  (swap! state assoc kws.cards-grid/page new-page)
+  (swap! state assoc-in [kws.cards-grid/config kws.config/page] new-page)
   (refetch! state fetch-cards!))
 
 (defn set-page-size-from-props!
   "Set's page size on the state"
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-page-size]
-  (swap! state assoc kws.cards-grid/page-size new-page-size)
+  (swap! state assoc-in [kws.cards-grid/config kws.config/page-size] new-page-size)
   (refetch! state fetch-cards!))
 
 (defn set-include-tags-from-props!
   "Set's the tags the cards must include from props"
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-include-tags]
-  (swap! state assoc kws.cards-grid/include-tags (tags/sanitize new-include-tags))
+  (swap! state
+         assoc-in
+         [kws.cards-grid/config kws.config/include-tags]
+         (tags/sanitize new-include-tags))
   (refetch! state fetch-cards!))
 
 (defn set-exclude-tags-from-props!
   "Set's the tags the cards must not have (exclude-tags) from props"
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-exclude-tags]
-  (swap! state assoc kws.cards-grid/exclude-tags (tags/sanitize new-exclude-tags))
+  (swap! state assoc-in [kws.cards-grid/config kws.config/exclude-tags] (tags/sanitize new-exclude-tags))
   (refetch! state fetch-cards!))
 
 (defn set-tags-filter-query-from-props!
   "Set's the value for the tags filter query."
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-tags-filter-query]
-  (swap! state assoc kws.cards-grid/tags-filter-query new-tags-filter-query)
+  (swap! state assoc-in [kws.cards-grid/config kws.config/tags-filter-query] new-tags-filter-query)
   (refetch! state fetch-cards!))
 
 (defn set-config-from-loader!
@@ -133,10 +131,10 @@
   "Navigates to the previous page."
   [{:keys [state] :as opts}]
   (when (has-previous-page? @state)
-    (set-page-from-props! opts (-> @state kws.cards-grid/page dec))))
+    (set-page-from-props! opts (-> @state kws.cards-grid/config kws.config/page dec))))
 
 (defn goto-next-page!
   "Navigates to the next page."
   [{:keys [state] :as opts}]
   (when (has-next-page? @state)
-    (set-page-from-props! opts (-> @state kws.cards-grid/page inc))))
+    (set-page-from-props! opts (-> @state kws.cards-grid/config kws.config/page inc))))

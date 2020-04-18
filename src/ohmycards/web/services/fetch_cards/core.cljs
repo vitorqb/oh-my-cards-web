@@ -2,6 +2,7 @@
   (:require [cljs.core.async :as a]
             [ohmycards.web.common.cards.core :as common.cards]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.fetch-cards.core :as kws]
             [ohmycards.web.services.http.utils :as http.utils]))
@@ -11,11 +12,16 @@
 
 (defn fetch-query-params
   "Prepares the query params for fetching cards."
-  [{::kws/keys [page page-size include-tags exclude-tags tags-filter-query]}]
-  (cond-> {:page (or page default-page) :pageSize (or page-size default-page-size)}
-    include-tags      (assoc :tags (http.utils/list->query-arg include-tags))
-    exclude-tags      (assoc :tagsNot (http.utils/list->query-arg exclude-tags))
-    tags-filter-query (assoc :query tags-filter-query)))
+  [{config kws/config}]
+  (let [page              (kws.config/page config)
+        page-size         (kws.config/page-size config)
+        include-tags      (kws.config/include-tags config)
+        exclude-tags      (kws.config/exclude-tags config)
+        tags-filter-query (kws.config/tags-filter-query config)]
+    (cond-> {:page (or page default-page) :pageSize (or page-size default-page-size)}
+      include-tags      (assoc :tags (http.utils/list->query-arg include-tags))
+      exclude-tags      (assoc :tagsNot (http.utils/list->query-arg exclude-tags))
+      tags-filter-query (assoc :query tags-filter-query))))
 
 (defn- parse-fetch-response
   [{::kws.http/keys [success? body]}]

@@ -1,8 +1,9 @@
 (ns ohmycards.web.views.cards-grid.control-header
-  (:require [ohmycards.web.utils.pagination :as utils.pagination]
-            [ohmycards.web.icons :as icons]
+  (:require [ohmycards.web.icons :as icons]
+            [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.views.cards-grid.core :as kws]
             [ohmycards.web.utils.components :as utils.components]
+            [ohmycards.web.utils.pagination :as utils.pagination]
             [ohmycards.web.views.cards-grid.state-management :as state-management]))
 
 (defn- arrow-left [props]
@@ -31,7 +32,8 @@
 (defn- header-center
   "The center of the header, containing the pagination controls."
   [{:keys [state] ::kws/keys [] :as props}]
-  (let [{::kws/keys [page page-size count-of-cards]} @state]
+  (let [{config kws/config count-of-cards kws/count-of-cards} @state
+        {page kws.config/page page-size kws.config/page-size} config]
     [:span.cards-grid-header__center
      [arrow-left props]
      [page-counter {::page page ::max-page (utils.pagination/last-page page-size count-of-cards)}]

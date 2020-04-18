@@ -1,8 +1,9 @@
 (ns ohmycards.web.views.cards-grid.control-header-test
-  (:require [ohmycards.web.views.cards-grid.control-header :as sut]
-            [cljs.test :refer-macros [is are deftest testing use-fixtures async]]
+  (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.views.cards-grid.core :as kws]
-            [ohmycards.web.test-utils :as tu]))
+            [ohmycards.web.test-utils :as tu]
+            [ohmycards.web.views.cards-grid.control-header :as sut]))
 
 (deftest test-page-counter
   (is (= [:span.small-box "2 | 3"]
@@ -20,7 +21,8 @@
      (some
       #(= [sut/page-counter {::sut/page 2 ::sut/max-page 2}] %)
       (sut/header-center
-       {:state (atom {kws/page 2 kws/count-of-cards 2 kws/page-size 1})})))))
+       {:state (atom {kws/config {kws.config/page 2 kws.config/page-size 1}
+                      kws/count-of-cards 2})})))))
 
 (deftest test-main
 
