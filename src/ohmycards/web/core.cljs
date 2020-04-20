@@ -6,6 +6,7 @@
             [ohmycards.web.controllers.action-dispatcher.core
              :as
              controllers.action-dispatcher]
+            [ohmycards.web.controllers.cards-grid.core :as controllers.cards-grid]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.cards-grid.metadata.core :as kws.cards-grid.metadata]
             [ohmycards.web.kws.http :as kws.http]
@@ -33,7 +34,6 @@
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core
              :as
              kws.cards-grid.config-dashboard]
-            [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
             [ohmycards.web.kws.views.edit-card.core :as kws.edit-card]
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
             [ohmycards.web.routing.core :as routing.core]
@@ -51,13 +51,6 @@
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
              cards-grid.config-dashboard]
-            [ohmycards.web.views.cards-grid.config-dashboard.state-management
-             :as
-             cards-grid.config-dashboard.state-management]
-            [ohmycards.web.views.cards-grid.core :as cards-grid]
-            [ohmycards.web.views.cards-grid.state-management
-             :as
-             cards-grid.state-management]
             [ohmycards.web.views.edit-card.core :as edit-card]
             [ohmycards.web.views.edit-card.state-management
              :as
@@ -71,11 +64,6 @@
 (defonce state (r/atom {}))
 
 (defn- state-cursor [path] (r/cursor state (utils/to-path path)))
-
-(defn- init-state! []
-  (swap!
-   (state-cursor :views.cards-grid.config-dashboard)
-   cards-grid.config-dashboard.state-management/init-state))
 
 ;; -------------------------
 ;; Http helpers
@@ -113,20 +101,10 @@
   []
   [header/main {::header/email (-> @state ::lenses.login/current-user ::kws.user/email)}])
 
-(def cards-grid-page-props
-  "Props given to the cards-grid-page."
-  {:state (state-cursor :views.cards-grid)
-   kws.cards-grid/fetch-cards! fetch-cards!
-   kws.cards-grid/goto-settings! #(routing.core/goto! routing.pages/cards-grid-config)
-   kws.cards-grid/goto-newcard! #(routing.core/goto! routing.pages/new-card)
-   kws.cards-grid/goto-editcard! #(routing.core/goto!
-                                   routing.pages/edit-card
-                                   kws.routing/query-params {:id (kws.card/id %)})})
-
 (defn cards-grid-page
   "An instance for the cards-grid view."
   []
-  [cards-grid/main cards-grid-page-props])
+  [controllers.cards-grid/cards-grid])
 
 (defn new-card-page
   "An instance for the new-card view."
@@ -149,41 +127,8 @@
   "An instance for the cards-grid-config view."
   []
   (let [profile-names (-> @state lenses.metadata/cards-grid kws.cards-grid.metadata/profile-names)
-        state (state-cursor :views.cards-grid.config-dashboard)]
-    [cards-grid.config-dashboard/main
-     {:state
-      state
-
-      kws.cards-grid.config-dashboard/goto-cards-grid!
-      #(routing.core/goto! routing.pages/home)
-
-      kws.cards-grid.config-dashboard/set-page!
-      #(cards-grid.state-management/set-page-from-props! cards-grid-page-props %)
-
-      kws.cards-grid.config-dashboard/set-page-size!
-      #(cards-grid.state-management/set-page-size-from-props! cards-grid-page-props %)
-
-      kws.cards-grid.config-dashboard/set-include-tags!
-      #(cards-grid.state-management/set-include-tags-from-props! cards-grid-page-props %)
-
-      kws.cards-grid.config-dashboard/set-exclude-tags!
-      #(cards-grid.state-management/set-exclude-tags-from-props! cards-grid-page-props %)
-
-      kws.cards-grid.config-dashboard/set-tags-filter-query!
-      #(cards-grid.state-management/set-tags-filter-query-from-props! cards-grid-page-props %)
-
-      kws.cards-grid.config-dashboard/profiles-names
-      profile-names
-
-      kws.cards-grid.config-dashboard/load-profile!
-      #(async/go
-         (let [chan (services.cards-grid-profile-manager/load! {:http-fn http-fn} %) 
-               resp (async/<! chan)]
-           (cards-grid.config-dashboard.state-management/set-config-from-loader! state resp)
-           (cards-grid.state-management/set-config-from-loader! cards-grid-page-props resp)))
-
-      kws.cards-grid.config-dashboard/save-profile!
-      #(services.cards-grid-profile-manager/save! cards-grid-profile-manager-opts %)}]))
+        props         {kws.cards-grid.config-dashboard/profiles-names profile-names}]
+    [controllers.cards-grid/config-dashboard-page props]))
 
 (defn- current-view*
   "Returns an instance of the `current-view` component."
@@ -230,13 +175,14 @@
   "Handles actions from cards crud."
   [event-kw {::kws.cards-crud/keys [error-message]}]
   (when (and (not error-message) (kws.cards-crud.actions/cdu event-kw))
-    (cards-grid.state-management/refetch-from-props! cards-grid-page-props)))
+    (controllers.cards-grid/refetch!)))
 
 (defn handle-user-logged-in
   "Handles action for an user logging in"
   [event-kw new-user]
   (when (= event-kw kws.services.login/new-user)
-    (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)))
+    (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)
+    (controllers.cards-grid/load-profile-from-route-match! (::lenses.routing/match @state))))
 
 (def events-bus-handler
   "The main handler for all events send to the event bus."
@@ -289,9 +235,6 @@
 
 (defn ^:export init! []
 
-  ;; Initialize state
-  (init-state!)
-
   ;; Initialize services
   (services.login/init! {:state state :http-fn http-fn})
 
@@ -301,9 +244,15 @@
 
   (services.shortcuts-register/init! shortcuts)
 
+  ;; Initializes controllers
   (controllers.action-dispatcher/init!
    {:state (state-cursor :components.action-dispatcher)
     :actions-dispatcher-hydra-options actions-dispatcher-hydra-options})
+
+  (controllers.cards-grid/init!
+   {:app-state state
+    :http-fn http-fn
+    :cards-grid-profile-manager-opts cards-grid-profile-manager-opts})
 
   (mount-root))
  
