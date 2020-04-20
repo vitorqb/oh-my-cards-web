@@ -167,3 +167,13 @@
   "Refetches the cards for the grid."
   []
   (cards-grid.state-management/refetch-from-props! (grid-props)))
+
+(defn load-profile-from-route-match!
+  "Given a route match (reitit), loads the profile for the cards grid if it is defined."
+  [route-match]
+  (when-let [profile-name (some-> route-match :query-params :grid-profile)]
+    (log "Loading grid-profile in the route: " profile-name)
+    (let [view (-> route-match :data :name)
+          query-params (-> route-match :query-params (dissoc :grid-profile))]
+      (load-profile! profile-name)
+      (routing.core/goto! view kws.routing/query-params query-params))))

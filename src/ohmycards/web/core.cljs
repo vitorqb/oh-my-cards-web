@@ -181,7 +181,8 @@
   "Handles action for an user logging in"
   [event-kw new-user]
   (when (= event-kw kws.services.login/new-user)
-    (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)))
+    (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)
+    (controllers.cards-grid/load-profile-from-route-match! (::lenses.routing/match @state))))
 
 (def events-bus-handler
   "The main handler for all events send to the event bus."
