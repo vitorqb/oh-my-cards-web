@@ -215,17 +215,16 @@
    kws.hydra.branch/heads 
    [{kws.hydra/shortcut    \c
      kws.hydra/description "Cards Grid Configuration"
-     kws.hydra/type        kws.hydra/branch
-     kws.hydra.branch/name "Cards Grid Configuration"
-     kws.hydra.branch/heads
-     [{kws.hydra/shortcut    \g
-       kws.hydra/description "Go!"
-       kws.hydra/type        kws.hydra/leaf
-       kws.hydra.leaf/value #(routing.core/goto! routing.pages/cards-grid-config)}]}
+     kws.hydra/type        kws.hydra/leaf
+     kws.hydra.leaf/value #(routing.core/goto! routing.pages/cards-grid-config)}
     {kws.hydra/shortcut    \h
      kws.hydra/description "Home"
      kws.hydra/type        kws.hydra/leaf
      kws.hydra.leaf/value  #(routing.core/goto! routing.pages/home)}
+    {kws.hydra/shortcut    \n
+     kws.hydra/description "New Cards"
+     kws.hydra/type        kws.hydra/leaf
+     kws.hydra.leaf/value  #(routing.core/goto! routing.pages/new-card)}
     {kws.hydra/shortcut    \q
      kws.hydra/description "Quit"
      kws.hydra/type        kws.hydra/leaf

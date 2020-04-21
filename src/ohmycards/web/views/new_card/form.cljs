@@ -10,7 +10,8 @@
   [{:keys [state]}]
   [form/row {}
    [:span.new-card-form__label "Title"]
-   [form.input/main (form.input/build-props state [kws/card-input kws.card/title])]])
+   [form.input/main (form.input/build-props state [kws/card-input kws.card/title]
+                                            :auto-focus true)]])
 
 (defn- body-input
   "An input for the body"

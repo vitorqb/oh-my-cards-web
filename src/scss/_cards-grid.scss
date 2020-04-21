@@ -24,11 +24,12 @@
     flex-direction: column;
     height: 340px;
     margin: 5px;
-    padding: 5px;
+    padding: 6px;
     background-color: #f4eeff;
     text-align: center;
     border-radius: 3px 3px 0 0;
     box-shadow:  0px 0px 3px 0px rgba(0,0,0,0.75);
+    box-sizing: border-box;
 
     &__title {
         margin-bottom: 5px;
