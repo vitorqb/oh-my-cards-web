@@ -226,6 +226,10 @@
      kws.hydra/description "Home"
      kws.hydra/type        kws.hydra/leaf
      kws.hydra.leaf/value  #(routing.core/goto! routing.pages/home)}
+    {kws.hydra/shortcut    \n
+     kws.hydra/description "New Cards"
+     kws.hydra/type        kws.hydra/leaf
+     kws.hydra.leaf/value  #(routing.core/goto! routing.pages/new-card)}
     {kws.hydra/shortcut    \q
      kws.hydra/description "Quit"
      kws.hydra/type        kws.hydra/leaf
