@@ -5,6 +5,7 @@
 .cards-grid {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
 
     &__top-error-box {
         flex: 1;
@@ -18,18 +19,14 @@
 
 .card-display {
 
-    flex: 1;
+    flex: 0 0 300px;
     display: flex;
     flex-direction: column;
-    max-width: 300px;
-    min-width: 250px;
-    max-height: 320px;
-    min-height: 320px;
+    height: 340px;
     margin: 5px;
     padding: 5px;
     background-color: #f4eeff;
     text-align: center;
-    white-space: wrap;
     border-radius: 3px 3px 0 0;
     box-shadow:  0px 0px 3px 0px rgba(0,0,0,0.75);
 
