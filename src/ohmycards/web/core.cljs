@@ -163,11 +163,6 @@
      {:name routing.pages/new-card
       :view #'new-card-page}]]])
 
-(defn- set-routing-match!
-  "Set's the routing match on the state."
-  [match]
-  (swap! state assoc ::lenses.routing/match match))
-
 
 ;; -------------------------
 ;; Bus Event Handlers
@@ -184,11 +179,19 @@
     (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)
     (controllers.cards-grid/load-profile-from-route-match! (::lenses.routing/match @state))))
 
+(defn handle-navigated-to-route
+  "Handles action for when the app has navigated to a new route"
+  [event-kw route-match]
+  (when (= event-kw kws.routing/action-navigated-to-route)
+    (when (services.login/is-logged-in?)
+      (controllers.cards-grid/load-profile-from-route-match! route-match))))
+
 (def events-bus-handler
   "The main handler for all events send to the event bus."
   #(do
      (handle-cards-crud-action %1 %2)
-     (handle-user-logged-in %1 %2)))
+     (handle-user-logged-in %1 %2)
+     (handle-navigated-to-route %1 %2)))
 
 
 ;; ------------------------------
@@ -240,7 +243,7 @@
 
   (events-bus/init! {kws.events-bus/handler events-bus-handler})
 
-  (routing.core/start-routing! routes set-routing-match!)
+  (routing.core/start-routing! routes (state-cursor ::lenses.routing/match))
 
   (services.shortcuts-register/init! shortcuts)
 

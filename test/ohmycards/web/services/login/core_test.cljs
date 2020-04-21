@@ -26,3 +26,14 @@
       (let [user {kws.user/email "FOO"}]
         (sut/set-user! user)
         (is (= {lenses.login/current-user user} @sut/*state*))))))
+
+(deftest test-is-logged-in
+
+  (testing "True"
+    (binding [sut/*state* (atom {})]
+      (sut/set-user! {:email "foo@bar.com"})
+      (is (true? (sut/is-logged-in?)))))
+
+  (testing "False"
+    (binding [sut/*state* (atom {})]
+      (is (false? (sut/is-logged-in?))))))

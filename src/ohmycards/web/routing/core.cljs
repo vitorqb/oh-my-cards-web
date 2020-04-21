@@ -1,5 +1,6 @@
 (ns ohmycards.web.routing.core
   (:require [ohmycards.web.kws.routing.core :as kws]
+            [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.utils.logging :as logging]
             [reitit.frontend :as rf]
             [reitit.frontend.easy :as rfe]))
@@ -15,10 +16,12 @@
 (defn start-routing!
   "Starts the routing with reitit.
   - `raw-routes` Must be a reitit-like route registration data.
-  - `set-match!` A fn to set the routing match on change."
-  [raw-routes set-match!]
-  (log "Starting with" raw-routes set-match!)
+  - `routing-state` An atom-like thing where to store state is stored."
+  [raw-routes routing-state]
+  (log "Starting with" raw-routes routing-state)
   (rfe/start!
    (rf/router raw-routes)
-   (fn [match _] (set-match! match))
+   (fn [match _]
+     (reset! routing-state match)
+     (events-bus/send! kws/action-navigated-to-route match))
    {:use-fragment true}))

@@ -70,3 +70,8 @@
   (log "Setting new user: " user)
   (swap! *state* assoc lenses.login/current-user user)
   (events-bus/send! kws/new-user user))
+
+(defn is-logged-in?
+  "Returns true if an user is currently logged in."
+  []
+  (some? (lenses.login/current-user @*state*)))
