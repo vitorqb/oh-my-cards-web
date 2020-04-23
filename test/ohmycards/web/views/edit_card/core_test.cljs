@@ -4,6 +4,7 @@
             [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
+            [ohmycards.web.components.inputs.markdown :as inputs.markdown]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.kws.card :as kws.card]
@@ -53,9 +54,7 @@
 (deftest test-body-input-row
   (let [state     (atom {kws/card-input {kws.card/body "FOO"}})
         comp      (sut/body-input-row {:state state})
-        [_ props] (tu/get-first
-                   #(= (tu/safe-first %) form.input/main)
-                   (tu/comp-seq comp))]
+        props     (tu/get-props-for inputs.markdown/main (tu/comp-seq comp))]
     (is (= "FOO" (:value props)))
     (is (ifn? (:on-change props)))))
 
