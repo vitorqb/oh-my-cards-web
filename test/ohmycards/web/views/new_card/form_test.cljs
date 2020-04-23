@@ -2,6 +2,7 @@
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.markdown :as inputs.markdown]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.views.new-card.core :as kws]
@@ -25,18 +26,21 @@
 
 (deftest test-body-input
 
-  (testing "On change mutates state"
-    (let [state (atom {})
-          comp  (sut/body-input {:state state})
-          [_ {:keys [on-change]}] (tu/get-first #(= (tu/safe-first %) form.input/main) comp)]
-      (on-change "foo")
-      (is (= @state {kws/card-input {kws.card/body "foo"}}))))
+  (letfn [(gen-comp [state] (sut/body-input {:state state}))
+          (get-props [comp] (tu/get-props-for inputs.markdown/main (tu/comp-seq comp)))]
 
-  (testing "Passes value"
-    (let [state (atom {kws/card-input {kws.card/body "Foo"}})
-          comp  (sut/body-input {:state state})
-          [_ {:keys [value]}] (tu/get-first #(= (tu/safe-first %) form.input/main) comp)]
-      (is (= value "Foo")))))
+    (testing "On change mutates state"
+      (let [state (atom {})
+            comp  (gen-comp state)
+            props (get-props comp)]
+        ((:on-change props) "foo")
+        (is (= {kws/card-input {kws.card/body "foo"}} @state))))
+
+    (testing "Passes value"
+      (let [state (atom {kws/card-input {kws.card/body "Foo"}})
+            comp  (gen-comp state)
+            props (get-props comp)]
+        (is (= (:value props) "Foo"))))))
 
 (deftest test-tags-input
 
