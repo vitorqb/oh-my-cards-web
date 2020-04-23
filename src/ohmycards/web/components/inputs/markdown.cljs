@@ -40,4 +40,4 @@
                   :selected-tab @!tab
                   :on-tab-change #(reset! !tab %)
                   :generate-markdown-preview #(render-markdown %)
-                  :min-editor-height 400}])))
+                  :min-editor-height 300}])))

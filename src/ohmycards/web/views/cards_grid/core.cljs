@@ -1,10 +1,13 @@
 (ns ohmycards.web.views.cards-grid.core
-  (:require [ohmycards.web.kws.views.cards-grid.core :as kws]
-            [ohmycards.web.views.cards-grid.state-management :as state-management]
+  (:require [ohmycards.web.components.error-message-box.core :as error-message-box]
+            [ohmycards.web.components.markdown-displayer.core
+             :as
+             markdown-displayer]
+            [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.card :as kws.card]
-            [ohmycards.web.components.error-message-box.core :as error-message-box]
+            [ohmycards.web.kws.views.cards-grid.core :as kws]
             [ohmycards.web.views.cards-grid.control-header :as control-header]
-            [ohmycards.web.icons :as icons]))
+            [ohmycards.web.views.cards-grid.state-management :as state-management]))
 
 ;; Functions
 (defn- card-edit-btn
@@ -25,7 +28,8 @@
   [{{::kws.card/keys [id title body tags] :as card} ::card :as props}]
   [:div.card-display
    [:div.card-display__title title]
-   [:div.card-display__body body]
+   [:div.card-display__body
+    [markdown-displayer/main {:source body}]]
    [tags-displayer {::tags tags}]
    [:div.card-display__foot [card-edit-btn props]]])
 
