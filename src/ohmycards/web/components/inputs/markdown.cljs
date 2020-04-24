@@ -35,9 +35,10 @@
   [{:keys [value on-change]}]
   (let [!tab (r/atom "write")]
     (fn [{:keys [value on-change]}]
-      [react-mde {:on-change on-change
-                  :value (or value "")
-                  :selected-tab @!tab
-                  :on-tab-change #(reset! !tab %)
-                  :generate-markdown-preview #(render-markdown %)
-                  :min-editor-height 300}])))
+      [:div.markdown-input
+       [react-mde {:on-change on-change
+                   :value (or value "")
+                   :selected-tab @!tab
+                   :on-tab-change #(reset! !tab %)
+                   :generate-markdown-preview #(render-markdown %)
+                   :min-editor-height 300}]])))
