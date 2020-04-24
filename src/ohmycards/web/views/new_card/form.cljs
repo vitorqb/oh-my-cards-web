@@ -3,7 +3,8 @@
             [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.kws.card :as kws.card]
-            [ohmycards.web.kws.views.new-card.core :as kws]))
+            [ohmycards.web.kws.views.new-card.core :as kws]
+            [ohmycards.web.components.inputs.markdown :as inputs.markdown]))
 
 (defn- title-input
   "An input for the title"
@@ -17,8 +18,8 @@
   "An input for the body"
   [{:keys [state]}]
   [form/row {}
-   [:span.new-card-form__label "Body"]
-   [form.input/main (form.input/build-props state [kws/card-input kws.card/body])]])
+   [:span.new-card-form__label "Body"] 
+   [inputs.markdown/main (form.input/build-props state [kws/card-input kws.card/body])]])
 
 (defn- tags-input
   "An input for tags"

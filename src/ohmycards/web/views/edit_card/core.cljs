@@ -3,6 +3,7 @@
             [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
+            [ohmycards.web.components.inputs.markdown :as inputs.markdown]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.icons :as icons]
@@ -53,7 +54,7 @@
   [{:keys [state]}]
   [form/row {}
    [:span.edit-card__label "Body"]
-   [form.input/main (form.input/build-props state [kws/card-input kws.card/body])]])
+   [inputs.markdown/main (form.input/build-props state [kws/card-input kws.card/body])] ])
 
 (defn- tags-input-row
   "An input for tags"

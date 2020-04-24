@@ -10,6 +10,8 @@
     "@reach/combobox": "^0.10.0",
     "create-react-class": "^15.6.3",
     "react": "^16.4.0",
-    "react-dom": "^16.4.0"
+    "react-dom": "^16.4.0",
+    "react-markdown": "^4.3.1",
+    "react-mde": "git+https://github.com/vitorqb/react-mde.git#v8.3.0-patch1"
   }
 }
