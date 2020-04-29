@@ -19,6 +19,11 @@
   (let [values-set (->> options (map kws.options/value) (fuzzy-match/main (or value "")) set)]
     (filter #(values-set (kws.options/value %)) options)))
 
+(defn seq->options
+  "Transforms any sequence in options for the combobox."
+  [s]
+  (->> s distinct (map #(do {kws.options/value %}))))
+
 (defn main
   "A combobox (multiselect)."
   [{:keys [value on-change class] ::kws/keys [options] :as props}]

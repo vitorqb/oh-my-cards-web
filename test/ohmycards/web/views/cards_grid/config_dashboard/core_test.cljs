@@ -7,12 +7,14 @@
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.inputs.textarea :as inputs.textarea]
+            [ohmycards.web.kws.card-metadata :as kws.card-metadata]
             [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
             [ohmycards.web.kws.components.inputs.combobox.core :as kws.combobox]
             [ohmycards.web.kws.components.inputs.combobox.options
              :as
              kws.combobox.options]
+            [ohmycards.web.kws.components.inputs.tags :as kws.tags]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.cards-grid.config-dashboard.core :as sut]))
@@ -173,24 +175,32 @@
 
     (testing "Contains input with value"
       (let [comp (sut/include-tags-config props)
-            [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
-                                          (tu/comp-seq comp))]
-        (is (= (:value input-props) ["A"]))))))
+            input-props (tu/get-props-for inputs.tags/main (tu/comp-seq comp))]
+        (is (= (:value input-props) ["A"]))))
+
+    (testing "Contains input with all tags"
+      (let [props (assoc props kws/cards-metadata {kws.card-metadata/tags ["A"]})
+            comp (sut/include-tags-config props)
+            input-props (tu/get-props-for inputs.tags/main (tu/comp-seq comp))]
+        (is (= (kws.tags/all-tags input-props) ["A"]))))))
 
 (deftest test-exclude-tags-config
 
-  (let [coerced-value (coercion.result/success ["A"] ["A"])]
+  (let [coerced-value (coercion.result/success ["A"] ["A"])
+        cards-metadata {kws.card-metadata/tags ["B"]}
+        props {:state (atom {kws/config {kws.config/exclude-tags coerced-value}})
+               kws/cards-metadata cards-metadata}
+        comp (sut/exclude-tags-config props)
+        tags-input-props (tu/get-props-for inputs.tags/main (tu/comp-seq comp))]
 
     (testing "Includes label"
-      (let [props {:state (atom {kws/config {kws.config/exclude-tags coerced-value}})}]
-        (is (tu/exists-in-component? (sut/label "Not ANY tags") (sut/exclude-tags-config props)))))
+      (is (tu/exists-in-component? (sut/label "Not ANY tags") comp)))
 
     (testing "Contains input with value"
-      (let [props {:state (atom {kws/config {kws.config/exclude-tags coerced-value}})}
-            comp (sut/exclude-tags-config props)
-            [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
-                                          (tu/comp-seq comp))]
-        (is (= (:value input-props) ["A"]))))))
+      (is (= (:value tags-input-props) ["A"])))
+
+    (testing "Contains input with all tags"
+      (is (= (kws.tags/all-tags tags-input-props) ["B"])))))
 
 (deftest test-tags-filter-query-config
 

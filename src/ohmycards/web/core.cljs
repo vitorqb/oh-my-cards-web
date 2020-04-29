@@ -41,6 +41,9 @@
             [ohmycards.web.services.cards-grid-profile-manager.core
              :as
              services.cards-grid-profile-manager]
+            [ohmycards.web.services.cards-metadata-fetcher.core
+             :as
+             services.cards-metadata-fetcher]
             [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.http :as services.http]
@@ -88,6 +91,14 @@
    #(swap! state assoc lenses.metadata/cards-grid %)})
 
 ;; -------------------------
+;; Metadata
+(defn fetch-card-metadata
+  []
+  (let [metadata-chan (services.cards-metadata-fetcher/main {:http-fn http-fn})]
+    (async/go
+      (swap! state assoc lenses.metadata/cards (async/<! metadata-chan)))))
+
+;; -------------------------
 ;; View instances
 (defn login
   "An instance for the login page."
@@ -111,12 +122,14 @@
   []
   [new-card/main {:http-fn http-fn
                   :state (state-cursor :views.new-card)
-                  kws.new-card/goto-home! #(routing.core/goto! routing.pages/home)}])
+                  kws.new-card/goto-home! #(routing.core/goto! routing.pages/home)
+                  kws.new-card/cards-metadata (lenses.metadata/cards @state)}])
 
 (defn edit-card-page
   "An instance for the edit-card view"
   []
   [edit-card/main {kws.edit-card/goto-home! #(routing.core/goto! routing.pages/home)
+                   kws.edit-card/cards-metadata (lenses.metadata/cards @state)
                    :http-fn http-fn
                    :state (edit-card.state-management/init!
                            (state-cursor :views.edit-card)
@@ -126,8 +139,10 @@
 (defn cards-grid-config-page
   "An instance for the cards-grid-config view."
   []
-  (let [profile-names (-> @state lenses.metadata/cards-grid kws.cards-grid.metadata/profile-names)
-        props         {kws.cards-grid.config-dashboard/profiles-names profile-names}]
+  (let [profile-names  (-> @state lenses.metadata/cards-grid kws.cards-grid.metadata/profile-names)
+        cards-metadata (-> @state lenses.metadata/cards)
+        props          {kws.cards-grid.config-dashboard/profiles-names profile-names
+                        kws.cards-grid.config-dashboard/cards-metadata cards-metadata}]
     [controllers.cards-grid/config-dashboard-page props]))
 
 (defn- current-view*
@@ -170,14 +185,16 @@
   "Handles actions from cards crud."
   [event-kw {::kws.cards-crud/keys [error-message]}]
   (when (and (not error-message) (kws.cards-crud.actions/cdu event-kw))
-    (controllers.cards-grid/refetch!)))
+    (controllers.cards-grid/refetch!)
+    (fetch-card-metadata)))
 
 (defn handle-user-logged-in
   "Handles action for an user logging in"
   [event-kw new-user]
   (when (= event-kw kws.services.login/new-user)
     (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)
-    (controllers.cards-grid/load-profile-from-route-match! (::lenses.routing/match @state))))
+    (controllers.cards-grid/load-profile-from-route-match! (::lenses.routing/match @state))
+    (fetch-card-metadata)))
 
 (defn handle-navigated-to-route
   "Handles action for when the app has navigated to a new route"

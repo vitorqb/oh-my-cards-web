@@ -8,6 +8,8 @@
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.card-metadata :as kws.card-metadata]
+            [ohmycards.web.kws.components.inputs.tags :as kws.inputs.tags]
             [ohmycards.web.kws.views.edit-card.core :as kws]
             [ohmycards.web.views.edit-card.handlers :as handlers]))
 
@@ -58,11 +60,12 @@
 
 (defn- tags-input-row
   "An input for tags"
-  [{:keys [state]}]
+  [{:keys [state] ::kws/keys [cards-metadata]}]
   [form/row {}
    [:span.edit-card__label "Tags"]
    [:div.simple-form__input
-    [inputs.tags/main (form.input/build-props state [kws/card-input kws.card/tags])]]])
+    [inputs.tags/main (assoc (form.input/build-props state [kws/card-input kws.card/tags])
+                             kws.inputs.tags/all-tags (kws.card-metadata/tags cards-metadata))]]])
 
 (defn- form
   "The form for the card inputs."

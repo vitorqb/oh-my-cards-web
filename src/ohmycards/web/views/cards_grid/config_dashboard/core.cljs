@@ -10,6 +10,7 @@
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.inputs.textarea :as inputs.textarea]
             [ohmycards.web.icons :as icons]
+            [ohmycards.web.kws.card-metadata :as kws.card-metadata]
             [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
             [ohmycards.web.kws.common.coercion.result :as kws.coercion.result]
@@ -17,6 +18,7 @@
             [ohmycards.web.kws.components.inputs.combobox.options
              :as
              kws.combobox.options]
+            [ohmycards.web.kws.components.inputs.tags :as kws.inputs.tags]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]))
 
 ;; Helpers
@@ -97,12 +99,13 @@
 
 (defn- include-tags-config
   "A config for tags to include"
-  [{:keys [state] ::kws/keys [set-include-tags!]}]
+  [{:keys [state] ::kws/keys [set-include-tags! cards-metadata]}]
   (let [path [kws/config kws.config/include-tags]]
     [:div.cards-grid-config-dashboard__row
      (label "ALL tags")
      [input-wrapper {}
-      [inputs.tags/main (input-props state path coercers/tags)]]
+      [inputs.tags/main (assoc (input-props state path coercers/tags)
+                               kws.inputs.tags/all-tags (kws.card-metadata/tags cards-metadata))]]
      [set-btn
       {:state state
        :path path
@@ -111,12 +114,13 @@
 
 (defn- exclude-tags-config
   "A config for tags to exclude"
-  [{:keys [state] ::kws/keys [set-exclude-tags!]}]
+  [{:keys [state] ::kws/keys [set-exclude-tags! cards-metadata]}]
   (let [path [kws/config kws.config/exclude-tags]]
     [:div.cards-grid-config-dashboard__row
      (label "Not ANY tags")
      [input-wrapper {}
-      [inputs.tags/main (input-props state path coercers/tags)]]
+      [inputs.tags/main (assoc (input-props state path coercers/tags)
+                               kws.inputs.tags/all-tags (kws.card-metadata/tags cards-metadata))]]
      [set-btn
       {:state state
        :path path
@@ -140,7 +144,7 @@
   "A row for the user to load a profile by it's name."
   [{:keys [state] ::kws/keys [profiles-names load-profile!]}]
   (let [path [kws/load-profile-name]
-        options (map #(do {kws.combobox.options/value %}) profiles-names)]
+        options (inputs.combobox/seq->options profiles-names)]
     [:div.cards-grid-config-dashboard__row
      (label "Load Profile")
      [input-wrapper {}

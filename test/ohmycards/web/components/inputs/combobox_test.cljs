@@ -23,6 +23,9 @@
        [{kws.options/value "a"} {kws.options/value "b"}]
        nil)))))
 
+(deftest test-seq->options
+  (is (= [{kws.options/value "A"}] (sut/seq->options ["A" "A"]))))
+
 (deftest test-main
 
   (testing "Renders one ComboboxOption for each kws/options"

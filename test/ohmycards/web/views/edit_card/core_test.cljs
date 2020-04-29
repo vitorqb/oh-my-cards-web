@@ -8,6 +8,8 @@
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.card-metadata :as kws.card-metadata]
+            [ohmycards.web.kws.components.inputs.tags :as kws.inputs.tags]
             [ohmycards.web.kws.views.edit-card.core :as kws]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.edit-card.core :as sut]))
@@ -63,8 +65,11 @@
     (with-redefs [form.input/build-props #(do {:state %1 :path %2})]
       (is
        (tu/exists-in-component?
-        [inputs.tags/main {:state ::state :path [kws/card-input kws.card/tags] }]
-        (sut/tags-input-row {:state ::state}))))))
+        [inputs.tags/main {:state ::state
+                           :path [kws/card-input kws.card/tags]
+                           kws.inputs.tags/all-tags ["A"]}]
+        (sut/tags-input-row {:state ::state
+                             kws/cards-metadata {kws.card-metadata/tags ["A"]}}))))))
 
 (deftest test-form
 

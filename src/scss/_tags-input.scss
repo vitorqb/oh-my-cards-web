@@ -1,5 +1,16 @@
 .tags-input {
+
     &__input {
         width: 100px;
+    }
+
+    &__single-tags-container {
+        & > * {
+            display: inline-block;
+            width: 100px;
+        }
+        & input {
+            width: 100%;
+        }
     }
 }
