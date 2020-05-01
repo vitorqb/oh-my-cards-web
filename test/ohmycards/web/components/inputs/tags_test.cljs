@@ -1,7 +1,15 @@
 (ns ohmycards.web.components.inputs.tags-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as sut]
+            [ohmycards.web.kws.components.inputs.combobox.core
+             :as
+             kws.inputs.combobox]
+            [ohmycards.web.kws.components.inputs.combobox.options
+             :as
+             kws.inputs.combobox.options]
+            [ohmycards.web.kws.components.inputs.tags :as kws]
             [ohmycards.web.test-utils :as tu]))
 
 (deftest test-zip-tags
@@ -38,27 +46,35 @@
 
   (testing "Base"
     (is
-     (= [form.input/main {:class "tags-input__input"
-                          :type "text"
-                          :value nil
-                          :on-change ::on-change}]
-        (sut/single-tag-input {:on-change ::on-change})))))
+     (= [inputs.combobox/main
+         {:class "tags-input__input"
+          :type "text"
+          :value nil
+          :on-change ::on-change
+          kws.inputs.combobox/options [{kws.inputs.combobox.options/value "A"}]}]
+        (sut/single-tag-input {:on-change ::on-change :all-tags ["A"]})))))
 
 (deftest test-main
 
   (testing "Renders a single-tag-input for each tag"
     (with-redefs [sut/tag-change-handler #(do [::change %1 %2])]
-      (let [props {:value ["TAG"]}]
+      (let [props {:value ["TAG"] kws/all-tags ["A"]}]
         (is
          (tu/exists-in-component?
-          [sut/single-tag-input {:key 0 :value "TAG" :on-change [::change props 0]}]
+          [sut/single-tag-input {:key 0
+                                 :value "TAG"
+                                 :on-change [::change props 0]
+                                 :all-tags ["A"]}]
           (sut/main props))))))
 
   (testing "Renders a single-tag-input with append"
     (with-redefs [sut/tag-change-handler #(do [::change %1 %2])]
       (is
        (tu/exists-in-component?
-        [sut/single-tag-input {:key 0 :value nil :on-change [::change {} :append]}]
+        [sut/single-tag-input {:key 0
+                               :value nil
+                               :on-change [::change {} :append]
+                               :all-tags nil}]
         (sut/main {}))))))
 
 (deftest get-class

@@ -5,6 +5,8 @@
             [ohmycards.web.components.inputs.markdown :as inputs.markdown]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.card-metadata :as kws.card-metadata]
+            [ohmycards.web.kws.components.inputs.tags :as kws.inputs.tags]
             [ohmycards.web.kws.views.new-card.core :as kws]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.new-card.form :as sut]))
@@ -44,7 +46,8 @@
 
 (deftest test-tags-input
 
-  (let [props {:state (atom {})}]
+  (let [props {:state (atom {})
+               kws/cards-metadata {kws.card-metadata/tags ["A"]}}]
 
     (testing "Renders label"
       (is (tu/exists-in-component?
@@ -54,12 +57,18 @@
     (testing "Renders a tags-input"
       (let [card {kws.card/tags ["A"]}
             comp (sut/tags-input (assoc props :state (atom {kws/card-input card})))
-            [_ tag-input-props] (tu/get-first #(= (tu/safe-first %) inputs.tags/main)
-                                              (tu/comp-seq comp))
+            tag-input-props (tu/get-props-for inputs.tags/main (tu/comp-seq comp))
             {:keys [value on-change]} tag-input-props]
-        (is (= ["A"] value))
-        (is (ifn? on-change))
-        (is (= (on-change ["A" "B"]) {kws/card-input {kws.card/tags ["A" "B"]}}))))))
+
+        (testing "With value"
+          (is (= ["A"] value)))
+
+        (testing "With function for on-change"
+          (is (ifn? on-change))
+          (is (= (on-change ["A" "B"]) {kws/card-input {kws.card/tags ["A" "B"]}})))
+
+        (testing "With all-tags"
+          (is (= ["A"] (kws.inputs.tags/all-tags tag-input-props))))))))
 
 (deftest test-main
 

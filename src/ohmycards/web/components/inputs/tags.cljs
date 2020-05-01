@@ -1,5 +1,11 @@
 (ns ohmycards.web.components.inputs.tags
-  (:require [ohmycards.web.components.form.input :as form.input]))
+  (:require [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.combobox :as combobox]
+            [ohmycards.web.kws.components.inputs.combobox.core :as kws.combobox]
+            [ohmycards.web.kws.components.inputs.combobox.options
+             :as
+             kws.combobox.options]
+            [ohmycards.web.kws.components.inputs.tags :as kws]))
 
 ;; Helpers
 (defn- zip-tags
@@ -28,15 +34,20 @@
 ;; Components
 (defn- single-tag-input
   "An input for a single tag"
-  [{:keys [value on-change]}]
-  [form.input/main {:class "tags-input__input"
-                    :type "text"
-                    :value value
-                    :on-change on-change}])
+  [{:keys [value on-change all-tags]}]
+  [combobox/main {:class "tags-input__input"
+                  :type "text"
+                  :value value
+                  :on-change on-change
+                  kws.combobox/options (combobox/seq->options all-tags)}])
 
 (defn main
   "An input for tags."
-  [{:keys [value on-change class] :as props}]
+  [{:keys [value on-change class] ::kws/keys [all-tags] :as props}]
   [:div {:class (get-class class)}
-   (for [[tag key index] (zip-tags value)]
-     [single-tag-input {:key key :value tag :on-change (tag-change-handler props index)}])])
+   [:div.tags-input__single-tags-container
+    (for [[tag key index] (zip-tags value)]
+      [single-tag-input {:key key
+                         :value tag
+                         :on-change (tag-change-handler props index)
+                         :all-tags all-tags}])]])
