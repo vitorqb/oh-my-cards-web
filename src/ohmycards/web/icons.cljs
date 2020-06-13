@@ -9,3 +9,4 @@
 (defn edit [p] [:i.fa.fa-edit p])
 (defn close [p] [:i.fa.fa-window-close p])
 (defn trash [p] [:i.fa.fa-trash p])
+(defn refresh [p] [:i.fas.fa-sync-alt p])

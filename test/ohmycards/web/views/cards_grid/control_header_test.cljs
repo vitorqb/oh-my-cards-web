@@ -3,7 +3,8 @@
             [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.views.cards-grid.core :as kws]
             [ohmycards.web.test-utils :as tu]
-            [ohmycards.web.views.cards-grid.control-header :as sut]))
+            [ohmycards.web.views.cards-grid.control-header :as sut]
+            [ohmycards.web.views.cards-grid.state-management :as state-management]))
 
 (deftest test-page-counter
   (is (= [:span.small-box "2 | 3"]
@@ -11,8 +12,16 @@
 
 (deftest test-header-left
   (let [props {kws/goto-newcard! 1}]
-    (is (= [:span.cards-grid-header__left [sut/new-card-btn 1]]
+    (is (= [:span.cards-grid-header__left [sut/new-card-btn 1] [sut/refresh-btn props]]
            (sut/header-left props)))))
+
+(deftest test-refresh-btn
+
+  (testing "Calls refetch-from-props!"
+    (let [props {::foo 1}]
+      (with-redefs [state-management/refetch-from-props! #(if (= % props) ::result)]
+        (let [comp (sut/refresh-btn props)]
+          (is (= ((get-in comp [1 :on-click])) ::result)))))))
 
 (deftest test-header-center
 
