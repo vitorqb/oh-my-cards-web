@@ -41,8 +41,10 @@
 
 (defn- fetch-cards-params
   "Maps the state to the params for fetching cards"
-  [{config kws.cards-grid/config}]
-  {kws.fetch-cards/config config})
+  [{config      kws.cards-grid/config
+    search-term kws.cards-grid/search-term}]
+  {kws.fetch-cards/config config
+   kws.fetch-cards/search-term search-term})
 
 (defn- refetch!
   "Refetches the data from the BE"
@@ -82,6 +84,21 @@
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]}]
   (log "Refetching data...")
   (refetch! state fetch-cards!))
+
+(defn toggle-filter!
+  [{:keys [state] :as props}]
+  (log "Activating filter...")
+  (swap! state update kws.cards-grid/filter-enabled? not)
+  (when-not (kws.cards-grid/filter-enabled? @state)
+    (swap! state assoc kws.cards-grid/search-term "")
+    (refetch-from-props! props)))
+
+(defn commit-search!
+  [{:keys [state] :as props}]
+  (let [search-term (kws.cards-grid/filter-input-search-term @state)]
+    (log (str "Committing search to " search-term "..."))
+    (swap! state assoc kws.cards-grid/search-term search-term)
+    (refetch-from-props! props)))
 
 (defn set-page-from-props!
   "Set's page on the state"

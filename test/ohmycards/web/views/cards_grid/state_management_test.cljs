@@ -66,8 +66,10 @@
                 kws.config/include-tags ["A"]
                 kws.config/exclude-tags ["C"]
                 kws.config/tags-filter-query "(tags CONTAINS 'foo')"}
-        source-params {kws.cards-grid/config config}
-        expected-params {kws.fetch-cards/config config}]
+        source-params {kws.cards-grid/config config
+                       kws.cards-grid/search-term "FOO"}
+        expected-params {kws.fetch-cards/config config
+                         kws.fetch-cards/search-term "FOO"}]
 
     (testing "Base"
       (is (= expected-params (sut/fetch-cards-params source-params))))))
@@ -83,6 +85,51 @@
 (deftest test-refetch-from-props!
   (with-redefs [sut/refetch! #(do [%1 %2])]
     (is (= [1 2] (sut/refetch-from-props! {:state 1 kws.cards-grid/fetch-cards! 2})))))
+
+(deftest test-toggle-filter!
+
+  (with-redefs [sut/refetch-from-props! #(do [::result %1])]
+
+    (testing "From empty"
+      (let [state (atom {})]
+        (sut/toggle-filter! {:state state})
+        (is (true? (kws.cards-grid/filter-enabled? @state)))))
+
+    (testing "From true"
+      (let [state (atom {kws.cards-grid/filter-enabled? true})]
+        (sut/toggle-filter! {:state state})
+        (is (false? (kws.cards-grid/filter-enabled? @state)))))
+
+    (testing "From false"
+      (let [state (atom {kws.cards-grid/filter-enabled? false})]
+        (sut/toggle-filter! {:state state})
+        (is (true? (kws.cards-grid/filter-enabled? @state)))))
+
+    (testing "When setting filter off..."
+      
+      (testing "cleans the committed search term"
+        (let [state (atom {kws.cards-grid/filter-enabled? true
+                           kws.cards-grid/search-term     "FOO"})]
+          (sut/toggle-filter! {:state state})
+          (is (= "" (kws.cards-grid/search-term @state)))))
+
+      (testing "calls refetch-from-props!"
+        (let [state (atom {kws.cards-grid/filter-enabled? true})
+              props {:state state}]
+          (is (= [::result props] (sut/toggle-filter! props))))))))
+
+(deftest test-commit-search!
+
+  (with-redefs [sut/refetch-from-props! #(do [::result %1])]
+    (let [state  (atom {kws.cards-grid/filter-input-search-term "FOO"})
+          props  {:state state}
+          result (sut/commit-search! props)]
+
+      (testing "Set's the committed search-term from the input search term"
+        (is (= "FOO" (kws.cards-grid/search-term @state))))
+
+      (testing "Refetches the grid"
+        (is (= result [::result props]))))))
 
 (defn gen-props [] {:state (atom {})})
 

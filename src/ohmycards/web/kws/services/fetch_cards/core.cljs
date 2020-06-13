@@ -8,6 +8,7 @@
 (def config
   "The configuration used to fetch the cards, as of `ohmycards.web.kws.cards-grid.config.core`."
   ::config)
+(def search-term "An optional search term to use." ::search-term)
 
 (def page "The current page of fetched cards." ::page)
 (def page-size "The current number of cards per page." ::page-size)

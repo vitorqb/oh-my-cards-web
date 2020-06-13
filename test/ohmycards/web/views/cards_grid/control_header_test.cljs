@@ -12,7 +12,10 @@
 
 (deftest test-header-left
   (let [props {kws/goto-newcard! 1}]
-    (is (= [:span.cards-grid-header__left [sut/new-card-btn 1] [sut/refresh-btn props]]
+    (is (= [:span.cards-grid-header__left
+            [sut/new-card-btn 1]
+            [sut/refresh-btn props]
+            [sut/filter-btn props]]
            (sut/header-left props)))))
 
 (deftest test-refresh-btn
@@ -22,6 +25,14 @@
       (with-redefs [state-management/refetch-from-props! #(if (= % props) ::result)]
         (let [comp (sut/refresh-btn props)]
           (is (= ((get-in comp [1 :on-click])) ::result)))))))
+
+(deftest test-filter-btn
+
+  (testing "Calls toggle-filter!"
+    (let [props {::foo 1}]
+      (with-redefs [state-management/toggle-filter! #(if (= % props) ::result)]
+        (let [comp (sut/filter-btn props)]
+          (is (= ::result ((get-in comp [1 :on-click])))))))))
 
 (deftest test-header-center
 

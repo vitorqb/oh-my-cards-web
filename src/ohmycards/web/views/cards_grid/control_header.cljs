@@ -25,6 +25,10 @@
   [:button.clear-button {:on-click #(state-management/refetch-from-props! props)}
    [icons/refresh]])
 
+(defn- filter-btn [props]
+  [:button.clear-button {:on-click #(state-management/toggle-filter! props)}
+   [icons/filter]])
+
 (defn- new-card-btn [goto-newcard!]
   [:button.clear-button.u-color-good {:on-click #(goto-newcard!)}
    [icons/add]])
@@ -32,7 +36,8 @@
 (defn- header-left [props]
   [:span.cards-grid-header__left
    [new-card-btn (kws/goto-newcard! props)]
-   [refresh-btn props]])
+   [refresh-btn props]
+   [filter-btn props]])
 
 (defn- header-center
   "The center of the header, containing the pagination controls."

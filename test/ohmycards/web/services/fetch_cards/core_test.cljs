@@ -7,17 +7,19 @@
             [ohmycards.web.services.fetch-cards.core :as sut]))
 
 (deftest test-fetch-query-params
-  (let [props {kws/config
-               {kws.config/page 2
-                kws.config/page-size 20
-                kws.config/include-tags ["A" "B"]
-                kws.config/exclude-tags ["C" "D"]
-                kws.config/tags-filter-query "(tags NOT CONTAINS 'bar')"}}
-        result {:page 2
-                :pageSize 20
-                :tags "A,B"
-                :tagsNot "C,D"
-                :query "(tags NOT CONTAINS 'bar')"}]
+  (let [props  {kws/config
+                {kws.config/page              2
+                 kws.config/page-size         20
+                 kws.config/include-tags      ["A" "B"]
+                 kws.config/exclude-tags      ["C" "D"]
+                 kws.config/tags-filter-query "(tags NOT CONTAINS 'bar')"}
+                kws/search-term "SEARCH_TERM"}
+        result {:page       2
+                :pageSize   20
+                :tags       "A,B"
+                :tagsNot    "C,D"
+                :query      "(tags NOT CONTAINS 'bar')"
+                :searchTerm "SEARCH_TERM"}]
 
     (testing "Defaults page"
       (let [props  (update props kws/config dissoc kws.config/page)
@@ -42,6 +44,16 @@
     (testing "Ignore query if not on params"
       (let [props  (update props kws/config dissoc kws.config/tags-filter-query)
             result (dissoc result :query)]
+        (is (= result (sut/fetch-query-params props)))))
+
+    (testing "Ignore search term if not set"
+      (let [props  (dissoc props kws/search-term)
+            result (dissoc result :searchTerm)]
+        (is (= result (sut/fetch-query-params props)))))
+
+    (testing "Ignore search term if set to an empty string"
+      (let [props  (assoc props kws/search-term "")
+            result (dissoc result :searchTerm)]
         (is (= result (sut/fetch-query-params props)))))))
 
 (deftest test-parse-fetch-response
