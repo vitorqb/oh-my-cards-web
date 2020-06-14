@@ -1,17 +1,17 @@
 {
   "devDependencies": {
-    "karma": "^4.4.1",
+    "karma": "^5.1.0",
     "karma-chrome-launcher": "^3.1.0",
     "karma-cljs-test": "^0.1.0",
-    "node-sass": "^4.14.0",
-    "shadow-cljs": "^2.8.94"
+    "node-sass": "^4.14.1",
+    "shadow-cljs": "^2.10.7"
   },
   "dependencies": {
-    "@reach/combobox": "^0.10.0",
+    "@reach/combobox": "^0.10.3",
     "create-react-class": "^15.6.3",
-    "react": "^16.4.0",
-    "react-dom": "^16.4.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "react-markdown": "^4.3.1",
-    "react-mde": "git+https://github.com/vitorqb/react-mde.git#v8.3.0-patch1"
+    "react-mde": "^10.1.0"
   }
 }

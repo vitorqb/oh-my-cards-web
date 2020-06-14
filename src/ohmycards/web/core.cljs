@@ -60,7 +60,8 @@
              edit-card.state-management]
             [ohmycards.web.views.login.core :as views.login]
             [ohmycards.web.views.new-card.core :as new-card]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [reagent.dom :as r.dom]))
 
 ;; -------------------------
 ;; State
@@ -250,7 +251,7 @@
 ;; -------------------------
 ;; Initialize app
 (defn mount-root []
-  (r/render [current-view] (.getElementById js/document "app")))
+  (r.dom/render [current-view] (.getElementById js/document "app")))
 
 (defn ^:export init! []
 
