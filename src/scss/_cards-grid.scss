@@ -83,3 +83,23 @@
         font-weight: bold;
     }
 }
+
+.cards-grid-control-filter {
+
+    &__form {
+        display: inline-block;
+    }
+
+    &__input {
+        padding: 3px 5px;
+        width: 500px;
+    }
+
+    .clear-button, &__submit-btn {
+        color: $good-color;
+        font-size: 1.25rem;
+        transform: translateY(3px);
+        margin-left: 10px;
+    }
+
+}

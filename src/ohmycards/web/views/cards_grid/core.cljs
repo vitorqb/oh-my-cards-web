@@ -6,6 +6,7 @@
             [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.views.cards-grid.core :as kws]
+            [ohmycards.web.views.cards-grid.control-filter :as control-filter]
             [ohmycards.web.views.cards-grid.control-header :as control-header]
             [ohmycards.web.views.cards-grid.state-management :as state-management]))
 
@@ -38,6 +39,8 @@
   [{:keys [state] :as props}]
   [:div.cards-grid
    [control-header/main props]
+   (when (kws/filter-enabled? @state)
+     [control-filter/main props])
    [:div.cards-grid__top-error-box
     [error-message-box/main {:value (kws/error-message @state)}]]
    (for [card (kws/cards @state)]

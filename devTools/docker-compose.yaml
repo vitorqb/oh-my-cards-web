@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+
+  backend:
+    image: 'ohmycards:latest'
+    ports:
+      - '${OHMYCARDS_WEB_BE_PORT}:8000'
+    volumes:
+      - '${OHMYCARDS_WEB_BE_DB_FILE}:/home/ohmycards/db.sqlite3'
+    env_file:
+      - '.env.backend'
+    environment:
+      # We don't need pid file because we always recreate the container.
+      - 'pidfile.path=/dev/null'
+
+  elasticSearch:
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.6.2'
+    env_file:
+      - '.env.elasticSearch'
+    volumes:
+      - '${OHMYCARDS_WEB_ES_DATA_FILE}:/usr/share/elasticsearch/data'
+    ports:
+      - '${OHMYCARDS_WEB_ES_PORT}:9200'
+    environment:
+      - 'discovery.type=single-node'

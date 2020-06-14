@@ -1,7 +1,10 @@
 .PHONY: watch server test karma scss rev-proxy circleci/images/primary clean release scss/once
 
+# Sudo command to use
+SUDO ?= sudo -A -E
+
 # Docker command to use
-DOCKER ?= sudo docker
+DOCKER ?= $(SUDO) docker
 
 # The .env file used to the run backend
 BACKEND_ENV_FILE ?= $(shell realpath ./backend.env)
@@ -60,17 +63,9 @@ scss/once:
 scss: scss/once
 	npx node-sass --watch src/scss/site.scss $(TARGET_CSS_DIR)/site.css
 
-# Launches a backend docker image. Assumes `ohmycards-dev` image is accessible.
-run-backend:
-	$(DOCKER) kill $(BACKEND_DOCKER_NAME) || :
-	touch $(BACKEND_ENV_FILE)
-	touch $(BACKEND_DB_FILE)
-	$(DOCKER) run --rm -ti\
-	  --name '$(BACKEND_DOCKER_NAME)'\
-	  --env-file '$(BACKEND_ENV_FILE)'\
-	  -v '$(BACKEND_DB_FILE):/home/ohmycards/db.sqlite3'\
-	  -p '9002:8000'\
-	  $(BACKEND_DOCKER_IMGTAG)
+# Launches the backend services
+runBackend:
+	cd devTools && $(SUDO) docker-compose up backend elasticSearch
 
 rev-proxy:
         # A reverse proxy, usefull for development with BE.

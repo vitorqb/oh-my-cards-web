@@ -1,3 +1,5 @@
+$space-between: 7px;
+
 @mixin header3 {
     text-align: center;
     display: flex;
@@ -7,17 +9,29 @@
         display: inline-block;
         flex: 1;
         flex-basis: 25%;
+
+        & > :not(:last-child) {
+            margin-right: $space-between;
+        }
     }
 
     &__center {
         display: inline-block;
         flex: 1;
         flex-basis: 50%;
+
+        & > :not(:last-child) {
+            margin-right: $space-between;
+        }
     }
 
     &__right {
         display: inline-block;
         flex: 1;
         flex-basis: 25%;
+
+        & > :not(:last-child) {
+            margin-right: $space-between;
+        }
     }    
 }

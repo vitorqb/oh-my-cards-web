@@ -1,5 +1,6 @@
 (ns ohmycards.web.services.fetch-cards.core
   (:require [cljs.core.async :as a]
+            [clojure.string :as string]
             [ohmycards.web.common.cards.core :as common.cards]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.cards-grid.config.core :as kws.config]
@@ -12,16 +13,18 @@
 
 (defn fetch-query-params
   "Prepares the query params for fetching cards."
-  [{config kws/config}]
+  [{config      kws/config
+    search-term kws/search-term}]
   (let [page              (kws.config/page config)
         page-size         (kws.config/page-size config)
         include-tags      (kws.config/include-tags config)
         exclude-tags      (kws.config/exclude-tags config)
         tags-filter-query (kws.config/tags-filter-query config)]
     (cond-> {:page (or page default-page) :pageSize (or page-size default-page-size)}
-      include-tags      (assoc :tags (http.utils/list->query-arg include-tags))
-      exclude-tags      (assoc :tagsNot (http.utils/list->query-arg exclude-tags))
-      tags-filter-query (assoc :query tags-filter-query))))
+      include-tags                      (assoc :tags (http.utils/list->query-arg include-tags))
+      exclude-tags                      (assoc :tagsNot (http.utils/list->query-arg exclude-tags))
+      tags-filter-query                 (assoc :query tags-filter-query)
+      (not (string/blank? search-term)) (assoc :searchTerm search-term))))
 
 (defn- parse-fetch-response
   [{::kws.http/keys [success? body]}]
