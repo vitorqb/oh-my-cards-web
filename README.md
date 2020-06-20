@@ -1,3 +1,6 @@
+## OhMyCards - Web!
+
+Please read the [Readme of OhMyCards](https://github.com/vitorqb/oh-my-cards).
 
 ### Development mode
 ```
