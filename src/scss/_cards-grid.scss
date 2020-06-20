@@ -7,6 +7,12 @@
     flex-wrap: wrap;
     justify-content: center;
 
+    &__empty-msgbox {
+        color: $bad-color;
+        padding: 50px;
+        font-size: 1.5rem;
+    }
+
     &__top-error-box {
         flex: 1;
         width: 100%;

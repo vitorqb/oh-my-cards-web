@@ -35,6 +35,11 @@
         #(= [sut/card-display (assoc props ::sut/card card)] %)
         (tu/comp-seq component)))))
 
+  (testing "If not cards, renders the empty-msgbox"
+    (let [props     {:state (atom {kws/cards []})}
+          component (sut/main* props)]
+      (is (tu/exists-in-component? :div.cards-grid__empty-msgbox (tu/comp-seq component)))))
+
   (testing "If `filter-enabled?` is true, renders the fitlering control."
     (let [props     {:state (atom {kws/filter-enabled? true})}
           component (sut/main* props)]

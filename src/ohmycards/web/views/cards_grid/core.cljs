@@ -43,9 +43,12 @@
      [control-filter/main props])
    [:div.cards-grid__top-error-box
     [error-message-box/main {:value (kws/error-message @state)}]]
-   (for [card (kws/cards @state)]
-     ^{:key (kws.card/id card)}
-     [card-display (assoc props ::card card)])])
+   (if-not (empty? (kws/cards @state))
+     (for [card (kws/cards @state)]
+       ^{:key (kws.card/id card)}
+       [card-display (assoc props ::card card)])
+     [:div.cards-grid__empty-msgbox
+      [:div "Nothing to display. Create your first card to get started!"]])])
 
 (defn main
   "A view for a grid of cards."
