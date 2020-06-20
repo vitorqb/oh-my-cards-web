@@ -1,3 +1,6 @@
+$cards-width: 340px;
+$cards-height: 400px;
+
 .cards-grid-header {
     @include header3;
 }
@@ -7,11 +10,17 @@
     flex-wrap: wrap;
     justify-content: center;
 
+    &__empty-msgbox {
+        color: $color-bad;
+        padding: 50px;
+        font-size: 1.5rem;
+    }
+
     &__top-error-box {
         flex: 1;
         width: 100%;
         text-align: center;
-        background-color: #FFBABA;
+        background-color: $color-bad;
         flex-basis: 99%;
     }
 
@@ -19,24 +28,23 @@
 
 .card-display {
 
-    flex: 0 0 300px;
+    flex: 0 0 $cards-width;
+    max-width: $cards-width;
     display: flex;
     flex-direction: column;
-    height: 340px;
-    margin: 5px;
-    padding: 6px;
-    background-color: #f4eeff;
+    height: $cards-height;
+    margin: 10px;
     text-align: center;
-    border-radius: 3px 3px 0 0;
-    box-shadow:  0px 0px 3px 0px rgba(0,0,0,0.75);
     box-sizing: border-box;
+    background-color: $color-primary-lighter;
 
     &__title {
-        margin-bottom: 5px;
-        padding: 2px;
-        background-color: #a6b1e1;
-        border-radius: 7px;
+        margin-bottom: 3px;
+        padding: 3px;
         font-weight: 600;
+        background-color: $color-primary;
+        color: $color-white;
+        font-size: 1.1rem;
     }
 
     &__body {
@@ -45,6 +53,7 @@
         text-align: left;
         font-size: 0.95em;
         line-height: 1.3em;
+        padding: 5px;
 
         /* Some css specific to the inner markdown content we display. */
         & .mde-preview-content {
@@ -70,11 +79,11 @@
     overflow: auto;
     &__tag {
         display: inline-block;
-        background-color: #DFF280;
+        background-color: $color-primary-light;
         margin-right: 5px;
         margin-bottom: 5px;
         padding: 2px;
-        border: 1px solid darkgrey;
+        border: 1px solid $color-primary;
         border-radius: 2px;
         font-size: 0.7rem;
 
@@ -96,7 +105,7 @@
     }
 
     .clear-button, &__submit-btn {
-        color: $good-color;
+        color: $color-good;
         font-size: 1.25rem;
         transform: translateY(3px);
         margin-left: 10px;

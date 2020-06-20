@@ -7,7 +7,7 @@
   (testing "Renders a span with title"
     (is
      (some
-      #(= [:span.header__center.title "OhMyCards!"] %)
+      #(= [:span.header__left "OhMyCards!"] %)
       (tree-seq vector? identity (sut/main {})))))
 
   (testing "Renders a span with the user email"
