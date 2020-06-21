@@ -44,6 +44,7 @@
 [ohmycards.web.services.login.utils-test]
 [ohmycards.web.utils.components-test]
 [ohmycards.web.utils.pagination-test]
+[ohmycards.web.views.about.core-test]
 [ohmycards.web.views.cards-grid.config-dashboard.core-test]
 [ohmycards.web.views.cards-grid.config-dashboard.state-management-test]
 [ohmycards.web.views.cards-grid.control-filter-test]

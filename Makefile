@@ -24,6 +24,9 @@ TARGET_CSS_DIR ?= ./public/css
 # Extra options for karma
 KARMA_OPTS ?=
 
+# Config options passed to shadow cljs `--config-merge`.
+SHADOW_CLJS_RELEASE_CONFIG ?= {}
+
 # Install node deps
 install:
 	npm install
@@ -48,7 +51,7 @@ build/%:
 # Releases a specific target
 release/%:
 	$(eval BUILD=$(subst release/,,$@))
-	npx shadow-cljs release $(BUILD)
+	npx shadow-cljs release --config-merge $(SHADOW_CLJS_RELEASE_CONFIG) $(BUILD)
 
 # Test using karma
 test: karma

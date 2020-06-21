@@ -20,6 +20,8 @@
 @import "action-dispatcher";
 @import "hydra";
 @import "markdown-input";
+@import "about-view";
+@import "spinner";
 
 body {
   font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
@@ -31,7 +33,7 @@ body {
 }
 
 h1, h2, h3 {
-  color: #000;
+    color: $color-primary-darker;
 }
 h1 {
   font-size: 2.5em
