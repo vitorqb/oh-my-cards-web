@@ -27,6 +27,11 @@ define imgtag_prod
 $(shell echo "vitorqb23/ohmycards-web:$(version)")
 endef
 
+# The shadow-cljs config used for release
+define shadow_cljs_release_config
+'{:closure-defines {ohmycards.web.version/Version "$(version)"}}'
+endef
+
 # Cleans the build directory
 clean:
 	rm -rf $(BUILD_DIR) ./target ./context
@@ -42,7 +47,12 @@ artifacts/prod: build/prod
 	$(call msg,"Preparing to generate artifact $(target_prod) for version $(version)")
 
 	$(call msg,"Compiling scss and js...")
-	$(MAKE) -C $(BUILD_DIR) ci scss/once release/app
+	$(MAKE)\
+          -C $(BUILD_DIR) \
+          ci \
+          scss/once \
+          release/app \
+          SHADOW_CLJS_RELEASE_CONFIG=$(shadow_cljs_release_config)
 
 	$(call msg,"Creating .tar.gz file...")
 	tar --dereference -vzcf $(target_prod) -C $(BUILD_DIR)/public css js vendor index.html

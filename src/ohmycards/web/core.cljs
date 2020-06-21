@@ -51,6 +51,7 @@
             [ohmycards.web.services.shortcuts-register.core
              :as
              services.shortcuts-register]
+            [ohmycards.web.views.about.core :as views.about]
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
              cards-grid.config-dashboard]
@@ -107,6 +108,11 @@
   [views.login/main {:state (state-cursor :views.login)
                      :http-fn http-fn
                      :save-user-fn #(services.login/set-user! %)}])
+
+(defn about
+  "An instance for the about page."
+  []
+  [views.about/main {:http-fn http-fn}])
 
 (defn header
   "An instance for the headerer component."
@@ -168,6 +174,9 @@
   [["/"
     {:name routing.pages/home
      :view #'cards-grid-page}]
+   ["/about"
+    {:name routing.pages/about
+     :view #'about}]
    ["/cards-grid/config"
     {:name routing.pages/cards-grid-config
      :view #'cards-grid-config-page}]
@@ -243,6 +252,10 @@
      kws.hydra/description "New Cards"
      kws.hydra/type        kws.hydra/leaf
      kws.hydra.leaf/value  #(routing.core/goto! routing.pages/new-card)}
+    {kws.hydra/shortcut    \a
+     kws.hydra/description "About the app"
+     kws.hydra/type        kws.hydra/leaf
+     kws.hydra.leaf/value  #(routing.core/goto! routing.pages/about)}
     {kws.hydra/shortcut    \q
      kws.hydra/description "Quit"
      kws.hydra/type        kws.hydra/leaf

@@ -4,7 +4,7 @@
     "karma-chrome-launcher": "^3.1.0",
     "karma-cljs-test": "^0.1.0",
     "node-sass": "^4.14.1",
-    "shadow-cljs": "^2.10.12"
+    "shadow-cljs": "2.8.94"
   },
   "dependencies": {
     "@reach/combobox": "^0.10.3",
