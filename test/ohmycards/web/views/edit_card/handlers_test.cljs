@@ -1,6 +1,9 @@
 (ns ohmycards.web.views.edit-card.handlers-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
+            [ohmycards.web.kws.hydra.core :as kws.hydra]
+            [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
             [ohmycards.web.kws.views.edit-card.core :as kws]
             [ohmycards.web.views.edit-card.handlers :as sut]))
@@ -63,3 +66,33 @@
              (kws/selected-card (sut/reduce-after-update {} {kws.cards-crud/updated-card card}))))
       (is (= card
              (kws/card-input (sut/reduce-after-update {} {kws.cards-crud/updated-card card})))))))
+
+(deftest test-hydra-head
+
+  (let [props {::foo 1}]
+
+    (testing "Save action calls update-card!"
+      (with-redefs [sut/update-card! #(do [::update-card %1])]
+        (let [save-action (-> props sut/hydra-head kws.hydra.branch/heads first)
+              save-action-value (kws.hydra.leaf/value save-action)]
+          (is (= \s (kws.hydra/shortcut save-action)))
+          (is (= "Save" (kws.hydra/description save-action)))
+          (is (= kws.hydra/leaf (kws.hydra/type save-action)))
+          (is (= [::update-card props] ((kws.hydra.leaf/value save-action)))))))
+
+    (testing "Delete action calls delete-card!"
+      (with-redefs [sut/delete-card! #(do [::delete-card %1])]
+        (let [delete-action (-> props sut/hydra-head kws.hydra.branch/heads second)
+              delete-action-value (kws.hydra.leaf/value delete-action)]
+          (is (= \d (kws.hydra/shortcut delete-action)))
+          (is (= "Delete" (kws.hydra/description delete-action)))
+          (is (= kws.hydra/leaf (kws.hydra/type delete-action)))
+          (is (= [::delete-card props] ((kws.hydra.leaf/value delete-action)))))))
+    
+    (testing "Quit action"
+      (let [quit-action (-> props sut/hydra-head kws.hydra.branch/heads (get 2))
+            quit-action-value (kws.hydra.leaf/value quit-action)]
+        (is (= \q (kws.hydra/shortcut quit-action)))
+        (is (= "Quit" (kws.hydra/description quit-action)))
+        (is (= kws.hydra/leaf (kws.hydra/type quit-action)))
+        (is (nil? ((kws.hydra.leaf/value quit-action))))))))
