@@ -16,10 +16,14 @@
 
 ;; Impl
 (defn- show*
-  "Pure implementation of show!"
-  [{::keys [dialog-state action-dispatcher-state]}]
-  (swap! dialog-state assoc kws.dialog/active? true)
-  (action-dispatcher/reset-state action-dispatcher-state))
+  "Pure implementation of show!
+  - `controller-opts` is the options for the controller.
+  - `hydra-head` is the hydra head that must be displayed."
+  [controller-opts hydra-head]
+  (when hydra-head
+    (reset! (::current-hydra-head-atom controller-opts) hydra-head)
+    (swap! (::dialog-state controller-opts) assoc kws.dialog/active? true)
+    (action-dispatcher/reset-state (::action-dispatcher-state controller-opts))))
 
 (defn- close*
   "Pure implementation of close!"
@@ -28,11 +32,11 @@
 
 (defn- component*
   "Pure implementation of component"
-  [{::keys [dialog-state action-dispatcher-state actions-dispatcher-hydra-options] :as controller}]
+  [{::keys [dialog-state action-dispatcher-state current-hydra-head-atom] :as controller}]
   [dialog/main {:state dialog-state}
    [action-dispatcher/main
     {:state action-dispatcher-state
-     kws.action-dispatcher/actions-hydra-head actions-dispatcher-hydra-options
+     kws.action-dispatcher/actions-hydra-head @current-hydra-head-atom
      kws.action-dispatcher/dispatch-action! (fn [f]
                                               (log "Handling action " f)
                                               (f)
@@ -41,18 +45,18 @@
 ;; Public API
 (defn init!
   "Initializes the action dispatcher controller."
-  [{:keys [state actions-dispatcher-hydra-options]}]
-  (let [controller {::dialog-state (r/cursor state [::dialog])
+  [{:keys [state]}]
+  (let [controller {::dialog-state            (r/cursor state [::dialog])
                     ::action-dispatcher-state (r/cursor state [::action-dispatcher])
-                    ::actions-dispatcher-hydra-options actions-dispatcher-hydra-options}]
+                    ::current-hydra-head-atom (r/cursor state [::current-hydra-head])}]
     (log "Initializing with " controller)
     (set! *controller* controller)))
 
 (defn show!
   "Shows the action dispatcher for the user."
-  []
-  (log "Showing...")
-  (show* *controller*))
+  ([hydra-head]
+   (log "Showing for..." hydra-head)
+   (show* *controller* hydra-head)))
 
 (defn close!
   "Closes the action dispatcher for the user."

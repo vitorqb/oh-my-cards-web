@@ -5,9 +5,13 @@
              :as
              controllers.action-dispatcher]
             [ohmycards.web.core :as sut]
+            [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
+            [ohmycards.web.kws.hydra.core :as kws.hydra]
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
-            [ohmycards.web.test-utils :as tu]))
+            [ohmycards.web.kws.routing.pages :as routing.pages]
+            [ohmycards.web.test-utils :as tu]
+            [ohmycards.web.views.edit-card.handlers :as edit-card.handlers]))
 
 (deftest test-current-view*
 
@@ -32,3 +36,20 @@
               [_ props] (find-main
                          (sut/current-view* state* ::home-view ::login-view ::header-component))]
           (is (= ::home-view (::components.current-view/view props))))))))
+
+(deftest test-contextual-actions-dispatcher-hydra-head!
+
+  (letfn [(gen-state [route-name] (atom {lenses.routing/match {:data {:name route-name}}}))]
+
+    (testing "Nil for no route"
+      (with-redefs [sut/state (atom nil)]
+        (is (nil? (sut/contextual-actions-dispatcher-hydra-head!)))))
+
+    (testing "Nil for unknown route"
+      (with-redefs [sut/state (gen-state ::unknown)]
+        (is (nil? (sut/contextual-actions-dispatcher-hydra-head!)))))
+
+    (testing "With edit-card page, returns edit card actions"
+      (with-redefs [sut/state                     (gen-state routing.pages/edit-card)
+                    edit-card.handlers/hydra-head #(do {::foo 1})]
+        (is (= {::foo 1} (sut/contextual-actions-dispatcher-hydra-head!)))))))

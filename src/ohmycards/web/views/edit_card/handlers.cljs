@@ -1,6 +1,9 @@
 (ns ohmycards.web.views.edit-card.handlers
   (:require [cljs.core.async :as a]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
+            [ohmycards.web.kws.hydra.core :as kws.hydra]
+            [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
             [ohmycards.web.kws.views.edit-card.core :as kws]
             [ohmycards.web.services.cards-crud.core :as cards-crud]))
@@ -57,3 +60,21 @@
   (a/go
     (let [resp (a/<! (cards-crud/update! {:http-fn http-fn} (-> @state kws/card-input)))]
       (swap! state reduce-after-update resp))))
+
+(defn hydra-head
+  "Returns an hydra head for the contextual actions dispatcher."
+  [props]
+  {kws.hydra/type         kws.hydra/branch
+   kws.hydra.branch/name  "Edit Card Hydra"
+   kws.hydra.branch/heads [{kws.hydra/shortcut    \s
+                            kws.hydra/description "Save"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(update-card! props)}
+                           {kws.hydra/shortcut    \d
+                            kws.hydra/description "Delete"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(delete-card! props)}
+                           {kws.hydra/shortcut    \q
+                            kws.hydra/description "Quit"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(do)}]})

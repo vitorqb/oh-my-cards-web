@@ -59,6 +59,7 @@
             [ohmycards.web.views.edit-card.state-management
              :as
              edit-card.state-management]
+            [ohmycards.web.views.edit-card.handlers :as edit-card.handlers]
             [ohmycards.web.views.login.core :as views.login]
             [ohmycards.web.views.new-card.core :as new-card]
             [reagent.core :as r]
@@ -132,16 +133,20 @@
                   kws.new-card/goto-home! #(routing.core/goto! routing.pages/home)
                   kws.new-card/cards-metadata (lenses.metadata/cards @state)}])
 
+(def edit-card-page-props
+  "Props for the `edit-card-page`."
+  {kws.edit-card/goto-home! #(routing.core/goto! routing.pages/home)
+   kws.edit-card/cards-metadata (lenses.metadata/cards @state)
+   :http-fn http-fn
+   :state (edit-card.state-management/init!
+           (state-cursor :views.edit-card)
+           (-> @state lenses.routing/match :parameters :query :id)
+           #(services.cards-crud/read! {:http-fn http-fn} %))})
+
 (defn edit-card-page
   "An instance for the edit-card view"
   []
-  [edit-card/main {kws.edit-card/goto-home! #(routing.core/goto! routing.pages/home)
-                   kws.edit-card/cards-metadata (lenses.metadata/cards @state)
-                   :http-fn http-fn
-                   :state (edit-card.state-management/init!
-                           (state-cursor :views.edit-card)
-                           (-> @state lenses.routing/match :parameters :query :id)
-                           #(services.cards-crud/read! {:http-fn http-fn} %))}])
+  [edit-card/main edit-card-page-props])
 
 (defn cards-grid-config-page
   "An instance for the cards-grid-config view."
@@ -220,22 +225,23 @@
      (handle-user-logged-in %1 %2)
      (handle-navigated-to-route %1 %2)))
 
-
 ;; ------------------------------
-;; Shortcuts
-(def shortcuts
-  "All shortcuts to be registered in the app."
-  [{kws.services.shortcuts-register/id       ::action-dispatcher
-    kws.services.shortcuts-register/key-desc "shift+alt+j"
-    kws.services.shortcuts-register/callback #(controllers.action-dispatcher/show!)}
-   {kws.services.shortcuts-register/id       ::hello
-    kws.services.shortcuts-register/key-desc "shift+alt+h"
-    kws.services.shortcuts-register/callback #(js/alert "Hello!")}])
+;; Contextual Action Dispatchers
+(defn contextual-actions-dispatcher-hydra-head!
+  "Returns the hydra options for the contextual actions dispatcher, based on the current route."
+  []
+  (when-let [current-route-name (-> @state lenses.routing/match :data :name)]
+    (condp = current-route-name
+
+      routing.pages/edit-card
+      (edit-card.handlers/hydra-head edit-card-page-props)
+
+      nil)))
 
 
 ;; ------------------------------
 ;; Common actions from actions dispatcher
-(def actions-dispatcher-hydra-options
+(def global-actions-dispatcher-hydra-head
   "The hydra root head for the action dispatcher."
   {kws.hydra/type kws.hydra/branch
    kws.hydra.branch/name "Action Dispatcher Hydra"
@@ -261,6 +267,20 @@
      kws.hydra/type        kws.hydra/leaf
      kws.hydra.leaf/value  #(do)}]})
 
+;; ------------------------------
+;; Shortcuts
+(def shortcuts
+  "All shortcuts to be registered in the app."
+  [{kws.services.shortcuts-register/id       ::action-dispatcher
+    kws.services.shortcuts-register/key-desc "shift+alt+j"
+    kws.services.shortcuts-register/callback #(controllers.action-dispatcher/show!
+                                               global-actions-dispatcher-hydra-head)}
+
+   {kws.services.shortcuts-register/id       ::contextual-action-dispatcher
+    kws.services.shortcuts-register/key-desc "shift+alt+k"
+    kws.services.shortcuts-register/callback #(controllers.action-dispatcher/show!
+                                               (contextual-actions-dispatcher-hydra-head!))}])
+
 ;; -------------------------
 ;; Initialize app
 (defn mount-root []
@@ -278,9 +298,7 @@
   (services.shortcuts-register/init! shortcuts)
 
   ;; Initializes controllers
-  (controllers.action-dispatcher/init!
-   {:state (state-cursor :components.action-dispatcher)
-    :actions-dispatcher-hydra-options actions-dispatcher-hydra-options})
+  (controllers.action-dispatcher/init! {:state (state-cursor :components.action-dispatcher)})
 
   (controllers.cards-grid/init!
    {:app-state state
