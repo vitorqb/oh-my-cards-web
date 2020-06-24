@@ -125,13 +125,16 @@
   []
   [controllers.cards-grid/cards-grid])
 
+(def new-card-page-props
+  {:http-fn http-fn
+   :state (state-cursor :views.new-card)
+   kws.new-card/goto-home! #(routing.core/goto! routing.pages/home)
+   kws.new-card/cards-metadata (lenses.metadata/cards @state)})
+
 (defn new-card-page
   "An instance for the new-card view."
   []
-  [new-card/main {:http-fn http-fn
-                  :state (state-cursor :views.new-card)
-                  kws.new-card/goto-home! #(routing.core/goto! routing.pages/home)
-                  kws.new-card/cards-metadata (lenses.metadata/cards @state)}])
+  [new-card/main new-card-page-props])
 
 (def edit-card-page-props
   "Props for the `edit-card-page`."
@@ -235,6 +238,9 @@
 
       routing.pages/edit-card
       (edit-card.handlers/hydra-head edit-card-page-props)
+
+      routing.pages/new-card
+      (new-card/hydra-head new-card-page-props)
 
       nil)))
 
