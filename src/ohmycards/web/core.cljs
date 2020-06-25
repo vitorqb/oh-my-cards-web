@@ -224,7 +224,7 @@
 
     (when (= (-> route-match :data :name) routing.pages/edit-card)
       (let [new-card-id (-> route-match :parameters :query :id)]
-        (edit-card.state-management/init! edit-card-page-props new-card-id)))))
+        (edit-card.state-management/init! (edit-card-page-props) new-card-id)))))
 
 (def events-bus-handler
   "The main handler for all events send to the event bus."
