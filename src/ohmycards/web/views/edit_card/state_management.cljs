@@ -44,3 +44,8 @@
       (a/go
         (swap! state reduce-on-card-fetch (a/<! (fetch-card! card-id)))))
     state))
+
+(defn init-from-route-match!
+  "Same as `init!`, but receives props and route-match."
+  [props route-match]
+  (init! props (-> route-match :parameters :query :id)))

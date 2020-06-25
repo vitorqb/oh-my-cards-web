@@ -210,9 +210,15 @@
   "Handles action for an user logging in"
   [event-kw new-user]
   (when (= event-kw kws.services.login/new-user)
-    (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)
-    (controllers.cards-grid/load-profile-from-route-match! (::lenses.routing/match @state))
-    (fetch-card-metadata)))
+    (let [route-match (::lenses.routing/match @state)]
+      (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)
+      (controllers.cards-grid/load-profile-from-route-match! route-match)
+      ;; TODO This is repeated from `handle-navigated-to-route`. We should think of a
+      ;; smarter way to do initialization logic at route change AND at app startup (which has
+      ;; to wait for login) without repeating ourselves so much.
+      (when (= (-> route-match :data :name) routing.pages/edit-card)
+        (edit-card.state-management/init-from-route-match! (edit-card-page-props) route-match))
+      (fetch-card-metadata))))
 
 (defn handle-navigated-to-route
   "Handles action for when the app has navigated to a new route"
@@ -220,11 +226,10 @@
   (when (= event-kw kws.routing/action-navigated-to-route)
 
     (when (services.login/is-logged-in?)
-      (controllers.cards-grid/load-profile-from-route-match! route-match))
+      (controllers.cards-grid/load-profile-from-route-match! route-match)
 
-    (when (= (-> route-match :data :name) routing.pages/edit-card)
-      (let [new-card-id (-> route-match :parameters :query :id)]
-        (edit-card.state-management/init! (edit-card-page-props) new-card-id)))))
+      (when (= (-> route-match :data :name) routing.pages/edit-card)
+        (edit-card.state-management/init-from-route-match! edit-card-page-props route-match)))))
 
 (def events-bus-handler
   "The main handler for all events send to the event bus."
