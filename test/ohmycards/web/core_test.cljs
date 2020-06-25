@@ -11,7 +11,8 @@
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
             [ohmycards.web.kws.routing.pages :as routing.pages]
             [ohmycards.web.test-utils :as tu]
-            [ohmycards.web.views.edit-card.handlers :as edit-card.handlers]))
+            [ohmycards.web.views.edit-card.handlers :as edit-card.handlers]
+            [reagent.core :as r]))
 
 (deftest test-current-view*
 
@@ -39,7 +40,7 @@
 
 (deftest test-contextual-actions-dispatcher-hydra-head!
 
-  (letfn [(gen-state [route-name] (atom {lenses.routing/match {:data {:name route-name}}}))]
+  (letfn [(gen-state [route-name] (r/atom {lenses.routing/match {:data {:name route-name}}}))]
 
     (testing "Nil for no route"
       (with-redefs [sut/state (atom nil)]
