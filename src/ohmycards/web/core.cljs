@@ -139,6 +139,7 @@
 (def edit-card-page-props
   "Props for the `edit-card-page`."
   {kws.edit-card/goto-home! #(routing.core/goto! routing.pages/home)
+   kws.edit-card/fetch-card! #(services.cards-crud/read! {:http-fn http-fn} %)
    kws.edit-card/cards-metadata (lenses.metadata/cards @state)
    :http-fn http-fn
    :state (state-cursor :views.edit-card)})
@@ -146,9 +147,8 @@
 (defn edit-card-page
   "An instance for the edit-card view"
   []
-  (edit-card.state-management/init! (:state edit-card-page-props)
-                                    (-> @state lenses.routing/match :parameters :query :id)
-                                    #(services.cards-crud/read! {:http-fn http-fn} %))
+  (let [card-id (-> @state lenses.routing/match :parameters :query :id)]
+    (edit-card.state-management/init! edit-card-page-props card-id))
   (fn [] [edit-card/main edit-card-page-props]))
 
 (defn cards-grid-config-page
