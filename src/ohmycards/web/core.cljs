@@ -139,6 +139,7 @@
 (def edit-card-page-props
   "Props for the `edit-card-page`."
   {kws.edit-card/goto-home! #(routing.core/goto! routing.pages/home)
+   kws.edit-card/fetch-card! #(services.cards-crud/read! {:http-fn http-fn} %)
    kws.edit-card/cards-metadata (lenses.metadata/cards @state)
    :http-fn http-fn
    :state (state-cursor :views.edit-card)})
@@ -146,10 +147,7 @@
 (defn edit-card-page
   "An instance for the edit-card view"
   []
-  (edit-card.state-management/init! (:state edit-card-page-props)
-                                    (-> @state lenses.routing/match :parameters :query :id)
-                                    #(services.cards-crud/read! {:http-fn http-fn} %))
-  (fn [] [edit-card/main edit-card-page-props]))
+  [edit-card/main edit-card-page-props])
 
 (defn cards-grid-config-page
   "An instance for the cards-grid-config view."
@@ -218,8 +216,13 @@
   "Handles action for when the app has navigated to a new route"
   [event-kw route-match]
   (when (= event-kw kws.routing/action-navigated-to-route)
+
     (when (services.login/is-logged-in?)
-      (controllers.cards-grid/load-profile-from-route-match! route-match))))
+      (controllers.cards-grid/load-profile-from-route-match! route-match))
+
+    (when (= (-> route-match :data :name) routing.pages/edit-card)
+      (let [new-card-id (-> route-match :parameters :query :id)]
+        (edit-card.state-management/init! edit-card-page-props new-card-id)))))
 
 (def events-bus-handler
   "The main handler for all events send to the event bus."

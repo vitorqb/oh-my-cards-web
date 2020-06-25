@@ -33,14 +33,14 @@
 
 (defn init!
   "Initializes the state for edit-card.
-  - `state`: An atom-like state object.
   - `card-id`: The id of the card to edit.
-  - `fetch-card!`: Service fn used to fetch the card.
   Returns the initializes state."
-  [state card-id fetch-card!]
-  (when (should-fetch-card? @state card-id)
-    (log (str "Initializing edit-card state for id " card-id))
-    (swap! state reduce-before-card-fetch card-id)
-    (a/go
-      (swap! state reduce-on-card-fetch (a/<! (fetch-card! card-id)))))
-  state)
+  [props card-id]
+  (let [state       (:state props)
+        fetch-card! (kws/fetch-card! props)]
+    (when (should-fetch-card? @state card-id)
+      (log (str "Initializing edit-card state for id " card-id))
+      (swap! state reduce-before-card-fetch card-id)
+      (a/go
+        (swap! state reduce-on-card-fetch (a/<! (fetch-card! card-id)))))
+    state))
