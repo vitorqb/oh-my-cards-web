@@ -229,7 +229,7 @@
       (controllers.cards-grid/load-profile-from-route-match! route-match)
 
       (when (= (-> route-match :data :name) routing.pages/edit-card)
-        (edit-card.state-management/init-from-route-match! edit-card-page-props route-match)))))
+        (edit-card.state-management/init-from-route-match! (edit-card-page-props) route-match)))))
 
 (def events-bus-handler
   "The main handler for all events send to the event bus."
