@@ -173,7 +173,7 @@
   [route-match]
   (when-let [profile-name (some-> route-match :query-params :grid-profile)]
     (log "Loading grid-profile in the route: " profile-name)
-    (let [view (-> route-match :data :name)
+    (let [view (-> route-match :data kws.routing/name)
           query-params (-> route-match :query-params (dissoc :grid-profile))]
       (load-profile! profile-name)
       (routing.core/goto! view kws.routing/query-params query-params))))

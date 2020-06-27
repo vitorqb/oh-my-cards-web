@@ -166,7 +166,7 @@
   [:<>
    [components.current-view/main
     {::components.current-view/current-user     (::lenses.login/current-user state)
-     ::components.current-view/view             (or (-> state ::lenses.routing/match :data :view)
+     ::components.current-view/view             (or (-> state ::lenses.routing/match :data kws.routing/view)
                                                     home-view)
      ::components.current-view/login-view       login-view
      ::components.current-view/header-component header-component}]
@@ -180,21 +180,21 @@
 (def ^:private routes
   "The reitit-style raw routes."
   [["/"
-    {:name routing.pages/home
-     :view #'cards-grid-page}]
+    {kws.routing/name routing.pages/home
+     kws.routing/view #'cards-grid-page}]
    ["/about"
-    {:name routing.pages/about
-     :view #'about}]
+    {kws.routing/name routing.pages/about
+     kws.routing/view #'about}]
    ["/cards-grid/config"
-    {:name routing.pages/cards-grid-config
-     :view #'cards-grid-config-page}]
+    {kws.routing/name routing.pages/cards-grid-config
+     kws.routing/view #'cards-grid-config-page}]
    ["/cards"
     ["/edit"
-     {:name routing.pages/edit-card
-      :view #'edit-card-page}]
+     {kws.routing/name routing.pages/edit-card
+      kws.routing/view #'edit-card-page}]
     ["/new"
-     {:name routing.pages/new-card
-      :view #'new-card-page}]]])
+     {kws.routing/name routing.pages/new-card
+      kws.routing/view #'new-card-page}]]])
 
 
 ;; -------------------------
@@ -216,7 +216,7 @@
       ;; TODO This is repeated from `handle-navigated-to-route`. We should think of a
       ;; smarter way to do initialization logic at route change AND at app startup (which has
       ;; to wait for login) without repeating ourselves so much.
-      (when (= (-> route-match :data :name) routing.pages/edit-card)
+      (when (= (-> route-match :data kws.routing/name) routing.pages/edit-card)
         (edit-card.state-management/init-from-route-match! (edit-card-page-props) route-match))
       (fetch-card-metadata))))
 
@@ -228,7 +228,7 @@
     (when (services.login/is-logged-in?)
       (controllers.cards-grid/load-profile-from-route-match! route-match)
 
-      (when (= (-> route-match :data :name) routing.pages/edit-card)
+      (when (= (-> route-match :data kws.routing/name) routing.pages/edit-card)
         (edit-card.state-management/init-from-route-match! (edit-card-page-props) route-match)))))
 
 (def events-bus-handler
@@ -243,7 +243,7 @@
 (defn contextual-actions-dispatcher-hydra-head!
   "Returns the hydra options for the contextual actions dispatcher, based on the current route."
   []
-  (when-let [current-route-name (-> @state lenses.routing/match :data :name)]
+  (when-let [current-route-name (-> @state lenses.routing/match :data kws.routing/name)]
     (condp = current-route-name
 
       routing.pages/edit-card

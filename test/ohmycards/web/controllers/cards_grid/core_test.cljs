@@ -26,7 +26,7 @@
 (deftest test-load-profile-from-route-match!
 
   (let [route-match {:query-params {:grid-profile "FOO" :bar "Bar"}
-                     :data {:name ::name}}]
+                     :data {kws.routing/name ::name}}]
 
     (testing "Don't do anything if no profile name on the route"
       (let [route-match (assoc-in route-match [:query-params :grid-profile] nil)

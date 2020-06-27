@@ -9,6 +9,7 @@
             [ohmycards.web.kws.hydra.core :as kws.hydra]
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
+            [ohmycards.web.kws.services.routing.core :as kws.routing]
             [ohmycards.web.kws.services.routing.pages :as routing.pages]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.edit-card.handlers :as edit-card.handlers]
@@ -17,7 +18,7 @@
 (deftest test-current-view*
 
   (let [state {::lenses.login/current-user ::current-user
-               ::lenses.routing/match      {:data {:view ::current-view}}}]
+               ::lenses.routing/match      {:data {kws.routing/view ::current-view}}}]
 
 
     (letfn [(find-main [c] (tu/get-first #(= (tu/safe-first %) components.current-view/main) c))]
@@ -40,7 +41,7 @@
 
 (deftest test-contextual-actions-dispatcher-hydra-head!
 
-  (letfn [(gen-state [route-name] (r/atom {lenses.routing/match {:data {:name route-name}}}))]
+  (letfn [(gen-state [route-name] (r/atom {lenses.routing/match {:data {kws.routing/name route-name}}}))]
 
     (testing "Nil for no route"
       (with-redefs [sut/state (atom nil)]
