@@ -36,7 +36,7 @@
              kws.cards-grid.config-dashboard]
             [ohmycards.web.kws.views.edit-card.core :as kws.edit-card]
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
-            [ohmycards.web.services.routing.core :as routing.core]
+            [ohmycards.web.services.routing.core :as services.routing]
             [ohmycards.web.services.cards-crud.core :as services.cards-crud]
             [ohmycards.web.services.cards-grid-profile-manager.core
              :as
@@ -108,7 +108,7 @@
 (defn edit-card-page-props
   "Props for the `edit-card-page`."
   []
-  {kws.edit-card/goto-home! #(routing.core/goto! routing.pages/home)
+  {kws.edit-card/goto-home! #(services.routing/goto! routing.pages/home)
    kws.edit-card/fetch-card! #(services.cards-crud/read! {:http-fn http-fn} %)
    kws.edit-card/cards-metadata (lenses.metadata/cards @state)
    :http-fn http-fn
@@ -154,7 +154,7 @@
   []
   {:http-fn http-fn
    :state (state-cursor :views.new-card)
-   kws.new-card/goto-home! #(routing.core/goto! routing.pages/home)
+   kws.new-card/goto-home! #(services.routing/goto! routing.pages/home)
    kws.new-card/cards-metadata (lenses.metadata/cards @state)})
 
 (defn new-card-page
@@ -227,13 +227,12 @@
     (fetch-card-metadata)
     (controllers.cards-grid/load-profile-from-route-match! (::lenses.routing/match @state))
     ;; Give a change for views that depends on login to initialize themselves.
-    (routing.core/force-update!)))
+    (services.routing/force-update!)))
 
 (defn handle-navigated-to-route
   "Handles action for when the app has navigated to a new route"
   [event-kw route-match]
   (when (= event-kw kws.routing/action-navigated-to-route)
-
     (when (services.login/is-logged-in?)
       (controllers.cards-grid/load-profile-from-route-match! route-match))))
 
@@ -271,19 +270,19 @@
    [{kws.hydra/shortcut    \c
      kws.hydra/description "Cards Grid Configuration"
      kws.hydra/type        kws.hydra/leaf
-     kws.hydra.leaf/value #(routing.core/goto! routing.pages/cards-grid-config)}
+     kws.hydra.leaf/value #(services.routing/goto! routing.pages/cards-grid-config)}
     {kws.hydra/shortcut    \h
      kws.hydra/description "Home"
      kws.hydra/type        kws.hydra/leaf
-     kws.hydra.leaf/value  #(routing.core/goto! routing.pages/home)}
+     kws.hydra.leaf/value  #(services.routing/goto! routing.pages/home)}
     {kws.hydra/shortcut    \n
      kws.hydra/description "New Cards"
      kws.hydra/type        kws.hydra/leaf
-     kws.hydra.leaf/value  #(routing.core/goto! routing.pages/new-card)}
+     kws.hydra.leaf/value  #(services.routing/goto! routing.pages/new-card)}
     {kws.hydra/shortcut    \a
      kws.hydra/description "About the app"
      kws.hydra/type        kws.hydra/leaf
-     kws.hydra.leaf/value  #(routing.core/goto! routing.pages/about)}
+     kws.hydra.leaf/value  #(services.routing/goto! routing.pages/about)}
     {kws.hydra/shortcut    \q
      kws.hydra/description "Quit"
      kws.hydra/type        kws.hydra/leaf
@@ -315,7 +314,7 @@
 
   (events-bus/init! {kws.events-bus/handler events-bus-handler})
 
-  (routing.core/start-routing! routes (state-cursor ::lenses.routing/match))
+  (services.routing/start-routing! routes (state-cursor ::lenses.routing/match))
 
   (services.shortcuts-register/init! shortcuts)
 
