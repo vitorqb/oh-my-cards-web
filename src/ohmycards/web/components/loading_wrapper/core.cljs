@@ -1,11 +1,12 @@
 (ns ohmycards.web.components.loading-wrapper.core
-  (:require [ohmycards.web.utils.components :as utils.components]))
+  (:require [ohmycards.web.components.spinner.core :as spinner]
+            [ohmycards.web.utils.components :as utils.components]))
 
 (defn- loading-view
   []
   [:div.loading-wrapper
-   [:span.loading-wrapper__label
-    "Loading..."]])
+   [:div.loading-wrapper__spinner-box
+    [spinner/main]]])
 
 (defn main
   "Wraps all children in a loading state view."
