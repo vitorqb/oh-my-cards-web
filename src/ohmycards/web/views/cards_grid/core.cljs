@@ -1,5 +1,6 @@
 (ns ohmycards.web.views.cards-grid.core
   (:require [ohmycards.web.components.error-message-box.core :as error-message-box]
+            [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.components.markdown-displayer.core
              :as
              markdown-displayer]
@@ -37,18 +38,19 @@
 (defn- main*
   "Rendering logic for the `main` component."
   [{:keys [state] :as props}]
-  [:div.cards-grid
-   [control-header/main props]
-   (when (kws/filter-enabled? @state)
-     [control-filter/main props])
-   [:div.cards-grid__top-error-box
-    [error-message-box/main {:value (kws/error-message @state)}]]
-   (if-not (empty? (kws/cards @state))
-     (for [card (kws/cards @state)]
-       ^{:key (kws.card/id card)}
-       [card-display (assoc props ::card card)])
-     [:div.cards-grid__empty-msgbox
-      [:div "Nothing to display. Create your first card to get started!"]])])
+  [loading-wrapper/main {:loading? (state-management/loading? props)}
+   [:div.cards-grid
+    [control-header/main props]
+    (when (kws/filter-enabled? @state)
+      [control-filter/main props])
+    [:div.cards-grid__top-error-box
+     [error-message-box/main {:value (kws/error-message @state)}]]
+    (if-not (empty? (kws/cards @state))
+      (for [card (kws/cards @state)]
+        ^{:key (kws.card/id card)}
+        [card-display (assoc props ::card card)])
+      [:div.cards-grid__empty-msgbox
+       [:div "Nothing to display. Create your first card to get started!"]])]])
 
 (defn main
   "A view for a grid of cards."

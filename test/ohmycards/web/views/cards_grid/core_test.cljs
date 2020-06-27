@@ -1,6 +1,7 @@
 (ns ohmycards.web.views.cards-grid.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
+            [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.views.cards-grid.core :as kws]
             [ohmycards.web.test-utils :as tu]
@@ -22,9 +23,13 @@
 
 (deftest test-main*
 
-  (testing "Top level component is div with correct class"
-    (let [[div] (sut/main* {:state (atom {})})]
-      (is (= div :div.cards-grid))))
+  (testing "Top level component is a loading wrapper with props"
+    (let [[el props & _] (sut/main* {:state (atom {})})]
+      (is (= el loading-wrapper/main))
+      (is (= props {:loading? true}))))
+
+  (testing "There exists a div with correct class"
+    (is (tu/exists-in-component? :div.cards-grid (tu/comp-seq (sut/main* {:state (atom {})})))))
 
   (testing "A card has it's card-display rendered"
     (let [card      {kws.card/id "FOO"}
