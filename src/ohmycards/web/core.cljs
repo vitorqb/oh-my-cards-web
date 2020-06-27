@@ -16,8 +16,8 @@
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.lenses.metadata :as lenses.metadata]
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
-            [ohmycards.web.kws.routing.core :as kws.routing]
-            [ohmycards.web.kws.routing.pages :as routing.pages]
+            [ohmycards.web.kws.services.routing.core :as kws.routing]
+            [ohmycards.web.kws.services.routing.pages :as routing.pages]
             [ohmycards.web.kws.services.cards-crud.actions
              :as
              kws.cards-crud.actions]
@@ -36,7 +36,7 @@
              kws.cards-grid.config-dashboard]
             [ohmycards.web.kws.views.edit-card.core :as kws.edit-card]
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
-            [ohmycards.web.routing.core :as routing.core]
+            [ohmycards.web.services.routing.core :as routing.core]
             [ohmycards.web.services.cards-crud.core :as services.cards-crud]
             [ohmycards.web.services.cards-grid-profile-manager.core
              :as

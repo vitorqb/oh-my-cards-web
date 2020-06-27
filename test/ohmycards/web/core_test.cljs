@@ -9,7 +9,7 @@
             [ohmycards.web.kws.hydra.core :as kws.hydra]
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
-            [ohmycards.web.kws.routing.pages :as routing.pages]
+            [ohmycards.web.kws.services.routing.pages :as routing.pages]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.edit-card.handlers :as edit-card.handlers]
             [reagent.core :as r]))

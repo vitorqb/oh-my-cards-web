@@ -1,5 +1,5 @@
-(ns ohmycards.web.routing.core
-  (:require [ohmycards.web.kws.routing.core :as kws]
+(ns ohmycards.web.services.routing.core
+  (:require [ohmycards.web.kws.services.routing.core :as kws]
             [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.utils.logging :as logging]
             [reitit.frontend :as rf]

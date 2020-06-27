@@ -1,8 +1,8 @@
 (ns ohmycards.web.controllers.cards-grid.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.controllers.cards-grid.core :as sut]
-            [ohmycards.web.kws.routing.core :as kws.routing]
-            [ohmycards.web.routing.core :as routing.core]
+            [ohmycards.web.kws.services.routing.core :as kws.routing]
+            [ohmycards.web.services.routing.core :as routing.core]
             [ohmycards.web.views.cards-grid.config-dashboard.state-management
              :as
              config-dashboard.state-management]

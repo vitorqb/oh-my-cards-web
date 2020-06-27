@@ -1,4 +1,4 @@
-(ns ohmycards.web.kws.routing.core)
+(ns ohmycards.web.kws.services.routing.core)
 
 ;; Params and Options
 (def query-params "Query parameters for routing." ::query-params)
