@@ -78,8 +78,13 @@
 (defn- route-to-edit-card! [card]
   (routing.core/goto! routing.pages/edit-card kws.routing/query-params {:id (kws.card/id card)}))
 
+(defn- route-to-display-card! [card]
+  (routing.core/goto! routing.pages/display-card kws.routing/query-params {:id (kws.card/id card)}))
+
 (defn- route-to-grid! []
   (routing.core/goto! routing.pages/home))
+
+
 
 ;; Config setting
 (declare grid-props)
@@ -133,11 +138,12 @@
 (defn- grid-props
   "Returns the props for the grid view instance."
   []
-  {:state *grid-state*
-   kws.cards-grid/goto-editcard! route-to-edit-card!
-   kws.cards-grid/goto-settings! route-to-config-dashboard!
-   kws.cards-grid/goto-newcard!  route-to-new-card!
-   kws.cards-grid/fetch-cards!   fetch-cards!})
+  {:state                           *grid-state*
+   kws.cards-grid/goto-editcard!    route-to-edit-card!
+   kws.cards-grid/goto-settings!    route-to-config-dashboard!
+   kws.cards-grid/goto-newcard!     route-to-new-card!
+   kws.cards-grid/goto-displaycard! route-to-display-card!
+   kws.cards-grid/fetch-cards!      fetch-cards!})
 
 (defn- config-dashboard-props
   "Returns the props for the config dashboard."

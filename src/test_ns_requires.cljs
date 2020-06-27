@@ -52,6 +52,8 @@
 [ohmycards.web.views.cards-grid.control-header-test]
 [ohmycards.web.views.cards-grid.core-test]
 [ohmycards.web.views.cards-grid.state-management-test]
+[ohmycards.web.views.display-card.core-test]
+[ohmycards.web.views.display-card.handlers-test]
 [ohmycards.web.views.edit-card.core-test]
 [ohmycards.web.views.edit-card.handlers-test]
 [ohmycards.web.views.edit-card.state-management-test]

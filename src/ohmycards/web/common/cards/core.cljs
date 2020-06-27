@@ -12,8 +12,10 @@
 
 (defn from-http
   "Parses a card from an http response."
-  [{:keys [id title body tags]}]
-  {kws.card/id    id
-   kws.card/title title
-   kws.card/body  body
-   kws.card/tags  tags})
+  [{:keys [id title body tags createdAt updatedAt]}]
+  {kws.card/id         id
+   kws.card/title      title
+   kws.card/body       body
+   kws.card/tags       tags
+   kws.card/created-at createdAt
+   kws.card/updated-at updatedAt})

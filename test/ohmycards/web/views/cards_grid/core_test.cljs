@@ -15,11 +15,19 @@
       (is (tu/exists-in-component? [:span.tags-displayer__tag "B"] comp)))))
 
 (deftest test-card-display
+
   (testing "Renders tags-displayer"
     (is
      (tu/exists-in-component?
       [sut/tags-displayer {::sut/tags ["A"]}]
-      (sut/card-display {::sut/card {kws.card/tags ["A"]}})))))
+      (sut/card-display {::sut/card {kws.card/tags ["A"]}}))))
+
+  (testing "Renders footer"
+    (let [props {::sut/card {:title "A"}}]
+      (is
+       (tu/exists-in-component?
+        [sut/card-display-footer props]
+        (tu/comp-seq (sut/card-display props)))))))
 
 (deftest test-main*
 

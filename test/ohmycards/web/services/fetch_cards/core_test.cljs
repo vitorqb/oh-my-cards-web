@@ -74,7 +74,12 @@
           result    (sut/parse-fetch-response http-resp)]
 
       (testing "Returns cards"
-        (is (= [{kws.card/id 1 kws.card/title "Foo" kws.card/body "Bar" kws.card/tags ["A"]}]
+        (is (= [{kws.card/id         1
+                 kws.card/title      "Foo"
+                 kws.card/body       "Bar"
+                 kws.card/tags       ["A"]
+                 kws.card/created-at nil
+                 kws.card/updated-at nil}]
                (kws/cards result))))
 
       (testing "Returns page"

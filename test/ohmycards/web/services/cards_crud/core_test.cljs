@@ -16,10 +16,12 @@
             {kws.http/success? false kws.http/body "errmsg"}))))
 
   (testing "Success -> returns created card"
-    (is (= {kws/created-card {kws.card/id    "ID"
-                              kws.card/body  "BODY"
-                              kws.card/title "TITLE"
-                              kws.card/tags  ["TAG"]}}
+    (is (= {kws/created-card {kws.card/id         "ID"
+                              kws.card/body       "BODY"
+                              kws.card/title      "TITLE"
+                              kws.card/tags       ["TAG"]
+                              kws.card/created-at nil
+                              kws.card/updated-at nil}}
            (sut/parse-response*
             kws.actions/create
             {kws.http/success? true
@@ -38,7 +40,9 @@
     (is (= {kws/read-card {kws.card/id "1"
                            kws.card/body "2"
                            kws.card/title "3"
-                           kws.card/tags ["4"]}}
+                           kws.card/tags ["4"]
+                           kws.card/created-at nil
+                           kws.card/updated-at nil}}
            (sut/parse-response* kws.actions/read {kws.http/success? true
                                                   kws.http/body {:id "1"
                                                                  :body "2"

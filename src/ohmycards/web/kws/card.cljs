@@ -4,3 +4,5 @@
 (def id "The card id" ::id)
 (def body "The card body" ::body)
 (def tags "The tags of the card" ::tags)
+(def created-at "The creation date for the card" ::created-at)
+(def updated-at "The update date for the card" ::update-at)

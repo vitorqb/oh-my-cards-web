@@ -4,11 +4,18 @@
             [ohmycards.web.kws.card :as kws.card]))
 
 (deftest test-from-http
-  (is (= {kws.card/id    "id"
-          kws.card/title "title"
-          kws.card/body  "body"
-          kws.card/tags  ["A"]}
-         (sut/from-http {:id "id" :title "title" :body "body" :tags ["A"]}))))
+  (is (= {kws.card/id         "id"
+          kws.card/title      "title"
+          kws.card/body       "body"
+          kws.card/tags       ["A"]
+          kws.card/created-at "2020-01-01"
+          kws.card/updated-at "2020-01-02"}
+         (sut/from-http {:id "id"
+                         :title "title"
+                         :body "body"
+                         :tags ["A"]
+                         :createdAt "2020-01-01"
+                         :updatedAt "2020-01-02"}))))
 
 (deftest test-to-http
 
