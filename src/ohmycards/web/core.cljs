@@ -257,6 +257,9 @@
       routing.pages/new-card
       (new-card/hydra-head (new-card-page-props))
 
+      routing.pages/home
+      (controllers.cards-grid/hydra-head)
+
       nil)))
 
 
