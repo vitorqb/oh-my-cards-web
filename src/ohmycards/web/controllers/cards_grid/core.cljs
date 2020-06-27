@@ -6,17 +6,20 @@
   sync happens on this controller."
   (:require [cljs.core.async :as async]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
+            [ohmycards.web.kws.hydra.core :as kws.hydra]
+            [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
             [ohmycards.web.kws.services.routing.core :as kws.routing]
             [ohmycards.web.kws.services.routing.pages :as routing.pages]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core
              :as
              kws.config-dashboard]
             [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
-            [ohmycards.web.services.routing.core :as routing.core]
             [ohmycards.web.services.cards-grid-profile-manager.core
              :as
              services.cards-grid-profile-manager]
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
+            [ohmycards.web.services.routing.core :as routing.core]
             [ohmycards.web.utils.logging :as logging]
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
@@ -95,6 +98,15 @@
 
 (defn- set-grid-tags-filter-query! [x]
   (cards-grid.state-management/set-tags-filter-query-from-props! (grid-props) x))
+
+(defn- goto-next-page! []
+  (cards-grid.state-management/goto-next-page! (grid-props)))
+
+(defn- goto-previous-page! []
+  (cards-grid.state-management/goto-previous-page! (grid-props)))
+
+(defn- toggle-filter! []
+  (cards-grid.state-management/toggle-filter! (grid-props)))
 
 ;; Other svcs
 (defn- fetch-cards!
@@ -177,3 +189,29 @@
           query-params (-> route-match :query-params (dissoc :grid-profile))]
       (load-profile! profile-name)
       (routing.core/goto! view kws.routing/query-params query-params))))
+
+(defn hydra-head
+  "Returns a head for contextual hydra, with actions the user can make on the current grid."
+  []
+  {kws.hydra/type         kws.hydra/branch
+   kws.hydra.branch/name  "Grid Actions"
+   kws.hydra.branch/heads [{kws.hydra/shortcut    \r
+                            kws.hydra/description "Refresh"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(refetch!)}
+                           {kws.hydra/shortcut    \n
+                            kws.hydra/description "Next Page"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(goto-next-page!)}
+                           {kws.hydra/shortcut    \p
+                            kws.hydra/description "Previous Page"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(goto-previous-page!)}
+                           {kws.hydra/shortcut    \f
+                            kws.hydra/description "Toggle Filter"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(toggle-filter!)}
+                           {kws.hydra/shortcut    \q
+                            kws.hydra/description "Quit"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(do)}]})
