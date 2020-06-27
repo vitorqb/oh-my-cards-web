@@ -21,7 +21,7 @@
     [form/row {}
      [form/label {}
       "Password"]
-     [form.input/main {:type "password" :value value :on-change on-change}]]))
+     [form.input/main {:type "password" :value value :on-change on-change :autoFocus true}]]))
 
 (defn main
   "The login page, that allows the user to identify itself."
