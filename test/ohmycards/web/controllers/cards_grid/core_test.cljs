@@ -1,8 +1,8 @@
 (ns ohmycards.web.controllers.cards-grid.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.controllers.cards-grid.core :as sut]
-            [ohmycards.web.kws.routing.core :as kws.routing]
-            [ohmycards.web.routing.core :as routing.core]
+            [ohmycards.web.kws.services.routing.core :as kws.routing]
+            [ohmycards.web.services.routing.core :as routing.core]
             [ohmycards.web.views.cards-grid.config-dashboard.state-management
              :as
              config-dashboard.state-management]
@@ -26,7 +26,7 @@
 (deftest test-load-profile-from-route-match!
 
   (let [route-match {:query-params {:grid-profile "FOO" :bar "Bar"}
-                     :data {:name ::name}}]
+                     :data {kws.routing/name ::name}}]
 
     (testing "Don't do anything if no profile name on the route"
       (let [route-match (assoc-in route-match [:query-params :grid-profile] nil)

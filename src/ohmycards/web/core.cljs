@@ -16,8 +16,8 @@
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.lenses.metadata :as lenses.metadata]
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
-            [ohmycards.web.kws.routing.core :as kws.routing]
-            [ohmycards.web.kws.routing.pages :as routing.pages]
+            [ohmycards.web.kws.services.routing.core :as kws.routing]
+            [ohmycards.web.kws.services.routing.pages :as routing.pages]
             [ohmycards.web.kws.services.cards-crud.actions
              :as
              kws.cards-crud.actions]
@@ -36,7 +36,7 @@
              kws.cards-grid.config-dashboard]
             [ohmycards.web.kws.views.edit-card.core :as kws.edit-card]
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
-            [ohmycards.web.routing.core :as routing.core]
+            [ohmycards.web.services.routing.core :as services.routing]
             [ohmycards.web.services.cards-crud.core :as services.cards-crud]
             [ohmycards.web.services.cards-grid-profile-manager.core
              :as
@@ -103,6 +103,31 @@
 
 ;; -------------------------
 ;; View instances
+
+;; Edit card
+(defn edit-card-page-props
+  "Props for the `edit-card-page`."
+  []
+  {kws.edit-card/goto-home! #(services.routing/goto! routing.pages/home)
+   kws.edit-card/fetch-card! #(services.cards-crud/read! {:http-fn http-fn} %)
+   kws.edit-card/cards-metadata (lenses.metadata/cards @state)
+   :http-fn http-fn
+   :state (state-cursor :views.edit-card)})
+
+(defn edit-card-page
+  "An instance for the edit-card view"
+  []
+  [edit-card/main (edit-card-page-props)])
+
+(defn edit-card-enter-hook!
+  "Enter hook for edit-card, setting state on entering."
+  [route-match]
+  (when (services.login/is-logged-in?)
+    (edit-card.state-management/init-from-route-match! (edit-card-page-props) route-match)))
+
+(def edit-card-update-hook! edit-card-enter-hook!)
+
+;; Others
 (defn login
   "An instance for the login page."
   []
@@ -129,27 +154,13 @@
   []
   {:http-fn http-fn
    :state (state-cursor :views.new-card)
-   kws.new-card/goto-home! #(routing.core/goto! routing.pages/home)
+   kws.new-card/goto-home! #(services.routing/goto! routing.pages/home)
    kws.new-card/cards-metadata (lenses.metadata/cards @state)})
 
 (defn new-card-page
   "An instance for the new-card view."
   []
   [new-card/main (new-card-page-props)])
-
-(defn edit-card-page-props
-  "Props for the `edit-card-page`."
-  []
-  {kws.edit-card/goto-home! #(routing.core/goto! routing.pages/home)
-   kws.edit-card/fetch-card! #(services.cards-crud/read! {:http-fn http-fn} %)
-   kws.edit-card/cards-metadata (lenses.metadata/cards @state)
-   :http-fn http-fn
-   :state (state-cursor :views.edit-card)})
-
-(defn edit-card-page
-  "An instance for the edit-card view"
-  []
-  [edit-card/main (edit-card-page-props)])
 
 (defn cards-grid-config-page
   "An instance for the cards-grid-config view."
@@ -166,7 +177,7 @@
   [:<>
    [components.current-view/main
     {::components.current-view/current-user     (::lenses.login/current-user state)
-     ::components.current-view/view             (or (-> state ::lenses.routing/match :data :view)
+     ::components.current-view/view             (or (-> state ::lenses.routing/match :data kws.routing/view)
                                                     home-view)
      ::components.current-view/login-view       login-view
      ::components.current-view/header-component header-component}]
@@ -180,21 +191,23 @@
 (def ^:private routes
   "The reitit-style raw routes."
   [["/"
-    {:name routing.pages/home
-     :view #'cards-grid-page}]
+    {kws.routing/name routing.pages/home
+     kws.routing/view #'cards-grid-page}]
    ["/about"
-    {:name routing.pages/about
-     :view #'about}]
+    {kws.routing/name routing.pages/about
+     kws.routing/view #'about}]
    ["/cards-grid/config"
-    {:name routing.pages/cards-grid-config
-     :view #'cards-grid-config-page}]
+    {kws.routing/name routing.pages/cards-grid-config
+     kws.routing/view #'cards-grid-config-page}]
    ["/cards"
     ["/edit"
-     {:name routing.pages/edit-card
-      :view #'edit-card-page}]
+     {kws.routing/name routing.pages/edit-card
+      kws.routing/view #'edit-card-page
+      kws.routing/enter-hook edit-card-enter-hook!
+      kws.routing/update-hook edit-card-update-hook!}]
     ["/new"
-     {:name routing.pages/new-card
-      :view #'new-card-page}]]])
+     {kws.routing/name routing.pages/new-card
+      kws.routing/view #'new-card-page}]]])
 
 
 ;; -------------------------
@@ -210,26 +223,18 @@
   "Handles action for an user logging in"
   [event-kw new-user]
   (when (= event-kw kws.services.login/new-user)
-    (let [route-match (::lenses.routing/match @state)]
-      (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)
-      (controllers.cards-grid/load-profile-from-route-match! route-match)
-      ;; TODO This is repeated from `handle-navigated-to-route`. We should think of a
-      ;; smarter way to do initialization logic at route change AND at app startup (which has
-      ;; to wait for login) without repeating ourselves so much.
-      (when (= (-> route-match :data :name) routing.pages/edit-card)
-        (edit-card.state-management/init-from-route-match! (edit-card-page-props) route-match))
-      (fetch-card-metadata))))
+    (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)
+    (fetch-card-metadata)
+    (controllers.cards-grid/load-profile-from-route-match! (::lenses.routing/match @state))
+    ;; Give a change for views that depends on login to initialize themselves.
+    (services.routing/force-update!)))
 
 (defn handle-navigated-to-route
   "Handles action for when the app has navigated to a new route"
   [event-kw route-match]
   (when (= event-kw kws.routing/action-navigated-to-route)
-
     (when (services.login/is-logged-in?)
-      (controllers.cards-grid/load-profile-from-route-match! route-match)
-
-      (when (= (-> route-match :data :name) routing.pages/edit-card)
-        (edit-card.state-management/init-from-route-match! (edit-card-page-props) route-match)))))
+      (controllers.cards-grid/load-profile-from-route-match! route-match))))
 
 (def events-bus-handler
   "The main handler for all events send to the event bus."
@@ -243,7 +248,7 @@
 (defn contextual-actions-dispatcher-hydra-head!
   "Returns the hydra options for the contextual actions dispatcher, based on the current route."
   []
-  (when-let [current-route-name (-> @state lenses.routing/match :data :name)]
+  (when-let [current-route-name (-> @state lenses.routing/match :data kws.routing/name)]
     (condp = current-route-name
 
       routing.pages/edit-card
@@ -265,19 +270,19 @@
    [{kws.hydra/shortcut    \c
      kws.hydra/description "Cards Grid Configuration"
      kws.hydra/type        kws.hydra/leaf
-     kws.hydra.leaf/value #(routing.core/goto! routing.pages/cards-grid-config)}
+     kws.hydra.leaf/value #(services.routing/goto! routing.pages/cards-grid-config)}
     {kws.hydra/shortcut    \h
      kws.hydra/description "Home"
      kws.hydra/type        kws.hydra/leaf
-     kws.hydra.leaf/value  #(routing.core/goto! routing.pages/home)}
+     kws.hydra.leaf/value  #(services.routing/goto! routing.pages/home)}
     {kws.hydra/shortcut    \n
      kws.hydra/description "New Cards"
      kws.hydra/type        kws.hydra/leaf
-     kws.hydra.leaf/value  #(routing.core/goto! routing.pages/new-card)}
+     kws.hydra.leaf/value  #(services.routing/goto! routing.pages/new-card)}
     {kws.hydra/shortcut    \a
      kws.hydra/description "About the app"
      kws.hydra/type        kws.hydra/leaf
-     kws.hydra.leaf/value  #(routing.core/goto! routing.pages/about)}
+     kws.hydra.leaf/value  #(services.routing/goto! routing.pages/about)}
     {kws.hydra/shortcut    \q
      kws.hydra/description "Quit"
      kws.hydra/type        kws.hydra/leaf
@@ -309,7 +314,7 @@
 
   (events-bus/init! {kws.events-bus/handler events-bus-handler})
 
-  (routing.core/start-routing! routes (state-cursor ::lenses.routing/match))
+  (services.routing/start-routing! routes (state-cursor ::lenses.routing/match))
 
   (services.shortcuts-register/init! shortcuts)
 

@@ -6,13 +6,13 @@
   sync happens on this controller."
   (:require [cljs.core.async :as async]
             [ohmycards.web.kws.card :as kws.card]
-            [ohmycards.web.kws.routing.core :as kws.routing]
-            [ohmycards.web.kws.routing.pages :as routing.pages]
+            [ohmycards.web.kws.services.routing.core :as kws.routing]
+            [ohmycards.web.kws.services.routing.pages :as routing.pages]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core
              :as
              kws.config-dashboard]
             [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
-            [ohmycards.web.routing.core :as routing.core]
+            [ohmycards.web.services.routing.core :as routing.core]
             [ohmycards.web.services.cards-grid-profile-manager.core
              :as
              services.cards-grid-profile-manager]
@@ -173,7 +173,7 @@
   [route-match]
   (when-let [profile-name (some-> route-match :query-params :grid-profile)]
     (log "Loading grid-profile in the route: " profile-name)
-    (let [view (-> route-match :data :name)
+    (let [view (-> route-match :data kws.routing/name)
           query-params (-> route-match :query-params (dissoc :grid-profile))]
       (load-profile! profile-name)
       (routing.core/goto! view kws.routing/query-params query-params))))
