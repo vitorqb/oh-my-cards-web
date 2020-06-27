@@ -103,6 +103,31 @@
 
 ;; -------------------------
 ;; View instances
+
+;; Edit card
+(defn edit-card-page-props
+  "Props for the `edit-card-page`."
+  []
+  {kws.edit-card/goto-home! #(routing.core/goto! routing.pages/home)
+   kws.edit-card/fetch-card! #(services.cards-crud/read! {:http-fn http-fn} %)
+   kws.edit-card/cards-metadata (lenses.metadata/cards @state)
+   :http-fn http-fn
+   :state (state-cursor :views.edit-card)})
+
+(defn edit-card-page
+  "An instance for the edit-card view"
+  []
+  [edit-card/main (edit-card-page-props)])
+
+(defn edit-card-enter-hook!
+  "Enter hook for edit-card, setting state on entering."
+  [route-match]
+  (when (services.login/is-logged-in?)
+    (edit-card.state-management/init-from-route-match! (edit-card-page-props) route-match)))
+
+(def edit-card-update-hook! edit-card-enter-hook!)
+
+;; Others
 (defn login
   "An instance for the login page."
   []
@@ -136,20 +161,6 @@
   "An instance for the new-card view."
   []
   [new-card/main (new-card-page-props)])
-
-(defn edit-card-page-props
-  "Props for the `edit-card-page`."
-  []
-  {kws.edit-card/goto-home! #(routing.core/goto! routing.pages/home)
-   kws.edit-card/fetch-card! #(services.cards-crud/read! {:http-fn http-fn} %)
-   kws.edit-card/cards-metadata (lenses.metadata/cards @state)
-   :http-fn http-fn
-   :state (state-cursor :views.edit-card)})
-
-(defn edit-card-page
-  "An instance for the edit-card view"
-  []
-  [edit-card/main (edit-card-page-props)])
 
 (defn cards-grid-config-page
   "An instance for the cards-grid-config view."
@@ -191,7 +202,9 @@
    ["/cards"
     ["/edit"
      {kws.routing/name routing.pages/edit-card
-      kws.routing/view #'edit-card-page}]
+      kws.routing/view #'edit-card-page
+      kws.routing/enter-hook edit-card-enter-hook!
+      kws.routing/update-hook edit-card-update-hook!}]
     ["/new"
      {kws.routing/name routing.pages/new-card
       kws.routing/view #'new-card-page}]]])
@@ -210,15 +223,11 @@
   "Handles action for an user logging in"
   [event-kw new-user]
   (when (= event-kw kws.services.login/new-user)
-    (let [route-match (::lenses.routing/match @state)]
-      (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)
-      (controllers.cards-grid/load-profile-from-route-match! route-match)
-      ;; TODO This is repeated from `handle-navigated-to-route`. We should think of a
-      ;; smarter way to do initialization logic at route change AND at app startup (which has
-      ;; to wait for login) without repeating ourselves so much.
-      (when (= (-> route-match :data kws.routing/name) routing.pages/edit-card)
-        (edit-card.state-management/init-from-route-match! (edit-card-page-props) route-match))
-      (fetch-card-metadata))))
+    (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)
+    (fetch-card-metadata)
+    (controllers.cards-grid/load-profile-from-route-match! (::lenses.routing/match @state))
+    ;; Give a change for views that depends on login to initialize themselves.
+    (routing.core/force-update!)))
 
 (defn handle-navigated-to-route
   "Handles action for when the app has navigated to a new route"
@@ -226,10 +235,7 @@
   (when (= event-kw kws.routing/action-navigated-to-route)
 
     (when (services.login/is-logged-in?)
-      (controllers.cards-grid/load-profile-from-route-match! route-match)
-
-      (when (= (-> route-match :data kws.routing/name) routing.pages/edit-card)
-        (edit-card.state-management/init-from-route-match! (edit-card-page-props) route-match)))))
+      (controllers.cards-grid/load-profile-from-route-match! route-match))))
 
 (def events-bus-handler
   "The main handler for all events send to the event bus."

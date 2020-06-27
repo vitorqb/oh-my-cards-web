@@ -40,7 +40,7 @@
 
       (with-redefs [sut/run-hook! #(swap! args conj [%1 %2])]
         (sut/run-view-hooks! old-match new-match)
-        (is (= [[kws/update-hook old-match]] @args)))))
+        (is (= [[kws/update-hook new-match]] @args)))))
 
   (testing "If matches do not have the same name, runs exit and then enter hooks"
     (let [old-match {:data {:name ::old}}

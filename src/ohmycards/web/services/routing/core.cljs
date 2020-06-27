@@ -8,6 +8,11 @@
 (logging/deflogger log "Routing.Core")
 
 ;;
+;; State
+;;
+(def ^:private ^:dynamic *state* nil)
+
+;;
 ;; Helpers
 ;;
 (defn- run-hook! [h m]
@@ -22,7 +27,7 @@
   [old-match new-match]
   (if (= (some-> old-match :data :name) (some-> new-match :data :name))
     (do
-      (run-hook! kws/update-hook old-match))
+      (run-hook! kws/update-hook new-match))
     (do
       (run-hook! kws/exit-hook old-match)
       (run-hook! kws/enter-hook new-match))))
@@ -31,6 +36,7 @@
   "Performs the routing logic, as expected by `rfe/start!`
   This first argument must be the routing state, and the second the new match."
   [routing-state match]
+  (log "Routing stated!" {:routing-state routing-state :match match})
   (let [old-match @routing-state]
     (run-view-hooks! old-match match))
   (reset! routing-state match)
@@ -51,7 +57,14 @@
   - `routing-state` An atom-like thing where to store state is stored."
   [raw-routes routing-state]
   (log "Starting with" raw-routes routing-state)
+  (set! *state* routing-state)
   (rfe/start!
    (rf/router raw-routes)
-   (fn [match _] (do-route! routing-state match))
+   (fn [match _] (do-route! *state* match))
    {:use-fragment true}))
+
+(defn force-update!
+  "Forcely runs the `update` hook for the current match. This can be useful, for example,
+  after a login actions."
+  []
+  (run-hook! kws/update-hook @*state*))
