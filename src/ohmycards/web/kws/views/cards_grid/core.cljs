@@ -14,6 +14,7 @@
 (def status "A keyword indicating the current status for the state." ::status)
 (def status-ready "A keyword indicating the state management is done.." ::ready)
 (def status-error "A keyword indicating the state management is finished with error" ::error)
+(def status-loading "A keyword indicating that the state is loading." ::loading)
 
 (def goto-settings! "A fn that routes the application to the grid settings page" ::goto-settings!)
 (def goto-newcard! "A fn that routes the application to the page to create a new card"

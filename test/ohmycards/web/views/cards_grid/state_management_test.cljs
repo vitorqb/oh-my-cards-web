@@ -6,6 +6,10 @@
             [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
             [ohmycards.web.views.cards-grid.state-management :as sut]))
 
+(deftest test-reduce-before-fetch-cards
+  (is (= {::foo 1 kws.cards-grid/status kws.cards-grid/status-loading}
+         (sut/reduce-before-fetch-cards {::foo 1}))))
+
 (deftest test-reduce-on-fetched-cards
 
   (testing "On Success"
@@ -171,3 +175,18 @@
 (deftest has-previous-page?
   (is (true? (sut/has-previous-page? {kws.cards-grid/config {kws.config/page 2}})))
   (is (false? (sut/has-previous-page? {kws.cards-grid/config {kws.config/page 1}}))))
+
+(deftest test-loading?
+
+  (testing "True if nil"
+    (is (true? (sut/loading? {:state (atom {})}))))
+
+  (testing "True if loading status"
+    (is
+     (true?
+      (sut/loading? {:state (atom {kws.cards-grid/status kws.cards-grid/status-loading})}))))
+
+  (testing "False if status set"
+    (is
+     (false?
+      (sut/loading? {:state (atom {kws.cards-grid/status kws.cards-grid/status-ready})})))))

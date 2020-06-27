@@ -19,6 +19,11 @@
   [{::kws.cards-grid/keys [status]}]
   (-> status nil? not))
 
+(defn- reduce-before-fetch-cards
+  "Reduces the state before fetching the cards."
+  [state]
+  (assoc state kws.cards-grid/status kws.cards-grid/status-loading))
+
 (defn- reduce-on-fetched-cards
   "Reduces the state after cards have been fetched."
   [state {::kws.fetch-cards/keys [cards error-message page page-size count-of-cards]}]
@@ -49,6 +54,7 @@
 (defn- refetch!
   "Refetches the data from the BE"
   [state fetch-cards!]
+  (swap! state reduce-before-fetch-cards)
   (a/go
     (log "Fetching cards...")
     (swap! state reduce-on-fetched-cards (-> @state fetch-cards-params fetch-cards! a/<!))))
@@ -155,3 +161,9 @@
   [{:keys [state] :as opts}]
   (when (has-next-page? @state)
     (set-page-from-props! opts (-> @state kws.cards-grid/config kws.config/page inc))))
+
+(defn loading?
+  "Returns logical true if we are loading."
+  [{:keys [state]}]
+  (or (= (kws.cards-grid/status @state) kws.cards-grid/status-loading)
+      (nil? (kws.cards-grid/status @state))))
