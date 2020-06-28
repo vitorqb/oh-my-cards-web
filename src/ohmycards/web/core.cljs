@@ -16,8 +16,6 @@
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.lenses.metadata :as lenses.metadata]
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
-            [ohmycards.web.kws.services.routing.core :as kws.routing]
-            [ohmycards.web.kws.services.routing.pages :as routing.pages]
             [ohmycards.web.kws.services.cards-crud.actions
              :as
              kws.cards-crud.actions]
@@ -27,6 +25,8 @@
              kws.services.cards-grid-profile-manager]
             [ohmycards.web.kws.services.events-bus.core :as kws.events-bus]
             [ohmycards.web.kws.services.login.core :as kws.services.login]
+            [ohmycards.web.kws.services.routing.core :as kws.routing]
+            [ohmycards.web.kws.services.routing.pages :as routing.pages]
             [ohmycards.web.kws.services.shortcuts-register.core
              :as
              kws.services.shortcuts-register]
@@ -34,9 +34,9 @@
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core
              :as
              kws.cards-grid.config-dashboard]
+            [ohmycards.web.kws.views.display-card.core :as kws.display-card]
             [ohmycards.web.kws.views.edit-card.core :as kws.edit-card]
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
-            [ohmycards.web.services.routing.core :as services.routing]
             [ohmycards.web.services.cards-crud.core :as services.cards-crud]
             [ohmycards.web.services.cards-grid-profile-manager.core
              :as
@@ -48,6 +48,7 @@
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.http :as services.http]
             [ohmycards.web.services.login.core :as services.login]
+            [ohmycards.web.services.routing.core :as services.routing]
             [ohmycards.web.services.shortcuts-register.core
              :as
              services.shortcuts-register]
@@ -55,11 +56,13 @@
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
              cards-grid.config-dashboard]
+            [ohmycards.web.views.display-card.core :as display-card]
+            [ohmycards.web.views.display-card.handlers :as display-card.handlers]
             [ohmycards.web.views.edit-card.core :as edit-card]
+            [ohmycards.web.views.edit-card.handlers :as edit-card.handlers]
             [ohmycards.web.views.edit-card.state-management
              :as
              edit-card.state-management]
-            [ohmycards.web.views.edit-card.handlers :as edit-card.handlers]
             [ohmycards.web.views.login.core :as views.login]
             [ohmycards.web.views.new-card.core :as new-card]
             [reagent.core :as r]
@@ -94,6 +97,10 @@
    #(swap! state assoc lenses.metadata/cards-grid %)})
 
 ;; -------------------------
+;; Services > Card CRUD
+(defn fetch-card! [id] (services.cards-crud/read! {:http-fn http-fn} id))
+
+;; -------------------------
 ;; Metadata
 (defn fetch-card-metadata
   []
@@ -109,7 +116,7 @@
   "Props for the `edit-card-page`."
   []
   {kws.edit-card/goto-home! #(services.routing/goto! routing.pages/home)
-   kws.edit-card/fetch-card! #(services.cards-crud/read! {:http-fn http-fn} %)
+   kws.edit-card/fetch-card! fetch-card!
    kws.edit-card/cards-metadata (lenses.metadata/cards @state)
    :http-fn http-fn
    :state (state-cursor :views.edit-card)})
@@ -126,6 +133,23 @@
     (edit-card.state-management/init-from-route-match! (edit-card-page-props) route-match)))
 
 (def edit-card-update-hook! edit-card-enter-hook!)
+
+;; Display card
+(defn display-card-page-props []
+  {:state (state-cursor :views.display-card)
+   kws.display-card/fetch-card! fetch-card!})
+
+(defn display-card-page []
+  [display-card/main (display-card-page-props)])
+
+(defn display-card-enter-hook
+  "Enter hook for display-card, performing initialization logic."
+  [route-match]
+  (when (services.login/is-logged-in?)
+    (display-card.handlers/init! (display-card-page-props)
+                                 (some-> route-match :parameters :query :id))))
+
+(def display-card-update-hook display-card-enter-hook)
 
 ;; Others
 (defn login
@@ -207,7 +231,12 @@
       kws.routing/update-hook edit-card-update-hook!}]
     ["/new"
      {kws.routing/name routing.pages/new-card
-      kws.routing/view #'new-card-page}]]])
+      kws.routing/view #'new-card-page}]
+    ["/display"
+     {kws.routing/name routing.pages/display-card
+      kws.routing/view #'display-card-page
+      kws.routing/enter-hook display-card-enter-hook
+      kws.routing/update-hook display-card-update-hook}]]])
 
 
 ;; -------------------------

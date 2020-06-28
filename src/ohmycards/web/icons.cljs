@@ -12,3 +12,4 @@
 (defn trash [p] [:i.fa.fa-trash p])
 (defn refresh [p] [:i.fas.fa-sync-alt p])
 (defn filter [p] [:i.fas.fa-filter p])
+(defn view [p] [:i.fas.fa-eye p])

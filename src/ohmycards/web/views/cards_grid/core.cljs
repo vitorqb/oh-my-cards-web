@@ -18,6 +18,12 @@
   [:button.clear-button.u-color-good {:on-click #(goto-editcard! card)}
    [icons/edit]])
 
+(defn- card-view-btn
+  "A button to view the details of a card."
+  [{::keys [card] ::kws/keys [goto-displaycard!]}]
+  [:button.clear-button.u-color-good {:on-click #(goto-displaycard! card)}
+   [icons/view]])
+
 (defn- tags-displayer
   "A component to display cards in a single line."
   [{::keys [tags]}]
@@ -25,15 +31,20 @@
    (for [tag tags]
      ^{:key tag} [:span.tags-displayer__tag tag])])
 
+(defn- card-display-footer
+  "The footer of the card, with the action buttons."
+  [{{::kws.card/keys [id title body tags] :as card} ::card :as props}]
+  [:div.card-display__foot [card-edit-btn props] [card-view-btn props]])
+
 (defn- card-display
   "A component to display a single card."
-  [{{::kws.card/keys [id title body tags] :as card} ::card :as props}]
+  [{{::kws.card/keys [title body tags] :as card} ::card :as props}]
   [:div.card-display
    [:div.card-display__title title]
    [:div.card-display__body
     [markdown-displayer/main {:source body}]]
    [tags-displayer {::tags tags}]
-   [:div.card-display__foot [card-edit-btn props]]])
+   [card-display-footer props]])
 
 (defn- main*
   "Rendering logic for the `main` component."
