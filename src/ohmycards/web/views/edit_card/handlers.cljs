@@ -38,12 +38,17 @@
 
 (defn delete-card!
   "Handler to delete a card."
-  [{:keys [http-fn state]}]
-  (swap! state reduce-before-event)
-  (a/go
-    (let [resp (a/<! (cards-crud/delete! {:http-fn http-fn}
-                                         (-> @state kws/selected-card kws.card/id)))]
-      (swap! state reduce-after-delete resp))))
+  [{:keys [http-fn state] ::kws/keys [confirm-deletion-fn!]}]
+  (let [card            (kws/selected-card @state)
+        confirm-channel (confirm-deletion-fn! card)]
+    (a/go
+      (if-not (a/<! confirm-channel)
+        false
+        (do
+          (swap! state reduce-before-event)
+          (let [resp (a/<! (cards-crud/delete! {:http-fn http-fn}
+                                               (-> @state kws/selected-card kws.card/id)))]
+            (swap! state reduce-after-delete resp)))))))
 
 (defn- reduce-after-update
   "Reduces state after updating a card"

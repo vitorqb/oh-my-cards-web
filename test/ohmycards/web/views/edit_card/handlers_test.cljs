@@ -1,11 +1,13 @@
 (ns ohmycards.web.views.edit-card.handlers-test
-  (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+  (:require [cljs.core.async :as async]
+            [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
             [ohmycards.web.kws.hydra.core :as kws.hydra]
             [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
             [ohmycards.web.kws.views.edit-card.core :as kws]
+            [ohmycards.web.services.cards-crud.core :as cards-crud]
             [ohmycards.web.views.edit-card.handlers :as sut]))
 
 (deftest test-reduce-before-event
@@ -54,6 +56,42 @@
 
       (testing "Sets success-message"
         (is (= "Deleted card with id 1" (kws/good-message result)))))))
+
+(deftest test-delete-card!--dont-call-delete-if-confirm-is-false
+  (let [card                 {::kws.card/title "Foo"}
+        state                (atom {kws/selected-card card})
+        cards-crud-args      (atom [])
+        http-fn              #(async/go [::http-fn %&])
+        confirm-deletion-fn! #(async/go false)
+        props                {:http-fn http-fn
+                              :state state
+                              kws/confirm-deletion-fn! confirm-deletion-fn!}]
+    (with-redefs [cards-crud/delete! #(swap! cards-crud-args conj %&)]
+      (let [resp-chan (sut/delete-card! props)]
+        (async done
+               (async/go
+                 (is (false? (async/<! resp-chan)))
+                 (is (= [] @cards-crud-args))
+                 (done)))))))
+
+(deftest test-delete-card!--call-delete-if-conficonfirm-is-true
+  (let [card                 {kws.card/title "Foo" kws.card/id "Bar"}
+        initial-state        {kws/selected-card card}
+        state                (atom initial-state)
+        cards-crud-args      (atom [])
+        http-fn              #(async/go [::http-fn %&])
+        confirm-deletion-fn! #(async/go true)
+        props                {:http-fn http-fn
+                              :state state
+                              kws/confirm-deletion-fn! confirm-deletion-fn!}]
+    (async done
+           (async/go
+             (with-redefs [cards-crud/delete! #(async/go (swap! cards-crud-args conj %&))]
+               (let [resp-chan (sut/delete-card! props)]
+                 (async/<! resp-chan)
+                 (is (= [[{:http-fn http-fn} "Bar"]] @cards-crud-args))
+                 (is (= @state (sut/reduce-after-delete initial-state {})))
+                 (done)))))))
 
 (deftest test-reduce-after-update
 
