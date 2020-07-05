@@ -52,6 +52,7 @@
             [ohmycards.web.services.shortcuts-register.core
              :as
              services.shortcuts-register]
+            [ohmycards.web.services.user-question.core :as services.user-question]
             [ohmycards.web.views.about.core :as views.about]
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
@@ -118,6 +119,7 @@
   {kws.edit-card/goto-home! #(services.routing/goto! routing.pages/home)
    kws.edit-card/fetch-card! fetch-card!
    kws.edit-card/cards-metadata (lenses.metadata/cards @state)
+   kws.edit-card/confirm-deletion-fn! services.user-question/confirm-card-delete
    :http-fn http-fn
    :state (state-cursor :views.edit-card)})
 

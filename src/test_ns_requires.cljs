@@ -43,6 +43,7 @@
 [ohmycards.web.services.login.recover-token-from-cookie-test]
 [ohmycards.web.services.login.utils-test]
 [ohmycards.web.services.routing.core-test]
+[ohmycards.web.services.user-question.core-test]
 [ohmycards.web.utils.components-test]
 [ohmycards.web.utils.pagination-test]
 [ohmycards.web.views.about.core-test]
