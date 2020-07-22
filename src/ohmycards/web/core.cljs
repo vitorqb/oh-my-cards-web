@@ -2,7 +2,7 @@
   (:require [cljs.core.async :as async]
             [ohmycards.web.common.utils :as utils]
             [ohmycards.web.components.current-view.core :as components.current-view]
-            [ohmycards.web.components.header.core :as header]
+            [ohmycards.web.components.app-header.core :as header]
             [ohmycards.web.controllers.action-dispatcher.core
              :as
              controllers.action-dispatcher]
