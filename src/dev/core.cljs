@@ -1,4 +1,4 @@
-(ns cljs.user
+(ns dev.core
   (:require [cljs-http.client :as http]
             [cljs.repl :refer [doc]]
             [cljs.test :refer-macros [run-tests]]
@@ -6,6 +6,7 @@
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.user :as kws.user]
             test-ns-requires))
+
 
 ;; App shortcuts
 (def state core/state)
