@@ -16,16 +16,16 @@
 ;; Components
 (defn- go-home-btn
   [{::kws/keys [goto-home!]}]
-  [:button.edit-card__button {:on-click #(goto-home!)} [icons/home]])
+  [:button.icon-button {:on-click #(goto-home!)} [icons/home]])
 
 (defn- remove-btn
   [props]
-  [:button.edit-card__button.edit-card__button--bad {:on-click #(handlers/delete-card! props)}
+  [:button.icon-button.u-color-bad {:on-click #(handlers/delete-card! props)}
    [icons/trash]])
 
 (defn- update-btn
   [props]
-  [:button.edit-card__button.edit-card__button--good {:on-click #(handlers/update-card! props)}
+  [:button.icon-button.u-color-good {:on-click #(handlers/update-card! props)}
    [icons/check]])
 
 (defn- header

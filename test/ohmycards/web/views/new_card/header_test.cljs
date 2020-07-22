@@ -10,7 +10,7 @@
   (testing "Passes goto-home to button"
     (let [props {kws/goto-home! (constantly ::foo)}
           [_ btn-props] (tu/get-first
-                         #(= (tu/safe-first %) :button.clear-button)
+                         #(= (tu/safe-first %) :button.icon-button)
                          (tu/comp-seq (sut/header-left props)))]
       (is (= ::foo ((:on-click btn-props)))))))
 

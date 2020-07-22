@@ -7,13 +7,13 @@
 (defn header-left
   [{::kws/keys [goto-home!]}]
   [:div.new-card-header__left
-   [:button.clear-button {:on-click #(goto-home!)}
+   [:button.icon-button {:on-click #(goto-home!)}
     [icons/home]]])
 
 (defn header-center
   [props]
   [:div.new-card-header__center
-   [:button.clear-button.u-color-good {:on-click #(create-card/main props)}
+   [:button.icon-button.u-color-good {:on-click #(create-card/main props)}
     [icons/check]]])
 
 (defn main

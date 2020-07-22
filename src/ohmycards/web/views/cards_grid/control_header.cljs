@@ -7,30 +7,30 @@
             [ohmycards.web.views.cards-grid.state-management :as state-management]))
 
 (defn- arrow-left [props]
-  [:button.clear-button {:on-click #(state-management/goto-previous-page! props)}
+  [:button.icon-button {:on-click #(state-management/goto-previous-page! props)}
    [icons/arrow-left]])
 
 (defn- arrow-right [props]
-  [:button.clear-button {:on-click #(state-management/goto-next-page! props)}
+  [:button.icon-button {:on-click #(state-management/goto-next-page! props)}
    [icons/arrow-right]])
 
 (defn- page-counter [{::keys [page max-page]}]
   [:span.small-box (str page " | " max-page)])
 
 (defn- settings-btn [goto-settings!]
-  [:button.clear-button {:on-click #(goto-settings!)}
+  [:button.icon-button {:on-click #(goto-settings!)}
    [icons/settings]])
 
 (defn- refresh-btn [props]
-  [:button.clear-button {:on-click #(state-management/refetch-from-props! props)}
+  [:button.icon-button {:on-click #(state-management/refetch-from-props! props)}
    [icons/refresh]])
 
 (defn- filter-btn [props]
-  [:button.clear-button {:on-click #(state-management/toggle-filter! props)}
+  [:button.icon-button {:on-click #(state-management/toggle-filter! props)}
    [icons/filter]])
 
 (defn- new-card-btn [goto-newcard!]
-  [:button.clear-button.u-color-good {:on-click #(goto-newcard!)}
+  [:button.icon-button.u-color-good {:on-click #(goto-newcard!)}
    [icons/add]])
 
 (defn- header-left [props]

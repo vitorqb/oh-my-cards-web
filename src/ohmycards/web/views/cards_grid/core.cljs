@@ -15,13 +15,13 @@
 (defn- card-edit-btn
   "A button to edit a card."
   [{::keys [card] ::kws/keys [goto-editcard!]}]
-  [:button.clear-button.u-color-good {:on-click #(goto-editcard! card)}
+  [:button.icon-button.u-color-good {:on-click #(goto-editcard! card)}
    [icons/edit]])
 
 (defn- card-view-btn
   "A button to view the details of a card."
   [{::keys [card] ::kws/keys [goto-displaycard!]}]
-  [:button.clear-button.u-color-good {:on-click #(goto-displaycard! card)}
+  [:button.icon-button.u-color-good {:on-click #(goto-displaycard! card)}
    [icons/view]])
 
 (defn- tags-displayer

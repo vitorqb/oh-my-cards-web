@@ -6,7 +6,7 @@
   "The header of the dialog, with the exit button"
   [{:keys [state]}]
   [:div.dialog__header
-   [:button.clear-button {:on-click #(swap! state assoc kws/active? false)}
+   [:button.icon-button {:on-click #(swap! state assoc kws/active? false)}
     [icons/close]]])
 
 (defn main

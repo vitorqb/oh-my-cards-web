@@ -25,6 +25,8 @@
 @import "current-view";
 @import "display-card";
 
+@import "buttons";
+
 body {
   font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
   margin: 0 auto;
@@ -79,6 +81,10 @@ a:hover {
 
 .u-color-good {
     color: green;
+}
+
+.u-color-bad {
+    color: red;
 }
 
 .u-center {

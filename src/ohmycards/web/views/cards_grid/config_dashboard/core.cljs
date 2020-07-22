@@ -54,7 +54,7 @@
   "A header with options"
   [{::kws/keys [goto-cards-grid!]}]
   [:div.cards-grid-config-dashboard__header
-   [:button.clear-button {:on-click #(goto-cards-grid!)}
+   [:button.icon-button {:on-click #(goto-cards-grid!)}
     [icons/arrow-left]]])
 
 (defn- get-profile-for-save
