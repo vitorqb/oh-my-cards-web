@@ -21,6 +21,7 @@
     }
 
     &__row {
+        margin-left: 15px;
         display: flex;
         flex-wrap: wrap;
         &:not(:last-child) {

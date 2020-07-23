@@ -5,13 +5,10 @@
 (deftest test-main
 
   (testing "Renders a span with title"
-    (is
-     (some
-      #(= [:span.app-header__left "OhMyCards!"] %)
-      (tree-seq vector? identity (sut/main {})))))
+    (is (= [:span.logo "OhMyCards!"] (-> {} sut/main second :left))))
 
   (testing "Renders a span with the user email"
-    (is
-     (some
-      #(= [:span.app-header__right "email"] %)
-      (tree-seq vector? identity (sut/main {::sut/email "email"}))))))
+    (is (= [:span.u-italic "email"] (-> {::sut/email "email"} sut/main second :right))))
+
+  (testing "Passes extra class"
+    (is (= "app-header" (-> {} sut/main second :extra-class)))))

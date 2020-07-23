@@ -12,7 +12,7 @@
 
 (deftest test-header-left
   (let [props {kws/goto-newcard! 1}]
-    (is (= [:span.cards-grid-header__left
+    (is (= [:<>
             [sut/new-card-btn 1]
             [sut/refresh-btn props]
             [sut/filter-btn props]]
@@ -51,18 +51,18 @@
       (is
        (some
         #(= [sut/header-left props] %)
-        (sut/main props)))))
+        (tu/comp-seq (sut/main props))))))
 
   (testing "Renders a header-center"
     (let [props {:state (atom {})}]
       (is
        (some
         #(= [sut/header-center props] %)
-        (sut/main props)))))
+        (tu/comp-seq (sut/main props))))))
 
   (testing "Renders a header-right"
     (let [props {:state (atom {})}]
       (is
        (some
         #(= [sut/header-right props] %)
-        (sut/main props))))))
+        (tu/comp-seq (sut/main props)))))))

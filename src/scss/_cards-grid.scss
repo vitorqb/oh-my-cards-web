@@ -1,10 +1,6 @@
 $cards-width: 340px;
 $cards-height: 400px;
 
-.cards-grid-header {
-    @include header3;
-}
-
 .cards-grid {
     display: flex;
     flex-wrap: wrap;

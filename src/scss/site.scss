@@ -24,6 +24,7 @@
 @import "spinner";
 @import "current-view";
 @import "display-card";
+@import "header";
 
 @import "buttons";
 
@@ -79,14 +80,14 @@ a:hover {
     @include clear-button;
 }
 
-.u-color-good {
-    color: green;
+
+.logo {
+    font-size: 20px;
+    letter-spacing: 0.5px;
+    font-weight: 600;
 }
 
-.u-color-bad {
-    color: red;
+.label {
+    padding-right: 10px;
 }
 
-.u-center {
-    text-align: center;
-}

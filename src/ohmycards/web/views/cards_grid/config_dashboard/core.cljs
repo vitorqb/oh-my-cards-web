@@ -6,6 +6,7 @@
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.header.core :as header]
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.inputs.textarea :as inputs.textarea]
@@ -53,9 +54,8 @@
 (defn- header
   "A header with options"
   [{::kws/keys [goto-cards-grid!]}]
-  [:div.cards-grid-config-dashboard__header
-   [:button.icon-button {:on-click #(goto-cards-grid!)}
-    [icons/arrow-left]]])
+  [header/main {:left [:button.icon-button {:on-click #(goto-cards-grid!)}
+                       [icons/arrow-left]]}])
 
 (defn- get-profile-for-save
   "Get's the profile from the state ready to be saved."

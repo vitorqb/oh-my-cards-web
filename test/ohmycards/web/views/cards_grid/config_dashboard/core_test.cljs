@@ -214,8 +214,6 @@
 
     (testing "Renders textarea"
       (let [textarea-props (tu/get-props-for inputs.textarea/main (tu/comp-seq comp))]
-        (cljs.pprint/pprint comp)
-        (cljs.pprint/pprint textarea-props)
         (is (ifn? (:on-change textarea-props)))
         (is (= "foo" (:value textarea-props)))))))
 

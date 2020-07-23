@@ -3,6 +3,7 @@
             [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
+            [ohmycards.web.components.header.core :as header]
             [ohmycards.web.components.inputs.markdown :as inputs.markdown]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
@@ -31,12 +32,9 @@
 (defn- header
   "The header of the edit card page."
   [props]
-  [:div.edit-card-header
-   [:div.edit-card-header__left [go-home-btn props]]
-   [:div.edit-card-header__center
-    [remove-btn props]
-    [update-btn props]]
-   [:div.edit-card-header__right]])
+  [header/main {:left   [go-home-btn props]
+                :center [:<> [remove-btn props]
+                             [update-btn props]]}])
 
 (defn- id-input-row
   [{:keys [state]}]
