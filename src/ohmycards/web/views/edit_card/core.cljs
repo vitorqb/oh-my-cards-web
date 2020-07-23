@@ -30,10 +30,9 @@
    [icons/check]])
 
 (defn- display-btn
-  [{:keys [state] ::kws/keys [goto-displaycard!]}]
-  (let [id (-> @state kws/card-input kws.card/id)]
-    [:button.icon-button.u-color-good {:on-click #(goto-displaycard! id)}
-     [icons/view]]))
+  [props]
+  [:button.icon-button.u-color-good {:on-click #(handlers/goto-displaycard! props)}
+   [icons/view]])
 
 (defn- header
   "The header of the edit card page."

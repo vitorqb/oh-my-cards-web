@@ -34,12 +34,12 @@
    (for [tag (-> @state kws/card kws.card/tags)]
      ^{:key tag} [:span.display-card__tag tag])])
 
-(defn- header [{:keys [state] ::kws/keys [goto-home! goto-editcard!]}]
-  (let [id (-> @state kws/card kws.card/id)]
-    [header/main {:left   [:button.icon-button {:on-click #(goto-home!)}
-                           [icons/arrow-left]]
-                  :center [:button.icon-button.u-color-good {:on-click #(goto-editcard! id)}
-                           [icons/edit]]}]))
+(defn- header [{::kws/keys [goto-home!] :as props}]
+  [header/main
+   {:left   [:button.icon-button {:on-click #(goto-home!)}
+             [icons/arrow-left]]
+    :center [:button.icon-button.u-color-good {:on-click #(handlers/goto-editcard! props)}
+             [icons/edit]]}])
 
 ;;
 ;; API
