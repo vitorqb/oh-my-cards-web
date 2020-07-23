@@ -2,7 +2,7 @@
   (:require [cljs.core.async :as async]
             [ohmycards.web.common.utils :as utils]
             [ohmycards.web.components.current-view.core :as components.current-view]
-            [ohmycards.web.components.header.core :as header]
+            [ohmycards.web.components.app-header.core :as header]
             [ohmycards.web.controllers.action-dispatcher.core
              :as
              controllers.action-dispatcher]
@@ -117,6 +117,8 @@
   "Props for the `edit-card-page`."
   []
   {kws.edit-card/goto-home! #(services.routing/goto! routing.pages/home)
+   kws.edit-card/goto-displaycard! #(services.routing/goto! routing.pages/display-card
+                                                            kws.routing/query-params {:id %})
    kws.edit-card/fetch-card! fetch-card!
    kws.edit-card/cards-metadata (lenses.metadata/cards @state)
    kws.edit-card/confirm-deletion-fn! services.user-question/confirm-card-delete
@@ -138,8 +140,11 @@
 
 ;; Display card
 (defn display-card-page-props []
-  {:state (state-cursor :views.display-card)
-   kws.display-card/fetch-card! fetch-card!})
+  {:state                          (state-cursor :views.display-card)
+   kws.display-card/fetch-card!    fetch-card!
+   kws.display-card/goto-home!     #(services.routing/goto! routing.pages/home)
+   kws.display-card/goto-editcard! #(services.routing/goto! routing.pages/edit-card
+                                                            kws.routing/query-params {:id %})})
 
 (defn display-card-page []
   [display-card/main (display-card-page-props)])
@@ -290,6 +295,9 @@
 
       routing.pages/home
       (controllers.cards-grid/hydra-head)
+
+      routing.pages/display-card
+      (display-card.handlers/hydra-head (display-card-page-props))
 
       nil)))
 

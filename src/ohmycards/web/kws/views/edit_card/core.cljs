@@ -1,6 +1,7 @@
 (ns ohmycards.web.kws.views.edit-card.core)
 
 (def goto-home! "A fn that navigates to the home view." ::goto-home!)
+(def goto-displaycard! "A fn that navigates to the display card view (with id)." ::goto-displaycard!)
 (def fetch-card! "A fn that is used to fetch the card." ::fetch-card!)
 (def cards-metadata "Metadata for cards." ::cards-metadata)
 (def confirm-deletion-fn!

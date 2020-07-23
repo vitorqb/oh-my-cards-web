@@ -1,0 +1,14 @@
+// A generic icon button, which expected to have an <i> inside with an icon.
+.icon-button {
+    @include clear-button;
+
+    transition: all 0.25s;
+
+    &:hover, &:focus {
+        outline: none !important;
+        transform: scale(1.1) translateY(1px);
+        border: 2px solid $color-primary;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+}

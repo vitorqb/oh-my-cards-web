@@ -1,0 +1,9 @@
+.app-header {
+    &.header {
+        padding: 5px 0 5px 0;
+        margin: 0px 0px 15px 0px;
+
+        background-color: $color-primary-dark;
+        color: $color-white;
+    }
+}

@@ -17,5 +17,5 @@
        {:auto-focus true
         :value      value
         :on-change  #(-> % .-target .-value on-change)}]
-      [:button.clear-button.cards-grid-control-filter__submit-btn [icons/check]]]]))
+      [:button.icon-button.cards-grid-control-filter__submit-btn [icons/check]]]]))
 

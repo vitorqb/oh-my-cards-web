@@ -7,7 +7,7 @@
 @import "forms";
 @import "error-message-box";
 @import "loading-wrapper";
-@import "header";
+@import "app-header";
 @import "cards-grid";
 @import "cards-grid/config-dashboard";
 @import "new-card";
@@ -24,6 +24,9 @@
 @import "spinner";
 @import "current-view";
 @import "display-card";
+@import "header";
+
+@import "buttons";
 
 body {
   font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
@@ -77,10 +80,14 @@ a:hover {
     @include clear-button;
 }
 
-.u-color-good {
-    color: green;
+
+.logo {
+    font-size: 20px;
+    letter-spacing: 0.5px;
+    font-weight: 600;
 }
 
-.u-center {
-    text-align: center;
+.label {
+    padding-right: 10px;
 }
+

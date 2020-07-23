@@ -1,10 +1,6 @@
 $cards-width: 340px;
 $cards-height: 400px;
 
-.cards-grid-header {
-    @include header3;
-}
-
 .cards-grid {
     display: flex;
     flex-wrap: wrap;
@@ -104,7 +100,7 @@ $cards-height: 400px;
         width: 500px;
     }
 
-    .clear-button, &__submit-btn {
+    .icon-button, &__submit-btn {
         color: $color-good;
         font-size: 1.25rem;
         transform: translateY(3px);

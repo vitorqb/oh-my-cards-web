@@ -1,9 +1,11 @@
 .display-card {
 
-    min-width: 600px;
-    max-width: 1000px;
-    width: 70%;
-    margin: 25px auto;
+    &__content {
+        min-width: 600px;
+        max-width: 1000px;
+        width: 70%;
+        margin: 25px auto;
+    }
 
     &__header {
         text-align: center;

@@ -14,28 +14,31 @@
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.edit-card.core :as sut]))
 
+(deftest test-display-btn
+  (testing "Calls `goto-displaycard!` with id"
+    (let [goto-displaycard! #(do [::result %])
+          state (atom {kws/card-input {kws.card/id 1}})
+          props {:state state kws/goto-displaycard! goto-displaycard!}
+          on-click (-> props sut/display-btn second :on-click)]
+      (is (= (on-click 1) [::result 1])))))
+
 (deftest test-header
 
-  (testing "Has a go-home btn"
-    (let [props {::foo 1}]
-      (is
-       (some
-        #(= [sut/go-home-btn props] %)
-        (tu/comp-seq (sut/header props))))))
+  (let [props {::foo 1}
+        comp (sut/header props)
+        comp-seq (tu/comp-seq comp)]
 
-  (testing "Has a remove-btn"
-    (let [props {::foo 1}]
-      (is
-       (some
-        #(= [sut/remove-btn props] %)
-        (tu/comp-seq (sut/header props))))))
+    (testing "Has a go-home btn"
+      (is (some #(= [sut/go-home-btn props] %) comp-seq)))
 
-  (testing "Has a update-btn"
-    (let [props {::foo 1}]
-      (is
-       (some
-        #(= [sut/update-btn props] %)
-        (tu/comp-seq (sut/header props)))))))
+    (testing "Has a remove-btn"
+      (is (some #(= [sut/remove-btn props] %) comp-seq)))
+
+    (testing "Has a update-btn"
+      (is (some #(= [sut/update-btn props] %) comp-seq)))
+
+    (testing "Has a display-btn"
+      (is (some #(= [sut/display-btn props] %) comp-seq)))))
 
 (deftest test-id-input-row
   (let [state (atom {kws/card-input {kws.card/id "FOO"}})]

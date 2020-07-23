@@ -1,8 +1,10 @@
 (ns ohmycards.web.views.display-card.core
-  (:require [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
+  (:require [ohmycards.web.components.header.core :as header]
+            [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.components.markdown-displayer.core
              :as
              markdown-displayer]
+            [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.views.display-card.core :as kws]
             [ohmycards.web.views.display-card.handlers :as handlers]))
@@ -32,6 +34,13 @@
    (for [tag (-> @state kws/card kws.card/tags)]
      ^{:key tag} [:span.display-card__tag tag])])
 
+(defn- header [{::kws/keys [goto-home!] :as props}]
+  [header/main
+   {:left   [:button.icon-button {:on-click #(goto-home!)}
+             [icons/arrow-left]]
+    :center [:button.icon-button.u-color-good {:on-click #(handlers/goto-editcard! props)}
+             [icons/edit]]}])
+
 ;;
 ;; API
 ;; 
@@ -40,9 +49,11 @@
   [{:keys [state] :as props}]
   [:div.display-card
    [loading-wrapper/main {:loading? (kws/loading? @state)}
-    [:div.display-card__header
-     [id props]
-     [extra-info props]
-     [title props]]
-    [body props]
-    [footer props]]])
+    [header props]
+    [:div.display-card__content
+     [:div.display-card__header
+      [id props]
+      [extra-info props]
+      [title props]]
+     [body props]
+     [footer props]]]])

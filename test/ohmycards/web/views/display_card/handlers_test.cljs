@@ -1,5 +1,6 @@
 (ns ohmycards.web.views.display-card.handlers-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.services.cards-crud.core :as kws.services.cards-crud]
             [ohmycards.web.kws.views.display-card.core :as kws]
             [ohmycards.web.views.display-card.handlers :as sut]))
@@ -29,3 +30,11 @@
     (testing "Set's error message"
       (is (= "B" (kws/error-message (sut/reduce-after-fetch-card {} bad-response)))))))
 
+(deftest test-goto-editcard!
+
+  (testing "Calls goto-editcard! from props with id"
+    (let [id             1
+          state          (atom {kws/card {kws.card/id id}})
+          goto-editcard! #(do [::result %])
+          props          {:state state kws/goto-editcard! goto-editcard!}]
+      (is (= [::result id] (sut/goto-editcard! props))))))

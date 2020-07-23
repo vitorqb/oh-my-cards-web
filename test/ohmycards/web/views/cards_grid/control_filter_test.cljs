@@ -35,5 +35,5 @@
               (is (= ::result ((:on-submit form-props) #js{:preventDefault #(do)})))))
 
           (testing "has submit button"
-            (is (tu/exists-in-component? :button.clear-button.cards-grid-control-filter__submit-btn
+            (is (tu/exists-in-component? :button.icon-button.cards-grid-control-filter__submit-btn
                                          component-seq))))))))

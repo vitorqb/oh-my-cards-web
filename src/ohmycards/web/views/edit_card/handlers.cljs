@@ -66,6 +66,11 @@
     (let [resp (a/<! (cards-crud/update! {:http-fn http-fn} (-> @state kws/card-input)))]
       (swap! state reduce-after-update resp))))
 
+(defn goto-displaycard!
+  "Navigates to the page that displays the card."
+  [{:keys [state] ::kws/keys [goto-displaycard!]}]
+  (-> @state kws/card-input kws.card/id goto-displaycard!))
+
 (defn hydra-head
   "Returns an hydra head for the contextual actions dispatcher."
   [props]
@@ -79,6 +84,10 @@
                             kws.hydra/description "Delete"
                             kws.hydra/type        kws.hydra/leaf
                             kws.hydra.leaf/value  #(delete-card! props)}
+                           {kws.hydra/shortcut    \v
+                            kws.hydra/description "View (Display)"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(goto-displaycard! props)}
                            {kws.hydra/shortcut    \q
                             kws.hydra/description "Quit"
                             kws.hydra/type        kws.hydra/leaf
