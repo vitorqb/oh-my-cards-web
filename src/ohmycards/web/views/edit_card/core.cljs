@@ -29,12 +29,19 @@
   [:button.icon-button.u-color-good {:on-click #(handlers/update-card! props)}
    [icons/check]])
 
+(defn- display-btn
+  [{:keys [state] ::kws/keys [goto-displaycard!]}]
+  (let [id (-> @state kws/card-input kws.card/id)]
+    [:button.icon-button.u-color-good {:on-click #(goto-displaycard! id)}
+     [icons/view]]))
+
 (defn- header
   "The header of the edit card page."
   [props]
   [header/main {:left   [go-home-btn props]
                 :center [:<> [remove-btn props]
-                             [update-btn props]]}])
+                             [update-btn props]
+                             [display-btn props]]}])
 
 (defn- id-input-row
   [{:keys [state]}]

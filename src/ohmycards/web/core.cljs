@@ -117,6 +117,8 @@
   "Props for the `edit-card-page`."
   []
   {kws.edit-card/goto-home! #(services.routing/goto! routing.pages/home)
+   kws.edit-card/goto-displaycard! #(services.routing/goto! routing.pages/display-card
+                                                            kws.routing/query-params {:id %})
    kws.edit-card/fetch-card! fetch-card!
    kws.edit-card/cards-metadata (lenses.metadata/cards @state)
    kws.edit-card/confirm-deletion-fn! services.user-question/confirm-card-delete
