@@ -1,5 +1,9 @@
 (ns ohmycards.web.views.display-card.handlers
   (:require [cljs.core.async :as async]
+            [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
+            [ohmycards.web.kws.hydra.core :as kws.hydra]
+            [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
             [ohmycards.web.kws.services.cards-crud.core :as kws.services.cards-crud]
             [ohmycards.web.kws.views.display-card.core :as kws]))
 
@@ -19,6 +23,11 @@
       success? (assoc kws/card (kws.services.cards-crud/read-card response))
       (not success?) (assoc kws/error-message (kws.services.cards-crud/error-message response)))))
 
+(defn- goto-editcard!
+  "Navigates to the page that edit the current card."
+  [{:keys [state] ::kws/keys [goto-editcard!]}]
+  (-> @state kws/card kws.card/id goto-editcard!))
+
 ;;
 ;; API
 ;; 
@@ -29,3 +38,17 @@
   (swap! state reduce-before-fetch-card)
   (async/go
     (swap! state reduce-after-fetch-card (async/<! (fetch-card! card-id)))))
+
+(defn hydra-head
+  "Returns an hydra head for the contextual actions dispatcher."
+  [props]
+  {kws.hydra/type         kws.hydra/branch
+   kws.hydra.branch/name  "Edit Card Hydra"
+   kws.hydra.branch/heads [{kws.hydra/shortcut    \e
+                            kws.hydra/description "Edit"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(goto-editcard! props)}
+                           {kws.hydra/shortcut    \q
+                            kws.hydra/description "Quit"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(do)}]})

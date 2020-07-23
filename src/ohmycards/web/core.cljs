@@ -296,6 +296,9 @@
       routing.pages/home
       (controllers.cards-grid/hydra-head)
 
+      routing.pages/display-card
+      (display-card.handlers/hydra-head (display-card-page-props))
+
       nil)))
 
 
