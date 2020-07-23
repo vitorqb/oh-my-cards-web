@@ -48,31 +48,37 @@
          "updated B"]
         component)))))
 
+(deftest test-header
+
+  (testing "Renders button with goto-home!"
+    (let [props {kws/goto-home! #(do ::result)}
+          header (sut/header props)
+          on-click-fn (-> header second :left second :on-click)]
+      (is (= ::result (on-click-fn))))))
+
 (deftest test-main
 
-  (testing "Display loading-wrapper as second arg"
-    (let [state (atom {kws/loading? true})
-          [el props] (-> {:state state} sut/main second)]
-      (is (= el loading-wrapper/main))
-      (is (= {:loading? true} props))))
+  (testing "Loading rendering"
+    
+    (testing "Display loading-wrapper as second arg"
+      (let [state (atom {kws/loading? true})
+            [el props] (-> {:state state} sut/main second)]
+        (is (= el loading-wrapper/main))
+        (is (= {:loading? true} props)))))
 
-  (testing "Displays title"
-    (let [props {:state (atom nil)}]
-      (is
-       (tu/exists-in-component?
-        [sut/title props]
-        (tu/comp-seq (sut/main props))))))
+  (testing "Non-loading rendering"
 
-  (testing "Displays body inside markdown"
-    (let [props {:state (atom nil)}]
-      (is
-       (tu/exists-in-component?
-        [sut/body props]
-        (tu/comp-seq (sut/main props))))))
+    (let [props {:state (atom nil)}
+          comp-seq (tu/comp-seq (sut/main props))]
 
-  (testing "Displays extra info"
-    (let [props {:state (atom nil)}]
-      (is
-       (tu/exists-in-component?
-        [sut/extra-info props]
-        (tu/comp-seq (sut/main props)))))))
+      (testing "Displays title"
+        (is (tu/exists-in-component? [sut/title props] comp-seq)))
+
+      (testing "Displays body inside markdown"
+        (is (tu/exists-in-component? [sut/body props] comp-seq)))
+
+      (testing "Displays extra info"
+        (is (tu/exists-in-component? [sut/extra-info props] comp-seq)))
+
+      (testing "Displays header"
+        (is (tu/exists-in-component? [sut/header props] comp-seq))))))

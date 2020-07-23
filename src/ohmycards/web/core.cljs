@@ -139,7 +139,8 @@
 ;; Display card
 (defn display-card-page-props []
   {:state (state-cursor :views.display-card)
-   kws.display-card/fetch-card! fetch-card!})
+   kws.display-card/fetch-card! fetch-card!
+   kws.display-card/goto-home!  #(services.routing/goto! routing.pages/home)})
 
 (defn display-card-page []
   [display-card/main (display-card-page-props)])
