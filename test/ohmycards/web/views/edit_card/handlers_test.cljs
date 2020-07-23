@@ -105,6 +105,15 @@
       (is (= card
              (kws/card-input (sut/reduce-after-update {} {kws.cards-crud/updated-card card})))))))
 
+(deftest test-goto-displaycard!
+
+  (testing "Calls goto-displaycard! prop with the id"
+    (let [id                1
+          state             (atom {kws/card-input {kws.card/id id}})
+          goto-displaycard! #(do [::result %])
+          props             {:state state kws/goto-displaycard! goto-displaycard!}]
+      (is (= [::result 1] (sut/goto-displaycard! props))))))
+
 (deftest test-hydra-head
 
   (let [props {::foo 1}]
@@ -126,9 +135,18 @@
           (is (= "Delete" (kws.hydra/description delete-action)))
           (is (= kws.hydra/leaf (kws.hydra/type delete-action)))
           (is (= [::delete-card props] ((kws.hydra.leaf/value delete-action)))))))
-    
+
+    (testing "View (Display) action calls delete-card!"
+      (with-redefs [sut/goto-displaycard! #(do [::goto-displaycard! %1])]
+        (let [goto-displaycard-action (-> props sut/hydra-head kws.hydra.branch/heads (get 2))
+              goto-displaycard-value (kws.hydra.leaf/value goto-displaycard-action)]
+          (is (= \v (kws.hydra/shortcut goto-displaycard-action)))
+          (is (= "View (Display)" (kws.hydra/description goto-displaycard-action)))
+          (is (= kws.hydra/leaf (kws.hydra/type goto-displaycard-action)))
+          (is (= [::goto-displaycard! props] ((kws.hydra.leaf/value goto-displaycard-action)))))))
+
     (testing "Quit action"
-      (let [quit-action (-> props sut/hydra-head kws.hydra.branch/heads (get 2))
+      (let [quit-action (-> props sut/hydra-head kws.hydra.branch/heads (get 3))
             quit-action-value (kws.hydra.leaf/value quit-action)]
         (is (= \q (kws.hydra/shortcut quit-action)))
         (is (= "Quit" (kws.hydra/description quit-action)))
