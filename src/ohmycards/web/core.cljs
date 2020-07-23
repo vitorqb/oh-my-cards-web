@@ -138,9 +138,11 @@
 
 ;; Display card
 (defn display-card-page-props []
-  {:state (state-cursor :views.display-card)
-   kws.display-card/fetch-card! fetch-card!
-   kws.display-card/goto-home!  #(services.routing/goto! routing.pages/home)})
+  {:state                          (state-cursor :views.display-card)
+   kws.display-card/fetch-card!    fetch-card!
+   kws.display-card/goto-home!     #(services.routing/goto! routing.pages/home)
+   kws.display-card/goto-editcard! #(services.routing/goto! routing.pages/edit-card
+                                                            kws.routing/query-params {:id %})})
 
 (defn display-card-page []
   [display-card/main (display-card-page-props)])

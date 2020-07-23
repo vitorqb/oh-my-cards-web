@@ -51,10 +51,18 @@
 (deftest test-header
 
   (testing "Renders button with goto-home!"
-    (let [props {kws/goto-home! #(do ::result)}
-          header (sut/header props)
+    (let [state       (atom {})
+          props       {:state state kws/goto-home! #(do ::result)}
+          header      (sut/header props)
           on-click-fn (-> header second :left second :on-click)]
-      (is (= ::result (on-click-fn))))))
+      (is (= ::result (on-click-fn)))))
+
+  (testing "Renders button with goto-editcard!"
+    (let [state       (atom {kws/card {kws.card/id 1}})
+          props       {:state state kws/goto-editcard! #(do [::result %])}
+          header      (sut/header props)
+          on-click-fn (-> header second :center second :on-click)]
+      (is (= [::result 1] (on-click-fn))))))
 
 (deftest test-main
 
