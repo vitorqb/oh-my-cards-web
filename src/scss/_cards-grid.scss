@@ -72,6 +72,7 @@ $cards-height: 400px;
 .tags-displayer {
     line-height: 1em;
     max-height: 3.2em;
+    min-height: 1.75em;
     overflow: auto;
     &__tag {
         display: inline-block;
