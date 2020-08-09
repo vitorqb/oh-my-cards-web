@@ -9,10 +9,7 @@ jobs:
       - checkout
       - restore_cache:
           key: ohmycardsweb
-      - run: |
-          npm install
-          make build/test 
-          make karma KARMA_OPTS='--single-run'
+      - run: make install build/test karma KARMA_OPTS='--single-run'
       - save_cache:
           paths: [~/.m2]
           key: ohmycardsweb          
@@ -31,7 +28,15 @@ jobs:
           docker push "vitorqb23/ohmycards-web:$(git describe --tags)"    
       - save_cache:
           paths: [~/.m2]
-          key: ohmycardsweb          
+          key: ohmycardsweb
+
+  compile_scss:
+    docker:
+      - image: circleci/node:lts
+    steps:
+      - checkout
+      - run: make install scss/once
+
 
 workflows:
   version: 2
@@ -48,3 +53,11 @@ workflows:
                 - master
             tags:
               only: /^[0-9]+\.[0-9]+\.[0-9]+$/
+  compile_scss:
+    jobs:
+      - compile_scss:
+          filters:
+            branches:
+              ignore:
+                - master
+
