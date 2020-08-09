@@ -3,7 +3,7 @@ version: "3.8"
 services:
 
   backend:
-    image: 'ohmycards:latest'
+    image: '${OHMYCARDS_WEB_BE_IMAGE:-ohmycards}'
     ports:
       - '${OHMYCARDS_WEB_BE_PORT}:8000'
     volumes:
