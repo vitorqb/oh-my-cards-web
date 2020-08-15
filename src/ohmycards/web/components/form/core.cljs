@@ -20,10 +20,11 @@
    (utils.components/with-seq-keys children)])
 
 (defn row
-  "A single row for the form, usually containing a label and an input."
-  [_ & children]
+  "A single row for the form. It contains a label and an input."
+  [{:keys [label input]}]
   [:div.simple-form__input-row {}
-   (utils.components/with-seq-keys children)])
+   (if label [:div.simple-form__label label])
+   [:div.simple-form__input input]])
 
 (defn label
   "A label for a form input, usually comming before the input."

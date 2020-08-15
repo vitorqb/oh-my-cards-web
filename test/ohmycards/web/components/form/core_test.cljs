@@ -22,3 +22,17 @@
     (let [event (clj->js {:preventDefault #(do)})
           handler (sut/gen-submit-handler #(do ::result))]
       (is (= ::result (handler event))))))
+
+(deftest test-row
+
+  (testing "Base"
+    (is (= [:div.simple-form__input-row {}
+            [:div.simple-form__label "LABEL"]
+            [:div.simple-form__input [::my-input]]]
+           (sut/row {:input [::my-input] :label "LABEL"}))))
+
+  (testing "No label"
+    (is (= [:div.simple-form__input-row {}
+            nil
+            [:div.simple-form__input [::my-input]]]
+           (sut/row {:input [::my-input]})))))

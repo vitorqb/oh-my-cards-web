@@ -64,15 +64,23 @@
     (is (ifn? (:on-change props)))))
 
 (deftest test-tags-input-row
+
   (testing "Renders a tags input"
-    (with-redefs [form.input/build-props #(do {:state %1 :path %2})]
-      (is
-       (tu/exists-in-component?
-        [inputs.tags/main {:state ::state
-                           :path [kws/card-input kws.card/tags]
-                           kws.inputs.tags/all-tags ["A"]}]
-        (sut/tags-input-row {:state ::state
-                             kws/cards-metadata {kws.card-metadata/tags ["A"]}}))))))
+    (let [path [kws/card-input kws.card/tags]
+          state (atom (assoc-in {} path ::value))
+          cards-metadata {kws.card-metadata/tags ["A"]}
+          component (sut/tags-input-row {:state state kws/cards-metadata cards-metadata})
+          [_ form-row-props] component
+          [_ input-props] (:input form-row-props)]
+
+      (testing "Passes value"
+        (is (= ::value (:value input-props))))
+
+      (testing "Passes on-change"
+        (is (fn? (:on-change input-props))))
+
+      (testing "Passes all-tags"
+        (is (= ["A"] (kws.inputs.tags/all-tags input-props)))))))
 
 (deftest test-form
 

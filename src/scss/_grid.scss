@@ -1,0 +1,15 @@
+.grid {
+
+    &__row {
+        display: flex;
+        &:not(:last-child) {
+            margin-bottom: 20px;
+        }
+    }
+
+    &__cell {
+        &:not(:last-child) {
+            margin-right: 20px;
+        }
+    }
+}
