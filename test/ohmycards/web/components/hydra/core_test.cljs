@@ -1,6 +1,6 @@
 (ns ohmycards.web.components.hydra.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
-            [ohmycards.web.components.form.input :as input]
+            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.hydra.core :as sut]
             [ohmycards.web.kws.components.hydra.core :as kws]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
@@ -39,7 +39,7 @@
 
     (testing "Renders the main input"
       (let [props       (gen-props kws/path "a")
-            input-props (tu/get-props-for input/main (sut/main props))]
+            input-props (tu/get-props-for inputs.simple/main (sut/main props))]
         (is (= "a" (:value input-props)))
         (is (fn? (:on-change input-props)))
         (is (= "hydra__input" (:class input-props)))))

@@ -1,7 +1,6 @@
 (ns ohmycards.web.views.new-card.form-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.form.core :as form]
-            [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.markdown :as inputs.markdown]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.kws.card :as kws.card]

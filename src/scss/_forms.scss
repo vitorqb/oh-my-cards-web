@@ -3,19 +3,9 @@
     max-width: 800px;
     margin: 0px auto;
 
-    &__input-row {
+    &__row {
         &:not(:last-child) {
             padding-bottom: 20px;
-        }
-    }
-    
-    &__label {
-    }
-
-    &__input {
-        width: 100%;
-        &--small {
-            width: 50px;
         }
     }
 }

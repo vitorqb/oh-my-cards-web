@@ -26,13 +26,13 @@
 (deftest test-row
 
   (testing "Base"
-    (is (= [:div.simple-form__input-row {}
+    (is (= [:div.simple-form__row {}
             [:div.simple-form__label "LABEL"]
-            [:div.simple-form__input [::my-input]]]
+            [:div.simple-input [::my-input]]]
            (sut/row {:input [::my-input] :label "LABEL"}))))
 
   (testing "No label"
-    (is (= [:div.simple-form__input-row {}
+    (is (= [:div.simple-form__row {}
             nil
-            [:div.simple-form__input [::my-input]]]
+            [:div.simple-input [::my-input]]]
            (sut/row {:input [::my-input]})))))

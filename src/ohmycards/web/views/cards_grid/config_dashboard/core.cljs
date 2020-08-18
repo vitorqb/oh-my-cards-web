@@ -5,7 +5,7 @@
             [ohmycards.web.common.tags.core :as tags]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
-            [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.header.core :as header]
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
@@ -45,7 +45,7 @@
 (defn input-props
   "Applies smart default to input props before sending it to `input/build-props`."
   [state path coercer & args]
-  (apply form.input/build-props state path
+  (apply inputs.simple/build-props state path
          :class "cards-grid-config-dashboard__input"
          :parse-fn #(coercion/main % coercer)
          :unparse-fn kws.coercion.result/raw-value
@@ -82,8 +82,8 @@
                        :set-fn #(-> @state (get-in path) kws.coercion.result/value set-page!)}
         set-btn       [set-btn set-btn-props]
         input-props   (assoc (input-props state path positive-int-or-nil-coercer)
-                             :class "simple-form__input simple-form__input--small")
-        input         [:<> [form.input/main input-props] set-btn]]
+                             :class "simple-input simple-input--small")
+        input         [:<> [inputs.simple/main input-props] set-btn]]
     [form/row {:label "Page" :input input}]))
 
 (defn- page-size-config
@@ -95,8 +95,8 @@
                        :set-fn #(-> @state (get-in path) kws.coercion.result/value set-page-size!)}
         set-btn       [set-btn set-btn-props]
         input-props   (-> (input-props state path positive-int-or-nil-coercer)
-                          (assoc :class "simple-form__input simple-form__input--small"))
-        input         [:<> [form.input/main input-props] set-btn]]
+                          (assoc :class "simple-input simple-input--small"))
+        input         [:<> [inputs.simple/main input-props] set-btn]]
     [form/row {:label "Page Size" :input input}]))
 
 (defn- include-tags-config
@@ -169,7 +169,7 @@
         extra-comp       (if profile-for-save
                            [set-btn set-btn-props]
                            [error-message-box/main {:value "Invalid values prevent save!"}])
-        input            [:<> [form.input/main input-props] extra-comp]]
+        input            [:<> [inputs.simple/main input-props] extra-comp]]
     [form/row {:label "Save Profile" :input input}]))
 
 (defn- grid-config

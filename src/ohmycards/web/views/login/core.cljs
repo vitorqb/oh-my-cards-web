@@ -2,7 +2,7 @@
   (:require [cljs.core.async :as a]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
-            [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.views.login.email-row :as email-row]
             [ohmycards.web.views.login.handlers.submit :as handlers.submit]))
@@ -21,7 +21,7 @@
                        :value     value
                        :on-change on-change
                        :autoFocus true}
-          input       [form.input/main input-props]]
+          input       [inputs.simple/main input-props]]
       [form/row {:label "Password"
                  :input input}])))
 

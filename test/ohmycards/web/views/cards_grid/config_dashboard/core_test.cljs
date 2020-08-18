@@ -3,7 +3,7 @@
             [ohmycards.web.common.coercion.coercers :as coercers]
             [ohmycards.web.common.coercion.result :as coercion.result]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
-            [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
@@ -123,7 +123,7 @@
         (testing "Renders input"
           (is
            (tu/exists-in-component?
-            [form.input/main
+            [inputs.simple/main
              (sut/input-props state [kws/save-profile-name] sut/string-with-min-len-2)]
             (tu/comp-seq input))))
 
@@ -178,7 +178,7 @@
 
     (testing "Contains input with value"
       (let [props {:state (atom {kws/config {kws.config/page coerced-value}})}
-            [_ input-props] (tu/get-first #(= (tu/safe-first %) form.input/main)
+            [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.simple/main)
                                           (tu/comp-seq (sut/page-config props)))]
         (is (= (:value input-props) "2"))))))
 
@@ -188,7 +188,7 @@
 
     (testing "Contains input with value"
       (let [props {:state (atom {kws/config {kws.config/page-size coerced-value}})}
-            [_ input-props] (tu/get-first #(= (tu/safe-first %) form.input/main)
+            [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.simple/main)
                                           (tu/comp-seq (sut/page-size-config props)))]
         (is (= (:value input-props) "20"))))))
 

@@ -1,4 +1,4 @@
-(ns ohmycards.web.components.form.input)
+(ns ohmycards.web.components.inputs.simple)
 
 (defn- gen-input-on-change-handler
   "Returns a on-change handler that calls `on-change` with the new input value."
@@ -26,4 +26,4 @@
   [:input
    (-> props
        (update :on-change gen-input-on-change-handler)
-       (update :class #(or % "simple-form__input")))])
+       (update :class #(or % "simple-input")))])
