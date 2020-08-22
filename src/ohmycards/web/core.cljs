@@ -185,6 +185,7 @@
   []
   {:http-fn http-fn
    :state (state-cursor :views.new-card)
+   :path-to! services.routing/path-to!
    kws.new-card/goto-home! #(services.routing/goto! routing.pages/home)
    kws.new-card/cards-metadata (lenses.metadata/cards @state)})
 
