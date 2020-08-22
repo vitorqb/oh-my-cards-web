@@ -11,20 +11,29 @@
             [ohmycards.web.views.new-card.handlers.create-card
              :as
              handlers.create-card]
-            [ohmycards.web.views.new-card.header :as header]))
+            [ohmycards.web.views.new-card.header :as header]
+            [ohmycards.web.kws.services.routing.pages :as pages]))
 
-(defn- success-message [x] (and x (str "Created card with uuid " (kws.card/id x))))
+(defn- success-message [{:keys [created-card path-to!]}]
+  (when created-card
+    (let [query-params {:id (kws.card/id created-card)}
+          path (path-to! pages/display-card {:query-params query-params})]
+      [:<>
+       [:span "Created card with uuid "]
+       [:a {:href path} (kws.card/id created-card)]])))
 
 (defn main
   "A view to add a new card."
   [{:keys [state] :as props}]
-  [:div.new-card
-   [loading-wrapper/main {:loading? (kws/loading? @state)}
-    [header/main props]
-    [:div.u-center
-     [error-message-box/main {:value (kws/error-message @state)}]
-     [good-message-box/main {:value (-> @state kws/created-card success-message)}]]
-    [form/main props]]])
+  (let [success-message-el [success-message {:created-card (kws/created-card @state)
+                                             :path-to! (:path-to! props)}]]
+    [:div.new-card
+     [loading-wrapper/main {:loading? (kws/loading? @state)}
+      [header/main props]
+      [:div.u-center
+       [error-message-box/main {:value (kws/error-message @state)}]
+       [good-message-box/main {:value success-message-el}]]
+      [form/main props]]]))
 
 (defn hydra-head
   "Returns hydra heads for the contextual menu."

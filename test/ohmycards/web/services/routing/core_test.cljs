@@ -1,8 +1,16 @@
 (ns ohmycards.web.services.routing.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
-            [ohmycards.web.services.events-bus.core :as event-bus]
             [ohmycards.web.kws.services.routing.core :as kws]
-            [ohmycards.web.services.routing.core :as sut]))
+            [ohmycards.web.services.events-bus.core :as event-bus]
+            [ohmycards.web.services.routing.core :as sut]
+            [reitit.frontend :as rf]))
+
+(def routes
+  "Routes used for testing"
+  [["/" {}
+    ["" {:name :home}]
+    ["foo" {:name :foo}]
+    ["bar/:id" {:name :bar}]]])
 
 (deftest test-do-route!
 
@@ -50,3 +58,10 @@
       (with-redefs [sut/run-hook! #(swap! args conj [%1 %2])]
         (sut/run-view-hooks! old-match new-match)
         (is (= [[kws/exit-hook old-match] [kws/enter-hook new-match]] @args))))))
+
+(deftest test-path-to!
+  (is (= "/#/" (sut/path-to! :home {} (rf/router routes))))
+  (is (= "/#/foo" (sut/path-to! :foo {} (rf/router routes))))
+  (is (= "/#/foo?id=1" (sut/path-to! :foo {:query-params {:id 1}} (rf/router routes))))
+  (is (= "/#/bar/1?id=2" (sut/path-to! :bar {:query-params {:id 2} :path-params {:id 1}}
+                                       (rf/router routes)))))

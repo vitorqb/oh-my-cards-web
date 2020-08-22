@@ -13,6 +13,24 @@
              handlers.create-card]
             [ohmycards.web.views.new-card.header :as header]))
 
+(deftest test-success-message
+  (let [created-card {kws.card/id "1"}
+        path-to! #(str "/#/" (name %1) "?id=" (-> %2 :query-params :id))
+        props {:created-card created-card :path-to! path-to!}]
+
+    (testing "Nil if no created-card"
+      (let [props (dissoc props :created-card)]
+        (is (nil? (sut/success-message props)))))
+
+    (testing "Renders span with text"
+      (let [comp (sut/success-message props)]
+        (is (tu/exists-in-component? [:span "Created card with uuid "] (tu/comp-seq comp)))))
+
+    (testing "Renders link with href"
+      (let [comp (sut/success-message props)]
+        (is (tu/exists-in-component? [:a {:href "/#/display-card?id=1"} "1"]
+                                     (tu/comp-seq comp)))))))
+
 (deftest test-main
 
   (testing "Renders a new-card div in the first place"
@@ -26,11 +44,14 @@
         (tu/comp-seq (sut/main props))))))
 
   (testing "Has success msg box"
-    (let [props {:state (atom {kws/created-card {kws.card/id "foo"}})}]
-      (is
-       (some
-        #(= [good-message-box/main {:value "Created card with uuid foo"}] %)
-        (tu/comp-seq (sut/main props))))))
+    (let [created-card {kws.card/id "foo"}
+          path-to! #(do)
+          props {:state (atom {kws/created-card created-card})
+                 :path-to! path-to!}]
+      (is (tu/exists-in-component?
+           [good-message-box/main {:value [sut/success-message {:created-card created-card
+                                                                :path-to! path-to!}]}]
+           (tu/comp-seq (sut/main props))))))
 
   (testing "Has error box"
     (let [props {:state (atom {kws/error-message "FOO"})}]

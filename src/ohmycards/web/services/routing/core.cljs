@@ -2,6 +2,7 @@
   (:require [ohmycards.web.kws.services.routing.core :as kws]
             [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.utils.logging :as logging]
+            [reitit.core :as r]
             [reitit.frontend :as rf]
             [reitit.frontend.easy :as rfe]))
 
@@ -10,7 +11,8 @@
 ;;
 ;; State
 ;;
-(def ^:private ^:dynamic *state* nil)
+(defonce ^:private ^:dynamic *state* nil)
+(defonce ^:private ^:dynamic *router* nil)
 
 ;;
 ;; Helpers
@@ -58,8 +60,9 @@
   [raw-routes routing-state]
   (log "Starting with" raw-routes routing-state)
   (set! *state* routing-state)
+  (set! *router* (rf/router raw-routes))
   (rfe/start!
-   (rf/router raw-routes)
+   *router*
    (fn [match _] (do-route! *state* match))
    {:use-fragment true}))
 
@@ -68,3 +71,17 @@
   after a login actions."
   []
   (run-hook! kws/update-hook @*state*))
+
+(defn path-to!
+  "Returns the link to a given view name."
+  ([view-name]
+   (path-to! view-name nil *router*))
+
+  ([view-name opts]
+   (path-to! view-name opts *router*))
+  
+  ([view-name opts router]
+   (let [match (r/match-by-name router view-name (:path-params opts))
+         path (r/match->path match (:query-params opts))
+         path-with-hash (str "/#" path)]
+     path-with-hash)))
