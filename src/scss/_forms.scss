@@ -3,20 +3,9 @@
     max-width: 800px;
     margin: 0px auto;
 
-    &__input-row {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding-bottom: 10px;
-    }
-    
-    &__label {
-        width: 25%;
-        text-align: right;
-        padding-right: 10px;
-    }
-
-    &__input {
-        width: 60%;
+    &__row {
+        &:not(:last-child) {
+            padding-bottom: 20px;
+        }
     }
 }

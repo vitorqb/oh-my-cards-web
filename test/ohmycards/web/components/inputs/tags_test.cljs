@@ -1,6 +1,5 @@
 (ns ohmycards.web.components.inputs.tags-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
-            [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as sut]
             [ohmycards.web.kws.components.inputs.combobox.core

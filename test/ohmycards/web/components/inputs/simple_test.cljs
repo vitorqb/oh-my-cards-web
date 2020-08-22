@@ -1,5 +1,5 @@
-(ns ohmycards.web.components.form.input-test
-  (:require [ohmycards.web.components.form.input :as sut]
+(ns ohmycards.web.components.inputs.simple-test
+  (:require [ohmycards.web.components.inputs.simple :as sut]
             [cljs.test :refer-macros [is are deftest testing use-fixtures async]]))
 
 (deftest test-gen-input-on-change-handler
@@ -11,7 +11,7 @@
 
   (testing "Defaults class"
     (let [[_ props] (sut/main {})]
-      (is (= "simple-form__input" (:class props)))))
+      (is (= "simple-input" (:class props)))))
 
   (testing "Keeps class if passed"
     (let [[_ props] (sut/main {:class "FOO"})]

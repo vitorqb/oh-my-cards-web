@@ -1,6 +1,5 @@
 (ns ohmycards.web.components.form.core
-  (:require [ohmycards.web.components.form.input :as input]
-            [ohmycards.web.utils.components :as utils.components]
+  (:require [ohmycards.web.utils.components :as utils.components]
             [reagent.core :as r]))
 
 ;; Handlers and helpers
@@ -20,10 +19,11 @@
    (utils.components/with-seq-keys children)])
 
 (defn row
-  "A single row for the form, usually containing a label and an input."
-  [_ & children]
-  [:div.simple-form__input-row {}
-   (utils.components/with-seq-keys children)])
+  "A single row for the form. It contains a label and an input."
+  [{:keys [label input]}]
+  [:div.simple-form__row {}
+   (if label [:div.simple-form__label label])
+   [:div.simple-input input]])
 
 (defn label
   "A label for a form input, usually comming before the input."

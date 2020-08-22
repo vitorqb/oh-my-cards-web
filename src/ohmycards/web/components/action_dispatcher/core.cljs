@@ -1,6 +1,5 @@
 (ns ohmycards.web.components.action-dispatcher.core
-  (:require [ohmycards.web.components.form.input :as input]
-            [ohmycards.web.components.hydra.core :as hydra]
+  (:require [ohmycards.web.components.hydra.core :as hydra]
             [ohmycards.web.kws.components.action-dispatcher.core :as kws]
             [ohmycards.web.kws.components.hydra.core :as kws.components.hydra]
             [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]

@@ -1,6 +1,5 @@
 (ns ohmycards.web.components.inputs.tags
-  (:require [ohmycards.web.components.form.input :as form.input]
-            [ohmycards.web.components.inputs.combobox :as combobox]
+  (:require [ohmycards.web.components.inputs.combobox :as combobox]
             [ohmycards.web.kws.components.inputs.combobox.core :as kws.combobox]
             [ohmycards.web.kws.components.inputs.combobox.options
              :as

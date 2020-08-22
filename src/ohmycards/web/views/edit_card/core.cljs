@@ -1,7 +1,7 @@
 (ns ohmycards.web.views.edit-card.core
   (:require [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
-            [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
             [ohmycards.web.components.header.core :as header]
             [ohmycards.web.components.inputs.markdown :as inputs.markdown]
@@ -44,32 +44,33 @@
 
 (defn- id-input-row
   [{:keys [state]}]
-  [form/row {}
-   [:span.edit-card__label "Id"]
-   [form.input/main (form.input/build-props state
-                                            [kws/card-input kws.card/id]
-                                            :disabled true)]])
+  (let [path        [kws/card-input kws.card/id]
+        input-props (inputs.simple/build-props state path :disabled true)
+        input       [inputs.simple/main input-props]]
+    [form/row {:label "Id" :input input}]))
 
 (defn- title-input-row
   [{:keys [state]}]
-  [form/row {}
-   [:span.edit-card__label "Title"]
-   [form.input/main (form.input/build-props state [kws/card-input kws.card/title])]])
+  (let [path        [kws/card-input kws.card/title]
+        input-props (inputs.simple/build-props state path)
+        input       [inputs.simple/main input-props]]
+    [form/row {:label "Title" :input input}]))
 
 (defn- body-input-row
   [{:keys [state]}]
-  [form/row {}
-   [:span.edit-card__label "Body"]
-   [inputs.markdown/main (form.input/build-props state [kws/card-input kws.card/body])] ])
+  (let [path        [kws/card-input kws.card/body]
+        input-props (inputs.simple/build-props state path)
+        input       [inputs.markdown/main input-props]]
+    [form/row {:label "Body" :input input}]))
 
 (defn- tags-input-row
   "An input for tags"
   [{:keys [state] ::kws/keys [cards-metadata]}]
-  [form/row {}
-   [:span.edit-card__label "Tags"]
-   [:div.simple-form__input
-    [inputs.tags/main (assoc (form.input/build-props state [kws/card-input kws.card/tags])
-                             kws.inputs.tags/all-tags (kws.card-metadata/tags cards-metadata))]]])
+  (let [all-tags    (kws.card-metadata/tags cards-metadata)
+        path        [kws/card-input kws.card/tags]
+        input-props (inputs.simple/build-props state path kws.inputs.tags/all-tags all-tags)
+        input       [inputs.tags/main input-props]]
+    [form/row {:label "Tags" :input input}]))
 
 (defn- form
   "The form for the card inputs."

@@ -5,7 +5,7 @@
             [ohmycards.web.common.tags.core :as tags]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
-            [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.header.core :as header]
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
@@ -23,7 +23,7 @@
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]))
 
 ;; Helpers
-(defn- label [x] [:span.cards-grid-config-dashboard__label x])
+(defn- title [x] [:span.cards-grid-config-dashboard__title x])
 
 (defn- set-btn
   "Renders a `set` button to set the value, or an error message if the coercion for the value
@@ -45,7 +45,7 @@
 (defn input-props
   "Applies smart default to input props before sending it to `input/build-props`."
   [state path coercer & args]
-  (apply form.input/build-props state path
+  (apply inputs.simple/build-props state path
          :class "cards-grid-config-dashboard__input"
          :parse-fn #(coercion/main % coercer)
          :unparse-fn kws.coercion.result/raw-value
@@ -76,109 +76,124 @@
 (defn- page-config
   "A config input for a page"
   [{:keys [state] ::kws/keys [set-page!]}]
-  (let [path [kws/config kws.config/page]]
-    [:div.cards-grid-config-dashboard__row
-     (label "Page")
-     [input-wrapper {}
-      [form.input/main (input-props state path positive-int-or-nil-coercer)]]
-     [set-btn {:state state
-               :path path
-               :set-fn #(-> @state (get-in path) kws.coercion.result/value set-page!)}]]))
+  (let [path          [kws/config kws.config/page]
+        set-btn-props {:state  state
+                       :path   path
+                       :set-fn #(-> @state (get-in path) kws.coercion.result/value set-page!)}
+        set-btn       [set-btn set-btn-props]
+        input-props   (assoc (input-props state path positive-int-or-nil-coercer)
+                             :class "simple-input simple-input--small")
+        input         [:<> [inputs.simple/main input-props] set-btn]]
+    [form/row {:label "Page" :input input}]))
 
 (defn- page-size-config
   "A config input for page size"
   [{:keys [state] ::kws/keys [set-page-size!]}]
-  (let [path [kws/config kws.config/page-size]]
-    [:div.cards-grid-config-dashboard__row
-     (label "Page Size")
-     [input-wrapper {}
-      [form.input/main (input-props state path positive-int-or-nil-coercer)]]
-     [set-btn {:state state
-               :path path
-               :set-fn #(-> @state (get-in path) kws.coercion.result/value set-page-size!)}]]))
+  (let [path          [kws/config kws.config/page-size]
+        set-btn-props {:state  state
+                       :path   path
+                       :set-fn #(-> @state (get-in path) kws.coercion.result/value set-page-size!)}
+        set-btn       [set-btn set-btn-props]
+        input-props   (-> (input-props state path positive-int-or-nil-coercer)
+                          (assoc :class "simple-input simple-input--small"))
+        input         [:<> [inputs.simple/main input-props] set-btn]]
+    [form/row {:label "Page Size" :input input}]))
 
 (defn- include-tags-config
   "A config for tags to include"
   [{:keys [state] ::kws/keys [set-include-tags! cards-metadata]}]
-  (let [path [kws/config kws.config/include-tags]]
-    [:div.cards-grid-config-dashboard__row
-     (label "ALL tags")
-     [input-wrapper {}
-      [inputs.tags/main (assoc (input-props state path coercers/tags)
-                               kws.inputs.tags/all-tags (kws.card-metadata/tags cards-metadata))]]
-     [set-btn
-      {:state state
-       :path path
-       :set-fn #(do (swap! state update-in path coercion.result/copy-value-to-raw-value)
-                    (-> @state (get-in path) kws.coercion.result/value set-include-tags!))}]]))
+  (let [all-tags      (kws.card-metadata/tags cards-metadata)
+        path          [kws/config kws.config/include-tags]
+        set-fn        #(do (swap! state update-in path coercion.result/copy-value-to-raw-value)
+                           (-> @state (get-in path) kws.coercion.result/value set-include-tags!))
+        set-btn-props {:state  state
+                       :path   path
+                       :set-fn set-fn}
+        set-btn       [set-btn set-btn-props]
+        input-props   (-> (input-props state path coercers/tags)
+                          (assoc kws.inputs.tags/all-tags all-tags))
+        input         [:<> [inputs.tags/main input-props] set-btn]]
+    [form/row {:label "ALL tags" :input input}]))
 
 (defn- exclude-tags-config
   "A config for tags to exclude"
   [{:keys [state] ::kws/keys [set-exclude-tags! cards-metadata]}]
-  (let [path [kws/config kws.config/exclude-tags]]
-    [:div.cards-grid-config-dashboard__row
-     (label "Not ANY tags")
-     [input-wrapper {}
-      [inputs.tags/main (assoc (input-props state path coercers/tags)
-                               kws.inputs.tags/all-tags (kws.card-metadata/tags cards-metadata))]]
-     [set-btn
-      {:state state
-       :path path
-       :set-fn #(do (swap! state update-in path coercion.result/copy-value-to-raw-value)
-                    (-> @state (get-in path) kws.coercion.result/value set-exclude-tags!))}]]))
+  (let [all-tags      (kws.card-metadata/tags cards-metadata)
+        path          [kws/config kws.config/exclude-tags]
+        input-props   (-> (input-props state path coercers/tags)
+                          (assoc kws.inputs.tags/all-tags all-tags))
+        set-fn        #(do (swap! state update-in path coercion.result/copy-value-to-raw-value)
+                           (-> @state (get-in path) kws.coercion.result/value set-exclude-tags!))
+        set-btn-props {:state  state
+                       :path   path
+                       :set-fn set-fn}
+        input [:<> [inputs.tags/main input-props] [set-btn set-btn-props]]]
+    [form/row {:label "NONE OF tags" :input input}]))
 
 (defn- tags-filter-query-config
   "A config for the tags filter query."
   [{:keys [state] ::kws/keys [set-tags-filter-query!]}]
-  (let [path [kws/config kws.config/tags-filter-query]]
-    [:div.cards-grid-config-dashboard__row
-     (label "Tag Filter Query")
-     [input-wrapper {}
-      [inputs.textarea/main (input-props state path coercers/string)]]
-     [set-btn
-      {:state state
-       :path path
-       :set-fn #(-> @state (get-in path) kws.coercion.result/value set-tags-filter-query!)}]]))
+  (let [path          [kws/config kws.config/tags-filter-query]
+        input-props   (input-props state path coercers/string)
+        set-fn        #(-> @state (get-in path) kws.coercion.result/value set-tags-filter-query!)
+        set-btn-props {:state  state
+                       :path   path
+                       :set-fn set-fn}
+        input [:<> [inputs.textarea/main input-props] [set-btn set-btn-props]]]
+    [form/row {:label "Tag Filter Query" :input input}]))
 
 (defn- load-profile-name
   "A row for the user to load a profile by it's name."
   [{:keys [state] ::kws/keys [profiles-names load-profile!]}]
-  (let [path [kws/load-profile-name]
-        options (inputs.combobox/seq->options profiles-names)]
-    [:div.cards-grid-config-dashboard__row
-     (label "Load Profile")
-     [input-wrapper {}
-      [inputs.combobox/main (input-props state path (coercers/is-in profiles-names)
-                                         kws.combobox/options options)]]
-     [set-btn
-      {:label "Load!"
-       :state state
-       :path path
-       :set-fn #(-> @state (get-in path) kws.coercion.result/value load-profile!)}]]))
+  (let [path          [kws/load-profile-name]
+        options       (inputs.combobox/seq->options profiles-names)
+        set-btn-props {:label  "Load!"
+                       :state  state
+                       :path   path
+                       :set-fn #(-> @state (get-in path) kws.coercion.result/value load-profile!)}
+        input-props   (-> (input-props state path (coercers/is-in profiles-names))
+                          (assoc kws.combobox/options options))
+        input         [:<> [inputs.combobox/main input-props] [set-btn set-btn-props]]]
+    [form/row {:label "Load Profile" :input input}]))
 
 (defn- save-profile-name
   "A row for the user to save a profile by it's name."
   [{:keys [state] ::kws/keys [save-profile!]}]
-  (let [path [kws/save-profile-name]]
-    [:div.cards-grid-config-dashboard__row
-     (label "Save Profile")
-     [input-wrapper {}
-      [form.input/main (input-props state path string-with-min-len-2)]]
-     (if-let [profile-for-save (get-profile-for-save @state)]
-       [set-btn
-        {:label "Save!"
-         :state state
-         :path path
-         :set-fn #(save-profile! profile-for-save)}]
-       [error-message-box/main {:value "Invalid values prevent save!"}])]))
+  (let [path             [kws/save-profile-name]
+        profile-for-save (get-profile-for-save @state)
+        input-props      (input-props state path string-with-min-len-2)
+        set-btn-props    {:label  "Save!"
+                          :state  state
+                          :path   path
+                          :set-fn #(save-profile! profile-for-save)}
+        extra-comp       (if profile-for-save
+                           [set-btn set-btn-props]
+                           [error-message-box/main {:value "Invalid values prevent save!"}])
+        input            [:<> [inputs.simple/main input-props] extra-comp]]
+    [form/row {:label "Save Profile" :input input}]))
+
+(defn- grid-config
+  "General configuration for the grid"
+  [props]
+  [:<> [title "General Configuration"]
+   [:div.cards-grid-config-dashboard__grid-config
+    [:div.grid__row
+     [:div.grid__cell
+      [page-config props]]
+     [:div.grid__cell
+      [page-size-config props]]]
+    [include-tags-config props]
+    [exclude-tags-config props]
+    [tags-filter-query-config props]]])
 
 (defn- profile-manager
   "A profile manager for the cards grid configuration."
-  [{:keys [state] :as props}]
-  [:div.cards-grid-config-dashboard__profile-manager
-   (label "Profile Manager")
-   [load-profile-name props]
-   [save-profile-name props]])
+  [props]
+  [:<>
+   [title "Profile Manager"]
+   [:div.cards-grid-config-dashboard__profile-manager
+    [load-profile-name props]
+    [save-profile-name props]]])
 
 ;; Main
 (defn main
@@ -186,9 +201,5 @@
   [props]
   [:div.cards-grid-config-dashboard
    [header props]
-   [page-config props]
-   [page-size-config props]
-   [include-tags-config props]
-   [exclude-tags-config props]
-   [tags-filter-query-config props]
+   [grid-config props]
    [profile-manager props]])

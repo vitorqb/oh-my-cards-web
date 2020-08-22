@@ -2,7 +2,7 @@
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
-            [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
             [ohmycards.web.components.inputs.markdown :as inputs.markdown]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
@@ -44,14 +44,14 @@
   (let [state (atom {kws/card-input {kws.card/id "FOO"}})]
     (is
      (some
-      #(= [form.input/main {:disabled true :value "FOO"}] %)
+      #(= [inputs.simple/main {:disabled true :value "FOO"}] %)
       (tu/comp-seq (sut/id-input-row {:state state}))))))
 
 (deftest test-title-input-row
   (let [state     (atom {kws/card-input {kws.card/title "FOO"}})
         comp      (sut/title-input-row {:state state})
         [_ props] (tu/get-first
-                   #(= (tu/safe-first %) form.input/main)
+                   #(= (tu/safe-first %) inputs.simple/main)
                    (tu/comp-seq comp))]
     (is (= "FOO" (:value props)))
     (is (ifn? (:on-change props)))))
@@ -64,15 +64,23 @@
     (is (ifn? (:on-change props)))))
 
 (deftest test-tags-input-row
+
   (testing "Renders a tags input"
-    (with-redefs [form.input/build-props #(do {:state %1 :path %2})]
-      (is
-       (tu/exists-in-component?
-        [inputs.tags/main {:state ::state
-                           :path [kws/card-input kws.card/tags]
-                           kws.inputs.tags/all-tags ["A"]}]
-        (sut/tags-input-row {:state ::state
-                             kws/cards-metadata {kws.card-metadata/tags ["A"]}}))))))
+    (let [path [kws/card-input kws.card/tags]
+          state (atom (assoc-in {} path ::value))
+          cards-metadata {kws.card-metadata/tags ["A"]}
+          component (sut/tags-input-row {:state state kws/cards-metadata cards-metadata})
+          [_ form-row-props] component
+          [_ input-props] (:input form-row-props)]
+
+      (testing "Passes value"
+        (is (= ::value (:value input-props))))
+
+      (testing "Passes on-change"
+        (is (fn? (:on-change input-props))))
+
+      (testing "Passes all-tags"
+        (is (= ["A"] (kws.inputs.tags/all-tags input-props)))))))
 
 (deftest test-form
 

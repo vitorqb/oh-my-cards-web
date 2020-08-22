@@ -1,7 +1,6 @@
 (ns ohmycards.web.views.new-card.form-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.form.core :as form]
-            [ohmycards.web.components.form.input :as form.input]
             [ohmycards.web.components.inputs.markdown :as inputs.markdown]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.kws.card :as kws.card]
@@ -13,18 +12,21 @@
 
 (deftest test-title-input
 
-  (testing "On change mutates state"
-    (let [state (atom {})
-          comp  (sut/title-input {:state state})
-          [_ {:keys [on-change]}] (tu/get-first #(= (tu/safe-first %) form.input/main) comp)]
-      (on-change "foo")
-      (is (= @state {kws/card-input {kws.card/title "foo"}}))))
+  (letfn [(gen-comp [state] (sut/title-input {:state state}))
+          (find-input [comp] (->> comp tu/comp-seq (tu/get-props-for form/row) :input))
+          (get-input-props [state] (-> state gen-comp find-input second))]
 
-  (testing "Passes value"
-    (let [state (atom {kws/card-input {kws.card/title "Foo"}})
-          comp  (sut/title-input {:state state})
-          [_ {:keys [value]}] (tu/get-first #(= (tu/safe-first %) form.input/main) comp)]
-      (is (= value "Foo")))))
+    (testing "On change mutates state"
+      (let [state       (atom {})
+            input-props (get-input-props state)
+            on-change   (:on-change input-props)]
+        (on-change "foo")
+        (is (= {kws/card-input {kws.card/title "foo"}} @state))))
+
+    (testing "Passes value"
+      (let [state       (atom {kws/card-input {kws.card/title "Foo"}})
+            input-props (get-input-props state)]
+        (is (= "Foo" (:value input-props)))))))
 
 (deftest test-body-input
 
@@ -50,9 +52,8 @@
                kws/cards-metadata {kws.card-metadata/tags ["A"]}}]
 
     (testing "Renders label"
-      (is (tu/exists-in-component?
-           [:span.new-card-form__label "Tags"]
-           (sut/tags-input props))))
+      (let [label (->> props sut/tags-input tu/comp-seq (tu/get-props-for form/row) :label)]
+        (is (= "Tags" label))))
 
     (testing "Renders a tags-input"
       (let [card {kws.card/tags ["A"]}

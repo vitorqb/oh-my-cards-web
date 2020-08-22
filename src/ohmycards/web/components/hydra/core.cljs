@@ -1,6 +1,6 @@
 (ns ohmycards.web.components.hydra.core
   (:require [ohmycards.web.common.hydra.core :as hydra]
-            [ohmycards.web.components.form.input :as input]
+            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.kws.components.hydra.core :as kws]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
             [ohmycards.web.kws.hydra.core :as kws.hydra]))
@@ -31,7 +31,10 @@
   [{:keys [state] ::kws/keys [head on-leaf-selection] :as props}]
   (remove-watch state ::leaf-selection)
   (add-watch state ::leaf-selection (state-watcher-for-leaf-selection props))
-  (let [current-head (hydra/get-current-head (kws/path @state) head)]
+  (let [current-head (hydra/get-current-head (kws/path @state) head)
+        input-props (-> (inputs.simple/build-props state [kws/path])
+                        (assoc :class "hydra__input")
+                        (assoc :auto-focus true))]
     [:div.hydra
-     [input/main (input/build-props state [kws/path] :class "hydra__input" :auto-focus true)]
+     [inputs.simple/main input-props]
      [head-component (assoc props ::head current-head)]]))

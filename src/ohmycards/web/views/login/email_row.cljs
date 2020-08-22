@@ -1,17 +1,15 @@
 (ns ohmycards.web.views.login.email-row
   (:require [ohmycards.web.components.form.core :as form]
-            [ohmycards.web.components.form.input :as form.input]))
+            [ohmycards.web.components.inputs.simple :as inputs.simple]))
 
 (defn main
   "A form row for inputting the email."
   [{:keys [value on-change disabled?]}]
-  [form/row {}
-   [form/label {}
-    "Email"]
-   [form.input/main {:type "email"
-                     :value value
-                     :on-change on-change
-                     :disabled disabled?}]])
+  [form/row {:label "Email"
+             :input [inputs.simple/main {:type       "email"
+                                         :value      value
+                                         :on-change  on-change
+                                         :disabled   disabled?}]}])
 
 (defn props-builder
   [{:keys [state]}]

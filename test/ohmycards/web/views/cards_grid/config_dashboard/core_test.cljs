@@ -3,7 +3,8 @@
             [ohmycards.web.common.coercion.coercers :as coercers]
             [ohmycards.web.common.coercion.result :as coercion.result]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
-            [ohmycards.web.components.form.input :as form.input]
+            [ohmycards.web.components.inputs.simple :as inputs.simple]
+            [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.inputs.textarea :as inputs.textarea]
@@ -27,12 +28,9 @@
     (testing "Contains header"
       (is (tu/exists-in-component? [sut/header props] comp)))
 
-    (testing "Contains include-tags config"
-      (is (tu/exists-in-component? [sut/include-tags-config props] comp)))
-
-    (testing "Contains tags filter query config"
-      (is (tu/exists-in-component? [sut/tags-filter-query-config props] comp)))
-
+    (testing "Contains grid-config"
+      (is (tu/exists-in-component? [sut/grid-config props] comp)))
+    
     (testing "Contains profile-manager"
       (is (tu/exists-in-component? [sut/profile-manager props] comp)))))
 
@@ -43,7 +41,7 @@
         comp  (sut/profile-manager props)]
 
     (testing "Renders the label"
-      (is (tu/exists-in-component? (sut/label "Profile Manager") comp)))
+      (is (tu/exists-in-component? [sut/title "Profile Manager"] comp)))
 
     (testing "Renders the load-profile-name"
       (is (tu/exists-in-component? [sut/load-profile-name props] comp)))
@@ -59,26 +57,50 @@
     (let [state (atom {})
           props {:state state kws/profiles-names ["Foo"]}
           comp  (sut/load-profile-name props)
-          exists-in-comp? #(tu/exists-in-component? % comp)
-          props-for #(tu/get-props-for % comp)]
+          [row row-props] comp
+          input (:input row-props)]
 
       (testing "Renders label"
-        (is (exists-in-comp? (sut/label "Load Profile"))))
+        (is (= "Load Profile" (:label row-props))))
 
-      (testing "Renders input-wrapper"
+      (testing "Renders input"
         (is
-         (exists-in-comp?
-          [sut/input-wrapper {}
-           [inputs.combobox/main
-            (sut/input-props state [kws/load-profile-name] (coercers/is-in ["Foo"])
-                             kws.combobox/options [{kws.combobox.options/value "Foo"}])]])))
+         (tu/exists-in-component?
+          [inputs.combobox/main
+           (-> (sut/input-props state [kws/load-profile-name] (coercers/is-in ["Foo"]))
+               (assoc kws.combobox/options [{kws.combobox.options/value "Foo"}]))]
+          (tu/comp-seq input))))
 
       (testing "Renders set-btn"
-        (let [btn-props (props-for sut/set-btn)]
+        (let [btn-props (tu/get-props-for sut/set-btn (tu/comp-seq input))]
           (is (fn? (:set-fn btn-props)))
           (is (= state (:state btn-props)))
           (is (= "Load!" (:label btn-props)))
           (is (= [kws/load-profile-name] (:path btn-props))))))))
+
+(deftest test-grid-config
+
+  (let [props {::foo ::bar}
+        comp  (sut/grid-config props)
+        exists-in-comp? #(tu/exists-in-component? % (tu/comp-seq comp))]
+
+    (testing "Renders title"
+      (is (exists-in-comp? [sut/title "General Configuration"])))
+
+    (testing "Renders page-config"
+      (is (exists-in-comp? [sut/page-config props])))
+
+    (testing "Renders page-size-config"
+      (is (exists-in-comp? [sut/page-size-config props])))
+
+    (testing "Renders include-tags-config"
+      (is (exists-in-comp? [sut/include-tags-config props])))
+
+    (testing "Renders exclude-tags-config"
+      (is (exists-in-comp? [sut/exclude-tags-config props])))
+
+    (testing "Renders tags-filter-query-config"
+      (is (exists-in-comp? [sut/tags-filter-query-config props])))))
 
 (deftest test-save-profile-name
 
@@ -89,21 +111,24 @@
                          kws/config {}})
             props {:state state}
             comp  (sut/save-profile-name props)
-            exists-in-comp? #(tu/exists-in-component? % comp)
-            props-for #(tu/get-props-for % comp)]
+            [row row-props] comp
+            input (:input row-props)]
 
-        (testing "Renders label"
-          (is (exists-in-comp? (sut/label "Save Profile"))))
+        (testing "Renders form row"
+          (is (= form/row row)))
 
-        (testing "Renders input-wrapper"
+        (testing "Passes label"
+          (is (= "Save Profile" (:label row-props))))
+
+        (testing "Renders input"
           (is
-           (exists-in-comp?
-            [sut/input-wrapper {}
-             [form.input/main
-              (sut/input-props state [kws/save-profile-name] sut/string-with-min-len-2)]])))
+           (tu/exists-in-component?
+            [inputs.simple/main
+             (sut/input-props state [kws/save-profile-name] sut/string-with-min-len-2)]
+            (tu/comp-seq input))))
 
         (testing "Renders set-btn"
-          (let [props (props-for sut/set-btn)]
+          (let [props (tu/get-props-for sut/set-btn (tu/comp-seq input))]
             (is (= "Save!" (:label props)))
             (is (= state (:state props)))
             (is (= [kws/save-profile-name] (:path props)))
@@ -113,11 +138,13 @@
       (let [state (atom {kws/config {kws.config/page (coercion.result/failure "" "")}})
             props {:state state}
             comp  (sut/save-profile-name props)
-            exists-in-comp? #(tu/exists-in-component? % comp)
-            props-for #(tu/get-props-for % comp)]
+            [row row-props] comp
+            input (:input row-props)]
 
         (testing "Renders error"
-          (exists-in-comp? [error-message-box/main {:value "Invalid values prevent save!"}]))))))
+          (tu/exists-in-component?
+           [error-message-box/main {:value "Invalid values prevent save!"}]
+           (tu/comp-seq input)))))))
 
 (deftest test-get-profile-for-save
 
@@ -151,7 +178,7 @@
 
     (testing "Contains input with value"
       (let [props {:state (atom {kws/config {kws.config/page coerced-value}})}
-            [_ input-props] (tu/get-first #(= (tu/safe-first %) form.input/main)
+            [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.simple/main)
                                           (tu/comp-seq (sut/page-config props)))]
         (is (= (:value input-props) "2"))))))
 
@@ -161,27 +188,28 @@
 
     (testing "Contains input with value"
       (let [props {:state (atom {kws/config {kws.config/page-size coerced-value}})}
-            [_ input-props] (tu/get-first #(= (tu/safe-first %) form.input/main)
+            [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.simple/main)
                                           (tu/comp-seq (sut/page-size-config props)))]
         (is (= (:value input-props) "20"))))))
 
 (deftest test-include-tags-config
 
   (let [coerced-value (coercion.result/success ["A"] ["A"])
-        props {:state (atom {kws/config {kws.config/include-tags coerced-value}})}]
+        props {:state (atom {kws/config {kws.config/include-tags coerced-value}})
+               kws/cards-metadata {kws.card-metadata/tags ["A"]}}
+        comp (sut/include-tags-config props)
+        [row row-props] comp
+        input (:input row-props)]
 
     (testing "Includes label"
-      (is (tu/exists-in-component? (sut/label "ALL tags") (sut/include-tags-config props))))
+      (is (= "ALL tags" (:label row-props))))
 
     (testing "Contains input with value"
-      (let [comp (sut/include-tags-config props)
-            input-props (tu/get-props-for inputs.tags/main (tu/comp-seq comp))]
-        (is (= (:value input-props) ["A"]))))
+      (let [input-props (tu/get-props-for inputs.tags/main (tu/comp-seq input))]
+        (is (= ["A"] (:value input-props)))))
 
     (testing "Contains input with all tags"
-      (let [props (assoc props kws/cards-metadata {kws.card-metadata/tags ["A"]})
-            comp (sut/include-tags-config props)
-            input-props (tu/get-props-for inputs.tags/main (tu/comp-seq comp))]
+      (let [input-props (tu/get-props-for inputs.tags/main (tu/comp-seq input))]
         (is (= (kws.tags/all-tags input-props) ["A"]))))))
 
 (deftest test-exclude-tags-config
@@ -191,10 +219,12 @@
         props {:state (atom {kws/config {kws.config/exclude-tags coerced-value}})
                kws/cards-metadata cards-metadata}
         comp (sut/exclude-tags-config props)
-        tags-input-props (tu/get-props-for inputs.tags/main (tu/comp-seq comp))]
+        [row row-props] comp
+        input (:input row-props)
+        tags-input-props (tu/get-props-for inputs.tags/main (tu/comp-seq input))]
 
     (testing "Includes label"
-      (is (tu/exists-in-component? (sut/label "Not ANY tags") comp)))
+      (is (= "NONE OF tags" (:label row-props))))
 
     (testing "Contains input with value"
       (is (= (:value tags-input-props) ["A"])))
@@ -207,10 +237,11 @@
   (let [value (coercion.result/raw-value->success "foo")
         path [kws/config kws.config/tags-filter-query]
         props {:state (atom (assoc-in {} path value))}
-        comp  (sut/tags-filter-query-config props)]
+        comp  (sut/tags-filter-query-config props)
+        [row row-props] comp]
 
     (testing "Includes label"
-      (is (tu/exists-in-component? (sut/label "Tag Filter Query") comp)))
+      (is (= "Tag Filter Query" (:label row-props))))
 
     (testing "Renders textarea"
       (let [textarea-props (tu/get-props-for inputs.textarea/main (tu/comp-seq comp))]
