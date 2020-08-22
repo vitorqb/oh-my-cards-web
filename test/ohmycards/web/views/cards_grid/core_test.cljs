@@ -2,11 +2,34 @@
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
+            [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.views.cards-grid.core :as kws]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.cards-grid.control-filter :as control-filter]
             [ohmycards.web.views.cards-grid.core :as sut]))
+
+(deftest test-card-edit-btn
+  (let [path-to! #(str "/" (name %1) "?id=" (-> %2 :query-params :id))
+        card {kws.card/id "123"}
+        props {::sut/card card
+               :path-to! path-to!}
+        comp (sut/card-edit-btn props)]
+    (is (= [:a {:href "/edit-card?id=123"}
+            [:button.icon-button.u-color-good
+             [icons/edit]]]
+           comp))))
+
+(deftest test-card-view-btn
+  (let [path-to! #(str "/" (name %1) "?id=" (-> %2 :query-params :id))
+        card {kws.card/id "123"}
+        props {::sut/card card
+               :path-to! path-to!}
+        comp (sut/card-view-btn props)]
+    (is (= [:a {:href "/display-card?id=123"}
+            [:button.icon-button.u-color-good
+             [icons/view]]]
+           comp))))
 
 (deftest test-tags-displayer
   (testing "Renders a span for each tags"

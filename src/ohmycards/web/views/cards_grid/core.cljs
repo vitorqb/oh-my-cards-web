@@ -9,20 +9,29 @@
             [ohmycards.web.kws.views.cards-grid.core :as kws]
             [ohmycards.web.views.cards-grid.control-filter :as control-filter]
             [ohmycards.web.views.cards-grid.control-header :as control-header]
-            [ohmycards.web.views.cards-grid.state-management :as state-management]))
+            [ohmycards.web.views.cards-grid.state-management :as state-management]
+            [ohmycards.web.kws.services.routing.pages :as pages]))
 
 ;; Functions
 (defn- card-edit-btn
   "A button to edit a card."
-  [{::keys [card] ::kws/keys [goto-editcard!]}]
-  [:button.icon-button.u-color-good {:on-click #(goto-editcard! card)}
-   [icons/edit]])
+  [{:keys [path-to!] ::keys [card]}]
+  (let [id           (kws.card/id card)
+        query-params {:id id}
+        path         (path-to! pages/edit-card {:query-params query-params})]
+    [:a {:href path}
+     [:button.icon-button.u-color-good
+      [icons/edit]]]))
 
 (defn- card-view-btn
   "A button to view the details of a card."
-  [{::keys [card] ::kws/keys [goto-displaycard!]}]
-  [:button.icon-button.u-color-good {:on-click #(goto-displaycard! card)}
-   [icons/view]])
+  [{:keys [path-to!] ::keys [card]}]
+  (let [id           (kws.card/id card)
+        query-params {:id id}
+        path         (path-to! pages/display-card {:query-params query-params})]
+    [:a {:href path}
+     [:button.icon-button.u-color-good
+      [icons/view]]]))
 
 (defn- tags-displayer
   "A component to display cards in a single line."

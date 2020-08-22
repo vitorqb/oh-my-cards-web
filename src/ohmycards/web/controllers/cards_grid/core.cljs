@@ -31,7 +31,8 @@
             [ohmycards.web.views.cards-grid.state-management
              :as
              cards-grid.state-management]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [ohmycards.web.services.routing.core :as services.routing]))
 
 ;;
 ;; Constants
@@ -74,12 +75,6 @@
 
 (defn- route-to-new-card! []
   (routing.core/goto! routing.pages/new-card))
-
-(defn- route-to-edit-card! [card]
-  (routing.core/goto! routing.pages/edit-card kws.routing/query-params {:id (kws.card/id card)}))
-
-(defn- route-to-display-card! [card]
-  (routing.core/goto! routing.pages/display-card kws.routing/query-params {:id (kws.card/id card)}))
 
 (defn- route-to-grid! []
   (routing.core/goto! routing.pages/home))
@@ -139,10 +134,9 @@
   "Returns the props for the grid view instance."
   []
   {:state                           *grid-state*
-   kws.cards-grid/goto-editcard!    route-to-edit-card!
+   :path-to!                        services.routing/path-to!
    kws.cards-grid/goto-settings!    route-to-config-dashboard!
    kws.cards-grid/goto-newcard!     route-to-new-card!
-   kws.cards-grid/goto-displaycard! route-to-display-card!
    kws.cards-grid/fetch-cards!      fetch-cards!})
 
 (defn- config-dashboard-props
