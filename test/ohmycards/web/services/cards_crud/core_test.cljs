@@ -21,14 +21,16 @@
                               kws.card/title      "TITLE"
                               kws.card/tags       ["TAG"]
                               kws.card/created-at nil
-                              kws.card/updated-at nil}}
+                              kws.card/updated-at nil
+                              kws.card/ref        1}}
            (sut/parse-response*
             kws.actions/create
             {kws.http/success? true
              kws.http/body     {:id    "ID"
                                 :body  "BODY"
                                 :title "TITLE"
-                                :tags  ["TAG"]}})))))
+                                :tags  ["TAG"]
+                                :ref   1}})))))
 
 (deftest test-parse-read-response
 
@@ -42,12 +44,14 @@
                            kws.card/title "3"
                            kws.card/tags ["4"]
                            kws.card/created-at nil
-                           kws.card/updated-at nil}}
+                           kws.card/updated-at nil
+                           kws.card/ref 5}}
            (sut/parse-response* kws.actions/read {kws.http/success? true
                                                   kws.http/body {:id "1"
                                                                  :body "2"
                                                                  :title "3"
-                                                                 :tags ["4"]}})))))
+                                                                 :tags ["4"]
+                                                                 :ref 5}})))))
 
 (deftest test-parse-update-response
 

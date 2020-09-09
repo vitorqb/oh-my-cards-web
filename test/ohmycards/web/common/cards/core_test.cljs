@@ -9,13 +9,15 @@
           kws.card/body       "body"
           kws.card/tags       ["A"]
           kws.card/created-at "2020-01-01"
-          kws.card/updated-at "2020-01-02"}
+          kws.card/updated-at "2020-01-02"
+          kws.card/ref        1}
          (sut/from-http {:id "id"
                          :title "title"
                          :body "body"
                          :tags ["A"]
                          :createdAt "2020-01-01"
-                         :updatedAt "2020-01-02"}))))
+                         :updatedAt "2020-01-02"
+                         :ref 1}))))
 
 (deftest test-to-http
 
