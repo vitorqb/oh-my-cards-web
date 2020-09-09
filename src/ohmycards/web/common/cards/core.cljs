@@ -20,3 +20,8 @@
    kws.card/created-at createdAt
    kws.card/updated-at updatedAt
    kws.card/ref        ref})
+
+(defn ->title
+  "Extracts the title of a card."
+  [{::kws.card/keys [title ref]}]
+  (str "#" ref " " title))

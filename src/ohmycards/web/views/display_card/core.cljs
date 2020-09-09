@@ -1,5 +1,6 @@
 (ns ohmycards.web.views.display-card.core
-  (:require [ohmycards.web.components.header.core :as header]
+  (:require [ohmycards.web.common.cards.core :as cards]
+            [ohmycards.web.components.header.core :as header]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.components.markdown-displayer.core
              :as
@@ -12,8 +13,8 @@
 ;; 
 ;; Private components
 ;;
- (defn- title [{:keys [state]}]
-   [:div.display-card__title (-> @state kws/card kws.card/title)])
+(defn- title [{:keys [state]}]
+  [:div.display-card__title (some-> @state kws/card cards/->title)])
 
 (defn- id [{:keys [state]}]
   [:div.display-card__id (-> @state kws/card kws.card/id)])
