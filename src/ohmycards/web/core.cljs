@@ -1,8 +1,8 @@
 (ns ohmycards.web.core
   (:require [cljs.core.async :as async]
             [ohmycards.web.common.utils :as utils]
-            [ohmycards.web.components.current-view.core :as components.current-view]
             [ohmycards.web.components.app-header.core :as header]
+            [ohmycards.web.components.current-view.core :as components.current-view]
             [ohmycards.web.controllers.action-dispatcher.core
              :as
              controllers.action-dispatcher]
@@ -53,6 +53,7 @@
              :as
              services.shortcuts-register]
             [ohmycards.web.services.user-question.core :as services.user-question]
+            [ohmycards.web.utils.clipboard :as utils.clipboard]
             [ohmycards.web.views.about.core :as views.about]
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as

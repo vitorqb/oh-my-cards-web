@@ -1,5 +1,6 @@
 (ns ohmycards.web.views.cards-grid.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.common.cards.core :as cards]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.icons :as icons]
@@ -30,6 +31,18 @@
             [:button.icon-button.u-color-good
              [icons/view]]]
            comp))))
+
+(deftest test-card-copy-btn
+  (let [to-clipboard! #(do [::to-clipboard %])
+        card {kws.card/id "123" kws.card/title "FOO"}
+        props {::sut/card card
+               :to-clipboard! to-clipboard!}
+        comp (sut/card-copy-btn props)
+        btn-props (get comp 2)
+        on-click (:on-click btn-props)]
+    (is (= :button.icon-button.u-color-good (first comp)))
+    (is (= [icons/copy] (get comp 2)))
+    (is (= [::to-clipboard (cards/->title card)]))))
 
 (deftest test-tags-displayer
   (testing "Renders a span for each tags"

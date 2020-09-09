@@ -34,6 +34,12 @@
      [:button.icon-button.u-color-good
       [icons/view]]]))
 
+(defn- card-copy-btn
+  "A button to copy a link to the card."
+  [{::keys [card] :keys [to-clipboard!]}]
+  [:button.icon-button.u-color-good {:on-click #(to-clipboard! (cards/->title card))}
+   [icons/copy]])
+
 (defn- tags-displayer
   "A component to display cards in a single line."
   [{::keys [tags]}]
@@ -44,7 +50,7 @@
 (defn- card-display-footer
   "The footer of the card, with the action buttons."
   [{{::kws.card/keys [id title body tags] :as card} ::card :as props}]
-  [:div.card-display__foot [card-edit-btn props] [card-view-btn props]])
+  [:div.card-display__foot [card-edit-btn props] [card-view-btn props] [card-copy-btn props]])
 
 (defn- card-display
   "A component to display a single card."

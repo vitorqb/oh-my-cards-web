@@ -18,8 +18,10 @@
             [ohmycards.web.services.cards-grid-profile-manager.core
              :as
              services.cards-grid-profile-manager]
-            [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.routing.core :as routing.core]
+            [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
+            [ohmycards.web.services.routing.core :as services.routing]
+            [ohmycards.web.utils.clipboard :as clipboard]
             [ohmycards.web.utils.logging :as logging]
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
@@ -31,8 +33,7 @@
             [ohmycards.web.views.cards-grid.state-management
              :as
              cards-grid.state-management]
-            [reagent.core :as r]
-            [ohmycards.web.services.routing.core :as services.routing]))
+            [reagent.core :as r]))
 
 ;;
 ;; Constants
@@ -133,11 +134,12 @@
 (defn- grid-props
   "Returns the props for the grid view instance."
   []
-  {:state                           *grid-state*
-   :path-to!                        services.routing/path-to!
-   kws.cards-grid/goto-settings!    route-to-config-dashboard!
-   kws.cards-grid/goto-newcard!     route-to-new-card!
-   kws.cards-grid/fetch-cards!      fetch-cards!})
+  {:state                        *grid-state*
+   :path-to!                     services.routing/path-to!
+   :to-clipboard!                clipboard/to-clipboard!
+   kws.cards-grid/goto-settings! route-to-config-dashboard!
+   kws.cards-grid/goto-newcard!  route-to-new-card!
+   kws.cards-grid/fetch-cards!   fetch-cards!})
 
 (defn- config-dashboard-props
   "Returns the props for the config dashboard."
