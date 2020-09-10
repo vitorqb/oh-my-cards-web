@@ -11,6 +11,7 @@
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
             [ohmycards.web.kws.services.routing.core :as kws.routing]
             [ohmycards.web.kws.services.routing.pages :as routing.pages]
+            [ohmycards.web.services.notify :as services.notify]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.edit-card.handlers :as edit-card.handlers]
             [reagent.core :as r]))
@@ -30,7 +31,8 @@
                   ::components.current-view/login-view       ::login-view
                   ::components.current-view/view             ::current-view
                   ::components.current-view/header-component ::header-component}]
-                [controllers.action-dispatcher/component]]
+                [controllers.action-dispatcher/component]
+                [services.notify/toast]]
                (sut/current-view* state ::home-view ::login-view ::header-component))))
 
       (testing "Defaults view to home-view"

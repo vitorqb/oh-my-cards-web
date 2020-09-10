@@ -48,12 +48,12 @@
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.http :as services.http]
             [ohmycards.web.services.login.core :as services.login]
+            [ohmycards.web.services.notify :as services.notify]
             [ohmycards.web.services.routing.core :as services.routing]
             [ohmycards.web.services.shortcuts-register.core
              :as
              services.shortcuts-register]
             [ohmycards.web.services.user-question.core :as services.user-question]
-            [ohmycards.web.utils.clipboard :as utils.clipboard]
             [ohmycards.web.views.about.core :as views.about]
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
@@ -214,7 +214,8 @@
                                                     home-view)
      ::components.current-view/login-view       login-view
      ::components.current-view/header-component header-component}]
-   [controllers.action-dispatcher/component]])
+   [controllers.action-dispatcher/component]
+   [services.notify/toast]])
 
 (defn current-view [] (current-view* @state cards-grid-page login header))
 
@@ -361,6 +362,8 @@
   (services.routing/start-routing! routes (state-cursor ::lenses.routing/match))
 
   (services.shortcuts-register/init! shortcuts)
+
+  (services.notify/init! {:state (state-cursor :services.notify)})
 
   ;; Initializes controllers
   (controllers.action-dispatcher/init! {:state (state-cursor :components.action-dispatcher)})

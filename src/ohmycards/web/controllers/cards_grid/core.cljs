@@ -21,7 +21,7 @@
             [ohmycards.web.services.routing.core :as routing.core]
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.routing.core :as services.routing]
-            [ohmycards.web.utils.clipboard :as clipboard]
+            [ohmycards.web.app.provider :as app.provider]
             [ohmycards.web.utils.logging :as logging]
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
@@ -136,7 +136,7 @@
   []
   {:state                        *grid-state*
    :path-to!                     services.routing/path-to!
-   :to-clipboard!                clipboard/to-clipboard!
+   :to-clipboard!                app.provider/to-clipboard!
    kws.cards-grid/goto-settings! route-to-config-dashboard!
    kws.cards-grid/goto-newcard!  route-to-new-card!
    kws.cards-grid/fetch-cards!   fetch-cards!})
