@@ -49,6 +49,13 @@
         input       [inputs.simple/main input-props]]
     [form/row {:label "Id" :input input}]))
 
+(defn- ref-input-row
+  [{:keys [state]}]
+  (let [path        [kws/card-input kws.card/ref]
+        input-props (inputs.simple/build-props state path :disabled true)
+        input       [inputs.simple/main input-props]]
+    [form/row {:label "Ref" :input input}]))
+
 (defn- title-input-row
   [{:keys [state]}]
   (let [path        [kws/card-input kws.card/title]
@@ -77,6 +84,7 @@
   [props]
   [form/main {}
    [id-input-row props]
+   [ref-input-row props]
    [title-input-row props]
    [body-input-row props]
    [tags-input-row props]])

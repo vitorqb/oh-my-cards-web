@@ -1,16 +1,17 @@
 (ns ohmycards.web.views.cards-grid.core
-  (:require [ohmycards.web.components.error-message-box.core :as error-message-box]
+  (:require [ohmycards.web.common.cards.core :as cards]
+            [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.components.markdown-displayer.core
              :as
              markdown-displayer]
             [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.services.routing.pages :as pages]
             [ohmycards.web.kws.views.cards-grid.core :as kws]
             [ohmycards.web.views.cards-grid.control-filter :as control-filter]
             [ohmycards.web.views.cards-grid.control-header :as control-header]
-            [ohmycards.web.views.cards-grid.state-management :as state-management]
-            [ohmycards.web.kws.services.routing.pages :as pages]))
+            [ohmycards.web.views.cards-grid.state-management :as state-management]))
 
 ;; Functions
 (defn- card-edit-btn
@@ -33,6 +34,12 @@
      [:button.icon-button.u-color-good
       [icons/view]]]))
 
+(defn- card-copy-btn
+  "A button to copy a link to the card."
+  [{::keys [card] :keys [to-clipboard!]}]
+  [:button.icon-button.u-color-good {:on-click #(to-clipboard! (cards/->title card))}
+   [icons/copy]])
+
 (defn- tags-displayer
   "A component to display cards in a single line."
   [{::keys [tags]}]
@@ -43,13 +50,13 @@
 (defn- card-display-footer
   "The footer of the card, with the action buttons."
   [{{::kws.card/keys [id title body tags] :as card} ::card :as props}]
-  [:div.card-display__foot [card-edit-btn props] [card-view-btn props]])
+  [:div.card-display__foot [card-edit-btn props] [card-view-btn props] [card-copy-btn props]])
 
 (defn- card-display
   "A component to display a single card."
-  [{{::kws.card/keys [title body tags] :as card} ::card :as props}]
+  [{{::kws.card/keys [body tags] :as card} ::card :as props}]
   [:div.card-display
-   [:div.card-display__title title]
+   [:div.card-display__title (cards/->title card)]
    [:div.card-display__body
     [markdown-displayer/main {:source body}]]
    [tags-displayer {::tags tags}]

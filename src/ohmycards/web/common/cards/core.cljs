@@ -12,10 +12,16 @@
 
 (defn from-http
   "Parses a card from an http response."
-  [{:keys [id title body tags createdAt updatedAt]}]
+  [{:keys [id title body tags createdAt updatedAt ref]}]
   {kws.card/id         id
    kws.card/title      title
    kws.card/body       body
    kws.card/tags       tags
    kws.card/created-at createdAt
-   kws.card/updated-at updatedAt})
+   kws.card/updated-at updatedAt
+   kws.card/ref        ref})
+
+(defn ->title
+  "Extracts the title of a card."
+  [{::kws.card/keys [title ref]}]
+  (str "#" ref " " title))

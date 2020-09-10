@@ -1,5 +1,6 @@
 (ns ohmycards.web.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.app.state :as app.state]
             [ohmycards.web.components.current-view.core :as components.current-view]
             [ohmycards.web.controllers.action-dispatcher.core
              :as
@@ -11,6 +12,7 @@
             [ohmycards.web.kws.lenses.routing :as lenses.routing]
             [ohmycards.web.kws.services.routing.core :as kws.routing]
             [ohmycards.web.kws.services.routing.pages :as routing.pages]
+            [ohmycards.web.services.notify :as services.notify]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.edit-card.handlers :as edit-card.handlers]
             [reagent.core :as r]))
@@ -30,7 +32,8 @@
                   ::components.current-view/login-view       ::login-view
                   ::components.current-view/view             ::current-view
                   ::components.current-view/header-component ::header-component}]
-                [controllers.action-dispatcher/component]]
+                [controllers.action-dispatcher/component]
+                [services.notify/toast]]
                (sut/current-view* state ::home-view ::login-view ::header-component))))
 
       (testing "Defaults view to home-view"
@@ -44,14 +47,14 @@
   (letfn [(gen-state [route-name] (r/atom {lenses.routing/match {:data {kws.routing/name route-name}}}))]
 
     (testing "Nil for no route"
-      (with-redefs [sut/state (atom nil)]
+      (with-redefs [app.state/state (atom nil)]
         (is (nil? (sut/contextual-actions-dispatcher-hydra-head!)))))
 
     (testing "Nil for unknown route"
-      (with-redefs [sut/state (gen-state ::unknown)]
+      (with-redefs [app.state/state (gen-state ::unknown)]
         (is (nil? (sut/contextual-actions-dispatcher-hydra-head!)))))
 
     (testing "With edit-card page, returns edit card actions"
-      (with-redefs [sut/state                     (gen-state routing.pages/edit-card)
+      (with-redefs [app.state/state              (gen-state routing.pages/edit-card)
                     edit-card.handlers/hydra-head #(do {::foo 1})]
         (is (= {::foo 1} (sut/contextual-actions-dispatcher-hydra-head!)))))))

@@ -69,7 +69,7 @@
     (let [http-resp {kws.http/success? true
                      kws.http/body     {:page 2
                                         :pageSize 1
-                                        :items [{:id 1 :title "Foo" :body "Bar" :tags ["A"]}]
+                                        :items [{:id 1 :title "Foo" :body "Bar" :tags ["A"] :ref 1}]
                                         :countOfItems 100}}
           result    (sut/parse-fetch-response http-resp)]
 
@@ -79,7 +79,8 @@
                  kws.card/body       "Bar"
                  kws.card/tags       ["A"]
                  kws.card/created-at nil
-                 kws.card/updated-at nil}]
+                 kws.card/updated-at nil
+                 kws.card/ref        1}]
                (kws/cards result))))
 
       (testing "Returns page"

@@ -10,10 +10,10 @@
              markdown-displayer]))
 
 (deftest test-title
-  (let [state (atom {kws/card {kws.card/title "A"}})]
+  (let [state (atom {kws/card {kws.card/title "A" kws.card/ref 1}})]
     (is
      (tu/exists-in-component?
-      [:div.display-card__title "A"]
+      [:div.display-card__title "#1 A"]
       (tu/comp-seq (sut/title {:state state}))))))
 
 (deftest test-id

@@ -47,6 +47,13 @@
       #(= [inputs.simple/main {:disabled true :value "FOO"}] %)
       (tu/comp-seq (sut/id-input-row {:state state}))))))
 
+(deftest test-ref-input-row
+  (let [state (atom {kws/card-input {kws.card/ref 1}})]
+    (is
+     (tu/exists-in-component?
+      [inputs.simple/main {:disabled true :value 1}]
+      (tu/comp-seq (sut/ref-input-row {:state state}))))))
+
 (deftest test-title-input-row
   (let [state     (atom {kws/card-input {kws.card/title "FOO"}})
         comp      (sut/title-input-row {:state state})
@@ -89,6 +96,9 @@
 
   (testing "Renders row for Id"
     (is (tu/exists-in-component? [sut/id-input-row {}] (sut/form {}))))
+
+  (testing "Renders row for Ref"
+    (is (tu/exists-in-component? [sut/ref-input-row {}] (sut/form {}))))
 
   (testing "Renders row for body"
     (is (tu/exists-in-component? [sut/body-input-row {}] (sut/form {}))))
