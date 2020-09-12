@@ -1,9 +1,11 @@
 (ns ohmycards.web.components.inputs.tags
   (:require [ohmycards.web.components.inputs.combobox :as combobox]
+            [ohmycards.web.components.inputs.core :as inputs]
             [ohmycards.web.kws.components.inputs.combobox.core :as kws.combobox]
             [ohmycards.web.kws.components.inputs.combobox.options
              :as
              kws.combobox.options]
+            [ohmycards.web.kws.components.inputs.core :as kws.inputs]
             [ohmycards.web.kws.components.inputs.tags :as kws]))
 
 ;; Helpers
@@ -50,3 +52,6 @@
                          :value tag
                          :on-change (tag-change-handler props index)
                          :all-tags all-tags}])]])
+
+(defmethod inputs/impl kws.inputs/t-tags [props]
+  [main props])

@@ -5,9 +5,10 @@
             [ohmycards.web.common.tags.core :as tags]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
-            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.header.core :as header]
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
+            [ohmycards.web.components.inputs.core :as inputs]
+            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.inputs.textarea :as inputs.textarea]
             [ohmycards.web.icons :as icons]
@@ -19,8 +20,10 @@
             [ohmycards.web.kws.components.inputs.combobox.options
              :as
              kws.combobox.options]
+            [ohmycards.web.kws.components.inputs.core :as kws.inputs]
             [ohmycards.web.kws.components.inputs.tags :as kws.inputs.tags]
-            [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]))
+            [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
+            [reagent.core :as r]))
 
 ;; Helpers
 (defn- title [x] [:span.cards-grid-config-dashboard__title x])
@@ -28,11 +31,10 @@
 (defn- set-btn
   "Renders a `set` button to set the value, or an error message if the coercion for the value
   failed.
-  `state`: The state.
-  `path`: A path inside the state with a coercion result for the input.
+  `cursor`: The cursor-like object containing the value of the input.
   `set-fn`: 0-arg callback called to set the value."
-  [{:keys [state path set-fn label]}]
-  (if-let [err-msg (-> @state (get-in path) kws.coercion.result/error-message)]
+  [{:keys [set-fn label cursor]}]
+  (if-let [err-msg (kws.coercion.result/error-message @cursor)]
     [error-message-box/main {:value err-msg}]
     [:div.cards-grid-config-dashboard__set-wrapper
      [:button.cards-grid-config-dashboard__set {:on-click #(set-fn)}
@@ -41,15 +43,6 @@
 (defn- input-wrapper
   [_ & children]
   (into [:div.cards-grid-config-dashboard__input-wrapper] children))
-
-(defn input-props
-  "Applies smart default to input props before sending it to `input/build-props`."
-  [state path coercer & args]
-  (apply inputs.simple/build-props state path
-         :class "cards-grid-config-dashboard__input"
-         :parse-fn #(coercion/main % coercer)
-         :unparse-fn kws.coercion.result/raw-value
-         args))
 
 (defn- header
   "A header with options"
@@ -76,101 +69,120 @@
 (defn- page-config
   "A config input for a page"
   [{:keys [state] ::kws/keys [set-page!]}]
-  (let [path          [kws/config kws.config/page]
-        set-btn-props {:state  state
-                       :path   path
-                       :set-fn #(-> @state (get-in path) kws.coercion.result/value set-page!)}
-        set-btn       [set-btn set-btn-props]
-        input-props   (assoc (input-props state path positive-int-or-nil-coercer)
-                             :class "simple-input simple-input--small")
-        input         [:<> [inputs.simple/main input-props] set-btn]]
-    [form/row {:label "Page" :input input}]))
+  (let [cursor (r/cursor state [kws/config kws.config/page])]
+    [form/row
+     {:label "Page"
+      :input [:<>
+              [inputs/main
+               {kws.inputs/cursor cursor
+                kws.inputs/coercer positive-int-or-nil-coercer
+                kws.inputs/props {:class "simple-input simple-input--small"}}]
+              [set-btn
+               {:cursor cursor
+                :set-fn #(-> @cursor kws.coercion.result/value set-page!)}]]}]))
 
 (defn- page-size-config
   "A config input for page size"
   [{:keys [state] ::kws/keys [set-page-size!]}]
-  (let [path          [kws/config kws.config/page-size]
-        set-btn-props {:state  state
-                       :path   path
-                       :set-fn #(-> @state (get-in path) kws.coercion.result/value set-page-size!)}
-        set-btn       [set-btn set-btn-props]
-        input-props   (-> (input-props state path positive-int-or-nil-coercer)
-                          (assoc :class "simple-input simple-input--small"))
-        input         [:<> [inputs.simple/main input-props] set-btn]]
-    [form/row {:label "Page Size" :input input}]))
+  (let [cursor (r/cursor state [kws/config kws.config/page-size])]
+    [form/row
+     {:label "Page Size"
+      :input [:<>
+              [inputs/main
+               {kws.inputs/cursor cursor
+                kws.inputs/coercer positive-int-or-nil-coercer
+                kws.inputs/props {:class "simple-input simple-input--small"}}]
+              [set-btn
+               {:cursor cursor
+                :set-fn #(-> @cursor kws.coercion.result/value set-page-size!)}]]}]))
 
 (defn- include-tags-config
   "A config for tags to include"
   [{:keys [state] ::kws/keys [set-include-tags! cards-metadata]}]
-  (let [all-tags      (kws.card-metadata/tags cards-metadata)
-        path          [kws/config kws.config/include-tags]
-        set-fn        #(do (swap! state update-in path coercion.result/copy-value-to-raw-value)
-                           (-> @state (get-in path) kws.coercion.result/value set-include-tags!))
-        set-btn-props {:state  state
-                       :path   path
-                       :set-fn set-fn}
-        set-btn       [set-btn set-btn-props]
-        input-props   (-> (input-props state path coercers/tags)
-                          (assoc kws.inputs.tags/all-tags all-tags))
-        input         [:<> [inputs.tags/main input-props] set-btn]]
-    [form/row {:label "ALL tags" :input input}]))
+  (let [all-tags (kws.card-metadata/tags cards-metadata)
+        cursor (r/cursor state [kws/config kws.config/include-tags])]
+    [form/row
+     {:label "ALL tags"
+      :input [:<>
+              [inputs/main
+               {kws.inputs/cursor cursor
+                kws.inputs/itype kws.inputs/t-tags
+                kws.inputs/coercer coercers/tags
+                kws.inputs/props {kws.inputs.tags/all-tags all-tags}}]
+              [set-btn
+               {:cursor cursor
+                :set-fn #(do (swap! cursor coercion.result/copy-value-to-raw-value)
+                             (-> @cursor kws.coercion.result/value set-include-tags!))}]]}]))
 
 (defn- exclude-tags-config
   "A config for tags to exclude"
   [{:keys [state] ::kws/keys [set-exclude-tags! cards-metadata]}]
-  (let [all-tags      (kws.card-metadata/tags cards-metadata)
-        path          [kws/config kws.config/exclude-tags]
-        input-props   (-> (input-props state path coercers/tags)
-                          (assoc kws.inputs.tags/all-tags all-tags))
-        set-fn        #(do (swap! state update-in path coercion.result/copy-value-to-raw-value)
-                           (-> @state (get-in path) kws.coercion.result/value set-exclude-tags!))
-        set-btn-props {:state  state
-                       :path   path
-                       :set-fn set-fn}
-        input [:<> [inputs.tags/main input-props] [set-btn set-btn-props]]]
-    [form/row {:label "NONE OF tags" :input input}]))
+  (let [all-tags (kws.card-metadata/tags cards-metadata)
+        cursor (r/cursor state [kws/config kws.config/exclude-tags])]
+    [form/row
+     {:label "NONE OF tags"
+      :input [:<>
+              [inputs/main
+               {kws.inputs/cursor cursor
+                kws.inputs/itype kws.inputs/t-tags
+                kws.inputs/coercer coercers/tags
+                kws.inputs/props {kws.inputs.tags/all-tags all-tags}}]
+              [set-btn
+               {:cursor cursor
+                :set-fn #(do (swap! cursor coercion.result/copy-value-to-raw-value)
+                             (-> @cursor kws.coercion.result/value set-exclude-tags!))}]]}]))
 
 (defn- tags-filter-query-config
   "A config for the tags filter query."
   [{:keys [state] ::kws/keys [set-tags-filter-query!]}]
-  (let [path          [kws/config kws.config/tags-filter-query]
-        input-props   (input-props state path coercers/string)
-        set-fn        #(-> @state (get-in path) kws.coercion.result/value set-tags-filter-query!)
-        set-btn-props {:state  state
-                       :path   path
-                       :set-fn set-fn}
-        input [:<> [inputs.textarea/main input-props] [set-btn set-btn-props]]]
-    [form/row {:label "Tag Filter Query" :input input}]))
+  (let [cursor (r/cursor state [kws/config kws.config/tags-filter-query])]
+    [form/row
+     {:label "Tag Filter Query"
+      :input [:<>
+              [inputs/main
+               {kws.inputs/itype kws.inputs/t-textarea
+                kws.inputs/cursor cursor
+                kws.inputs/coercer coercers/string}]
+              [set-btn
+               {:cursor cursor
+                :set-fn #(-> @cursor kws.coercion.result/value set-tags-filter-query!)}]]}]))
 
 (defn- load-profile-name
   "A row for the user to load a profile by it's name."
   [{:keys [state] ::kws/keys [profiles-names load-profile!]}]
-  (let [path          [kws/load-profile-name]
-        options       (inputs.combobox/seq->options profiles-names)
-        set-btn-props {:label  "Load!"
-                       :state  state
-                       :path   path
-                       :set-fn #(-> @state (get-in path) kws.coercion.result/value load-profile!)}
-        input-props   (-> (input-props state path (coercers/is-in profiles-names))
-                          (assoc kws.combobox/options options))
-        input         [:<> [inputs.combobox/main input-props] [set-btn set-btn-props]]]
-    [form/row {:label "Load Profile" :input input}]))
+  (let [cursor (r/cursor state [kws/load-profile-name])
+        options (inputs.combobox/seq->options profiles-names)]
+    [form/row
+     {:label "Load Profile"
+      :input [:<>
+              [inputs/main
+               {kws.inputs/itype kws.inputs/t-combobox
+                kws.inputs/cursor cursor
+                kws.inputs/coercer (coercers/is-in profiles-names)
+                kws.inputs/props {kws.combobox/options options}}]
+              [set-btn
+               {:label "Load!"
+                :cursor cursor
+                :set-fn #(-> @cursor kws.coercion.result/value load-profile!)}]]}]))
 
 (defn- save-profile-name
   "A row for the user to save a profile by it's name."
   [{:keys [state] ::kws/keys [save-profile!]}]
-  (let [path             [kws/save-profile-name]
-        profile-for-save (get-profile-for-save @state)
-        input-props      (input-props state path string-with-min-len-2)
-        set-btn-props    {:label  "Save!"
-                          :state  state
-                          :path   path
-                          :set-fn #(save-profile! profile-for-save)}
-        extra-comp       (if profile-for-save
-                           [set-btn set-btn-props]
-                           [error-message-box/main {:value "Invalid values prevent save!"}])
-        input            [:<> [inputs.simple/main input-props] extra-comp]]
-    [form/row {:label "Save Profile" :input input}]))
+  (let [profile-for-save (get-profile-for-save @state)
+        cursor (r/cursor state [kws/save-profile-name])]
+    [form/row
+     {:label "Save Profile"
+      :input [:<>
+              [inputs/main
+               {kws.inputs/coercer string-with-min-len-2
+                kws.inputs/cursor cursor}]
+              (if profile-for-save
+                [set-btn
+                 {:label  "Save!"
+                  :cursor cursor
+                  :set-fn #(save-profile! profile-for-save)}]
+                [error-message-box/main
+                 {:value "Invalid values prevent save!"}])]}]))
 
 (defn- grid-config
   "General configuration for the grid"

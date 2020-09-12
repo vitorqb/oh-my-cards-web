@@ -18,6 +18,7 @@
 [ohmycards.web.components.form.core-test]
 [ohmycards.web.components.hydra.core-test]
 [ohmycards.web.components.inputs.combobox-test]
+[ohmycards.web.components.inputs.core-test]
 [ohmycards.web.components.inputs.simple-test]
 [ohmycards.web.components.inputs.tags-test]
 [ohmycards.web.components.loading-wrapper.core-test]

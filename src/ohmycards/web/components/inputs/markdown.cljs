@@ -1,7 +1,9 @@
 (ns ohmycards.web.components.inputs.markdown
-  (:require ["react-mde" :default ReactMde]
-            ["react-markdown" :as ReactMarkdown]
+  (:require [ohmycards.web.components.inputs.core :as inputs]
+            [ohmycards.web.kws.components.inputs.core :as kws.inputs]
             [react :as react]
+            ["react-markdown" :as ReactMarkdown]
+            ["react-mde" :default ReactMde]
             [reagent.core :as r]
             [reagent.impl.template :as rtpl]))
 
@@ -42,3 +44,6 @@
                    :on-tab-change #(reset! !tab %)
                    :generate-markdown-preview #(render-markdown %)
                    :min-editor-height 300}]])))
+
+(defmethod inputs/impl kws.inputs/t-markdown [props]
+  [main props])
