@@ -1,6 +1,7 @@
 (ns ohmycards.web.views.edit-card.handlers-test
   (:require [cljs.core.async :as async]
             [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.common.coercion.result :as coercion.result]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
             [ohmycards.web.kws.hydra.core :as kws.hydra]
@@ -9,7 +10,8 @@
             [ohmycards.web.kws.views.edit-card.core :as kws]
             [ohmycards.web.services.cards-crud.core :as cards-crud]
             [ohmycards.web.views.edit-card.handlers :as sut]
-            [ohmycards.web.views.edit-card.state-management :as state-management]))
+            [ohmycards.web.views.edit-card.state-management :as state-management]
+            [reagent.core :as r]))
 
 (deftest test-reduce-before-event
 
@@ -105,6 +107,27 @@
              (kws/selected-card (sut/reduce-after-update {} {kws.cards-crud/updated-card card}))))
       (is (= (state-management/card->form-input card)
              (kws/card-input (sut/reduce-after-update {} {kws.cards-crud/updated-card card})))))))
+
+(deftest test-update-card!
+
+  (testing "If no coercion errors, calls run!"
+    (let [run-calls (atom 0)]
+      (with-redefs [sut/run-update-card! #(swap! run-calls inc)]
+        (let [card-input {kws.card/tags (coercion.result/success ["A"] ["A"])}
+              state (r/atom {kws/card-input card-input})]
+          (sut/update-card! {:state state})
+          (is (= 1 @run-calls))))))
+
+  (testing "If coercion errors, calls warn-user-of-invalid-input!"
+    (let [run-calls (atom 0)
+          warn-user-calls (atom 0)]
+      (with-redefs [sut/run-update-card! #(swap! run-calls inc)
+                    sut/warn-user-of-invalid-input! #(swap! warn-user-calls inc)]
+        (let [card-input {kws.card/tags (coercion.result/failure ["A"] "ERR")}
+              state (r/atom {kws/card-input card-input})]
+          (sut/update-card! {:state state})
+          (is (= 0 @run-calls))
+          (is (= 1 @warn-user-calls)))))))
 
 (deftest test-goto-displaycard!
 

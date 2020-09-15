@@ -7,7 +7,10 @@
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
             [ohmycards.web.kws.views.edit-card.core :as kws]
             [ohmycards.web.services.cards-crud.core :as cards-crud]
+            [ohmycards.web.views.edit-card.queries :as queries]
             [ohmycards.web.views.edit-card.state-management :as state-management]))
+
+(def INVALID_FORM_MSG "ERROR: The form contains invalid data preventing the update!")
 
 (defn- deleted-card-msg [c]
   (str "Deleted card with id " (kws.card/id c)))
@@ -59,14 +62,26 @@
                                kws/card-input (state-management/card->form-input updated-card)
                                kws/selected-card updated-card)))
 
-(defn update-card!
-  "Handler to update a card."
+(defn- run-update-card!
+  "Runs the update of a card."
   [{:keys [http-fn state]}]
   (swap! state reduce-before-event)
   (a/go
     (let [card (-> @state kws/card-input state-management/form-input->card)
           resp (a/<! (cards-crud/update! {:http-fn http-fn} card))]
       (swap! state reduce-after-update resp))))
+
+(defn- warn-user-of-invalid-input!
+  "Warns the user of invalid input that prevents update of the card."
+  [props]
+  ((:notify! props) INVALID_FORM_MSG))
+
+(defn update-card!
+  "Handler to update a card."
+  [props]
+  (if (queries/input-error? props)
+    (warn-user-of-invalid-input! props)
+    (run-update-card! props)))
 
 (defn goto-displaycard!
   "Navigates to the page that displays the card."

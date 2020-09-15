@@ -86,7 +86,8 @@
    kws.edit-card/cards-metadata (lenses.metadata/cards @app.state/state)
    kws.edit-card/confirm-deletion-fn! services.user-question/confirm-card-delete
    :http-fn app.provider/http-fn
-   :state (app.state/state-cursor :views.edit-card)})
+   :state (app.state/state-cursor :views.edit-card)
+   :notify! app.provider/notify!})
 
 (defn edit-card-page
   "An instance for the edit-card view"
