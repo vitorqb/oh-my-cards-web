@@ -68,4 +68,5 @@
 [ohmycards.web.views.new-card.form-test]
 [ohmycards.web.views.new-card.handlers.create-card-test]
 [ohmycards.web.views.new-card.header-test]
+[ohmycards.web.views.new-card.queries-test]
 ))

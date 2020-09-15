@@ -148,6 +148,7 @@
   []
   {:http-fn app.provider/http-fn
    :state (app.state/state-cursor :views.new-card)
+   :notify! app.provider/notify!
    :path-to! services.routing/path-to!
    kws.new-card/goto-home! #(services.routing/goto! routing.pages/home)
    kws.new-card/cards-metadata (lenses.metadata/cards @app.state/state)})

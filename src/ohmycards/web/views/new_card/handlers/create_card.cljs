@@ -1,8 +1,12 @@
 (ns ohmycards.web.views.new-card.handlers.create-card
-  (:require [ohmycards.web.kws.views.new-card.core :as kws]
+  (:require [cljs.core.async :as a]
+            [ohmycards.web.kws.services.cards-crud.core :as kws.services.cards-crud]
+            [ohmycards.web.kws.views.new-card.core :as kws]
             [ohmycards.web.services.cards-crud.core :as services.cards-crud]
-            [cljs.core.async :as a]
-            [ohmycards.web.kws.services.cards-crud.core :as kws.services.cards-crud]))
+            [ohmycards.web.views.new-card.queries :as queries])
+  (:refer-clojure :exclude [run!]))
+
+(def INVALID_FORM_MSG "ERROR: The form contains invalid data preventing the creation!")
 
 (defn- should-create?
   "Given the current state, returns true if a create attempt can be performed."
@@ -26,11 +30,24 @@
     created-card (assoc kws/created-card created-card)
     created-card (assoc kws/card-input {})))
 
-(defn main
-  "Creates a card from the new-card props."
-  [{:keys [http-fn state]}]
-  (when (should-create? @state)
+(defn- run!
+  "Runs the creation."
+  [{:keys [http-fn state] :as props}]
+  (let [card-form-input (queries/card-form-input props)]
     (a/go
       (swap! state before-create)
-      (let [res (a/<! (services.cards-crud/create! {:http-fn http-fn} (kws/card-input @state)))]
+      (let [res (a/<! (services.cards-crud/create! {:http-fn http-fn} card-form-input))]
         (swap! state after-create res)))))
+
+(defn- warn-user-of-invalid-input!
+  "Warns the user about invalid inputs preventing the creation."
+  [props]
+  ((:notify! props) INVALID_FORM_MSG))
+
+(defn main
+  "Creates a card from the new-card props."
+  [{:keys [http-fn state] :as props}]
+  (when (should-create? @state)
+    (if (queries/form-has-errors? props)
+      (warn-user-of-invalid-input! props)
+      (run! props))))
