@@ -1,8 +1,10 @@
 (ns ohmycards.web.components.inputs.combobox
   (:require ["@reach/combobox" :as combobox]
             [ohmycards.web.common.string.fuzzy-match :as fuzzy-match]
+            [ohmycards.web.components.inputs.core :as inputs]
             [ohmycards.web.kws.components.inputs.combobox.core :as kws]
             [ohmycards.web.kws.components.inputs.combobox.options :as kws.options]
+            [ohmycards.web.kws.components.inputs.core :as kws.inputs]
             [reagent.core :as r]))
 
 ;; Wrappers
@@ -34,3 +36,7 @@
      [ComboboxList {}]
      (for [o (filter-options-by-value options value)]
        [ComboboxOption {:value (kws.options/value o)}]))]])
+
+(defmethod inputs/impl kws.inputs/t-combobox
+  [props]
+  [main props])

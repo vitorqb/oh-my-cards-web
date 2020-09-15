@@ -86,7 +86,8 @@
    kws.edit-card/cards-metadata (lenses.metadata/cards @app.state/state)
    kws.edit-card/confirm-deletion-fn! services.user-question/confirm-card-delete
    :http-fn app.provider/http-fn
-   :state (app.state/state-cursor :views.edit-card)})
+   :state (app.state/state-cursor :views.edit-card)
+   :notify! app.provider/notify!})
 
 (defn edit-card-page
   "An instance for the edit-card view"
@@ -148,6 +149,7 @@
   []
   {:http-fn app.provider/http-fn
    :state (app.state/state-cursor :views.new-card)
+   :notify! app.provider/notify!
    :path-to! services.routing/path-to!
    kws.new-card/goto-home! #(services.routing/goto! routing.pages/home)
    kws.new-card/cards-metadata (lenses.metadata/cards @app.state/state)})

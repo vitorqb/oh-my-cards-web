@@ -1,23 +1,28 @@
 (ns ohmycards.web.views.edit-card.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.common.coercion.coercers :as coercion.coercers]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
-            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
+            [ohmycards.web.components.inputs.core :as inputs]
             [ohmycards.web.components.inputs.markdown :as inputs.markdown]
+            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.card-metadata :as kws.card-metadata]
+            [ohmycards.web.kws.components.inputs.core :as kws.inputs]
             [ohmycards.web.kws.components.inputs.tags :as kws.inputs.tags]
             [ohmycards.web.kws.views.edit-card.core :as kws]
             [ohmycards.web.test-utils :as tu]
-            [ohmycards.web.views.edit-card.core :as sut]))
+            [ohmycards.web.views.edit-card.core :as sut]
+            [ohmycards.web.views.edit-card.state-management :as state-management]
+            [reagent.core :as r]))
 
 (deftest test-display-btn
   (testing "Calls `goto-displaycard!` with id"
     (let [goto-displaycard! #(do [::result %])
-          state (atom {kws/card-input {kws.card/id 1}})
+          state (atom {kws/card-input (state-management/card->form-input {kws.card/id 1})})
           props {:state state kws/goto-displaycard! goto-displaycard!}
           on-click (-> props sut/display-btn second :on-click)]
       (is (= (on-click 1) [::result 1])))))
@@ -41,53 +46,58 @@
       (is (some #(= [sut/display-btn props] %) comp-seq)))))
 
 (deftest test-id-input-row
-  (let [state (atom {kws/card-input {kws.card/id "FOO"}})]
-    (is
-     (some
-      #(= [inputs.simple/main {:disabled true :value "FOO"}] %)
-      (tu/comp-seq (sut/id-input-row {:state state}))))))
+  (let [state (r/atom {})]
+    (is (= [form/row
+            {:label "Id"
+             :input [inputs/main
+                     {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/id])
+                      kws.inputs/disabled? true
+                      kws.inputs/coercer identity}]}]
+           (sut/id-input-row {:state state})))))
 
 (deftest test-ref-input-row
-  (let [state (atom {kws/card-input {kws.card/ref 1}})]
-    (is
-     (tu/exists-in-component?
-      [inputs.simple/main {:disabled true :value 1}]
-      (tu/comp-seq (sut/ref-input-row {:state state}))))))
+  (let [state (r/atom {})]
+    (is (= [form/row
+            {:label "Ref"
+             :input [inputs/main
+                     {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/ref])
+                      kws.inputs/disabled? true
+                      kws.inputs/coercer identity}]}]
+           (sut/ref-input-row {:state state})))))
 
 (deftest test-title-input-row
-  (let [state     (atom {kws/card-input {kws.card/title "FOO"}})
-        comp      (sut/title-input-row {:state state})
-        [_ props] (tu/get-first
-                   #(= (tu/safe-first %) inputs.simple/main)
-                   (tu/comp-seq comp))]
-    (is (= "FOO" (:value props)))
-    (is (ifn? (:on-change props)))))
+  (let [state (r/atom {})]
+    (is (= [form/row
+            {:label "Title"
+             :input [inputs/main
+                     {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/title])
+                      kws.inputs/coercer identity}]}]
+           (sut/title-input-row {:state state})))))
 
 (deftest test-body-input-row
-  (let [state     (atom {kws/card-input {kws.card/body "FOO"}})
-        comp      (sut/body-input-row {:state state})
-        props     (tu/get-props-for inputs.markdown/main (tu/comp-seq comp))]
-    (is (= "FOO" (:value props)))
-    (is (ifn? (:on-change props)))))
+  (let [state (r/atom {})]
+    (is (= [form/row
+            {:label "Body"
+             :input [inputs/main
+                     {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/body])
+                      kws.inputs/itype kws.inputs/t-markdown
+                      kws.inputs/coercer identity}]}]
+           (sut/body-input-row {:state state})))))
 
 (deftest test-tags-input-row
 
   (testing "Renders a tags input"
-    (let [path [kws/card-input kws.card/tags]
-          state (atom (assoc-in {} path ::value))
-          cards-metadata {kws.card-metadata/tags ["A"]}
-          component (sut/tags-input-row {:state state kws/cards-metadata cards-metadata})
-          [_ form-row-props] component
-          [_ input-props] (:input form-row-props)]
-
-      (testing "Passes value"
-        (is (= ::value (:value input-props))))
-
-      (testing "Passes on-change"
-        (is (fn? (:on-change input-props))))
-
-      (testing "Passes all-tags"
-        (is (= ["A"] (kws.inputs.tags/all-tags input-props)))))))
+    (let [state (r/atom {})
+          props {:state state kws/cards-metadata {kws.card-metadata/tags ["A"]}}]
+      (is (= [form/row
+              {:label "Tags"
+               :input [inputs/main
+                       {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/tags])
+                        kws.inputs/itype kws.inputs/t-tags
+                        kws.inputs/props {kws.inputs.tags/all-tags ["A"]}
+                        kws.inputs/coercer coercion.coercers/tags}]
+               :error-message nil}]
+             (sut/tags-input-row props))))))
 
 (deftest test-form
 

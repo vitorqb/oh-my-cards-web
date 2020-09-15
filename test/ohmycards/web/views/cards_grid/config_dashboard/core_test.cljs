@@ -3,9 +3,9 @@
             [ohmycards.web.common.coercion.coercers :as coercers]
             [ohmycards.web.common.coercion.result :as coercion.result]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
-            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.inputs.combobox :as inputs.combobox]
+            [ohmycards.web.components.inputs.core :as inputs]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.inputs.textarea :as inputs.textarea]
             [ohmycards.web.kws.card-metadata :as kws.card-metadata]
@@ -15,10 +15,12 @@
             [ohmycards.web.kws.components.inputs.combobox.options
              :as
              kws.combobox.options]
-            [ohmycards.web.kws.components.inputs.tags :as kws.tags]
+            [ohmycards.web.kws.components.inputs.core :as kws.inputs]
+            [ohmycards.web.kws.components.inputs.tags :as kws.inputs.tags]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
             [ohmycards.web.test-utils :as tu]
-            [ohmycards.web.views.cards-grid.config-dashboard.core :as sut]))
+            [ohmycards.web.views.cards-grid.config-dashboard.core :as sut]
+            [reagent.core :as r]))
 
 (deftest test-main
 
@@ -33,6 +35,37 @@
     
     (testing "Contains profile-manager"
       (is (tu/exists-in-component? [sut/profile-manager props] comp)))))
+
+(deftest test-set-btn
+
+  (letfn [(find-btn [comp] (tu/get-first
+                            #(= (tu/safe-first %) :button.cards-grid-config-dashboard__set)
+                            comp))]
+
+    (testing "Renders the text Set inside a button"
+      (let [cursor (r/cursor (r/atom {}) [:foo])
+            comp (sut/set-btn {:cursor cursor :set-fn #(do)})
+            [_ _ label] (find-btn comp)]
+        (is (= label "Set"))))
+
+    (testing "Passe set-fn to button"
+      (let [cursor (r/cursor (r/atom {}) [:foo])
+            set-fn #(reset! cursor 1)
+            [_ props _] (find-btn (sut/set-btn {:cursor cursor :set-fn set-fn}))]
+        ((:on-click props))
+        (is (= 1 @cursor))))
+
+    (testing "If has coercion error..."
+      (let [cursor (r/atom (coercion.result/failure "" "err"))
+            comp  (sut/set-btn {:cursor cursor :set-fn #(do)})]
+
+        (testing "does not render button"
+          (is (nil? (find-btn comp))))
+
+        (testing "renders an error message box with correct value"
+          (let [[c props] comp]
+            (is (= c error-message-box/main))
+            (is (= "err" (:value props)))))))))
 
 (deftest test-profile-manager
 
@@ -51,14 +84,13 @@
 
 (deftest test-load-profile-name
 
-  (with-redefs [sut/input-props (fn [a b c & xs] {:a a :b b :c c :xs xs})
-                coercers/is-in  (fn [& xs] [::is-n xs])]
+  (with-redefs [coercers/is-in  (fn [& xs] [::is-n xs])]
 
-    (let [state (atom {})
+    (let [state (r/atom {})
+          cursor (r/cursor state [kws/load-profile-name])
           props {:state state kws/profiles-names ["Foo"]}
           comp  (sut/load-profile-name props)
-          [row row-props] comp
-          input (:input row-props)]
+          row-props (tu/get-props-for form/row (tu/comp-seq comp))]
 
       (testing "Renders label"
         (is (= "Load Profile" (:label row-props))))
@@ -66,17 +98,55 @@
       (testing "Renders input"
         (is
          (tu/exists-in-component?
-          [inputs.combobox/main
-           (-> (sut/input-props state [kws/load-profile-name] (coercers/is-in ["Foo"]))
-               (assoc kws.combobox/options [{kws.combobox.options/value "Foo"}]))]
-          (tu/comp-seq input))))
+          [inputs/main
+           {kws.inputs/itype kws.inputs/t-combobox
+            kws.inputs/props {kws.combobox/options [{kws.combobox.options/value "Foo"}]}
+            kws.inputs/cursor cursor
+            kws.inputs/coercer [::is-n [["Foo"]]]}]
+          (tu/comp-seq comp))))
 
       (testing "Renders set-btn"
-        (let [btn-props (tu/get-props-for sut/set-btn (tu/comp-seq input))]
+        (let [btn-props (tu/get-props-for sut/set-btn (tu/comp-seq comp))]
           (is (fn? (:set-fn btn-props)))
-          (is (= state (:state btn-props)))
-          (is (= "Load!" (:label btn-props)))
-          (is (= [kws/load-profile-name] (:path btn-props))))))))
+          (is (= cursor (:cursor btn-props)))
+          (is (= "Load!" (:label btn-props))))))))
+
+(deftest test-save-profile-name
+
+  (testing "With valid profile" 
+    (let [state (r/atom {kws/save-profile-name (coercion.result/success "" "")
+                         kws/config {}})
+          cursor (r/cursor state [kws/save-profile-name])
+          props {:state state}
+          comp  (sut/save-profile-name props)
+          row-props (tu/get-props-for form/row (tu/comp-seq comp))]
+
+      (testing "Passes label"
+        (is (= "Save Profile" (:label row-props))))
+
+      (testing "Renders input"
+        (is
+         (tu/exists-in-component?
+          [inputs/main
+           {kws.inputs/coercer sut/string-with-min-len-2
+            kws.inputs/cursor cursor}]
+          (tu/comp-seq comp))))
+
+      (testing "Renders set-btn"
+        (let [props (tu/get-props-for sut/set-btn (tu/comp-seq comp))]
+          (is (= "Save!" (:label props)))
+          (is (= cursor (:cursor props)))
+          (is (fn? (:set-fn props)))))))
+  
+  (testing "With invalid profile" 
+    (let [state (r/atom {kws/config {kws.config/page (coercion.result/failure "" "")}})
+          props {:state state}
+          comp  (sut/save-profile-name props)]
+
+      (testing "Renders error"
+        (tu/exists-in-component?
+         [error-message-box/main {:value "Invalid values prevent save!"}]
+         (tu/comp-seq (tu/comp-seq comp)))))))
 
 (deftest test-grid-config
 
@@ -101,50 +171,6 @@
 
     (testing "Renders tags-filter-query-config"
       (is (exists-in-comp? [sut/tags-filter-query-config props])))))
-
-(deftest test-save-profile-name
-
-  (with-redefs [sut/input-props vector]
-
-    (testing "With valid profile" 
-      (let [state (atom {kws/save-profile-name (coercion.result/success "" "")
-                         kws/config {}})
-            props {:state state}
-            comp  (sut/save-profile-name props)
-            [row row-props] comp
-            input (:input row-props)]
-
-        (testing "Renders form row"
-          (is (= form/row row)))
-
-        (testing "Passes label"
-          (is (= "Save Profile" (:label row-props))))
-
-        (testing "Renders input"
-          (is
-           (tu/exists-in-component?
-            [inputs.simple/main
-             (sut/input-props state [kws/save-profile-name] sut/string-with-min-len-2)]
-            (tu/comp-seq input))))
-
-        (testing "Renders set-btn"
-          (let [props (tu/get-props-for sut/set-btn (tu/comp-seq input))]
-            (is (= "Save!" (:label props)))
-            (is (= state (:state props)))
-            (is (= [kws/save-profile-name] (:path props)))
-            (is (fn? (:set-fn props)))))))
-    
-    (testing "With invalid profile" 
-      (let [state (atom {kws/config {kws.config/page (coercion.result/failure "" "")}})
-            props {:state state}
-            comp  (sut/save-profile-name props)
-            [row row-props] comp
-            input (:input row-props)]
-
-        (testing "Renders error"
-          (tu/exists-in-component?
-           [error-message-box/main {:value "Invalid values prevent save!"}]
-           (tu/comp-seq input)))))))
 
 (deftest test-get-profile-for-save
 
@@ -174,106 +200,109 @@
 
 (deftest test-page-config
 
-  (let [coerced-value (coercion.result/success "2" 2)]
+  (testing "Contains input with cursor"
+    (let [state (atom {})]
+      (with-redefs [r/cursor #(do [::cursor %1 %2])]
+        (is (tu/exists-in-component?
+             [inputs/main
+              {kws.inputs/cursor [::cursor state [kws/config kws.config/page]]
+               kws.inputs/coercer sut/positive-int-or-nil-coercer
+               kws.inputs/props {:class "simple-input simple-input--small"}}]
+             (tu/comp-seq (sut/page-config {:state state})))))))
 
-    (testing "Contains input with value"
-      (let [props {:state (atom {kws/config {kws.config/page coerced-value}})}
-            [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.simple/main)
-                                          (tu/comp-seq (sut/page-config props)))]
-        (is (= (:value input-props) "2"))))))
+  (testing "set-fn calls set-page!"
+    (let [state (r/atom {})
+          calls (atom 0)
+          props {:state state kws/set-page! #(swap! calls inc)}
+          comp (sut/page-config props)
+          set-btn-props (tu/get-props-for sut/set-btn (tu/comp-seq comp))]
+      ((:set-fn set-btn-props))
+      (is (= 1 @calls)))))
 
 (deftest test-page-site-config
 
-  (let [coerced-value (coercion.result/success "20" 20)]
+  (testing "Contains input with cursor"
+    (let [state (atom {})]
+      (with-redefs [r/cursor #(do [::cursor %1 %2])]
+        (is (tu/exists-in-component?
+             [inputs/main
+              {kws.inputs/cursor [::cursor state [kws/config kws.config/page-size]]
+               kws.inputs/coercer sut/positive-int-or-nil-coercer
+               kws.inputs/props {:class "simple-input simple-input--small"}}]
+             (tu/comp-seq (sut/page-size-config {:state state})))))))
 
-    (testing "Contains input with value"
-      (let [props {:state (atom {kws/config {kws.config/page-size coerced-value}})}
-            [_ input-props] (tu/get-first #(= (tu/safe-first %) inputs.simple/main)
-                                          (tu/comp-seq (sut/page-size-config props)))]
-        (is (= (:value input-props) "20"))))))
+  (testing "set-fn calls set-page-size!"
+    (let [state (r/atom {})
+          calls (atom 0)
+          props {:state state kws/set-page-size! #(swap! calls inc)}
+          comp (sut/page-size-config props)
+          set-btn-props (tu/get-props-for sut/set-btn (tu/comp-seq comp))]
+      ((:set-fn set-btn-props))
+      (is (= 1 @calls)))))
 
 (deftest test-include-tags-config
 
-  (let [coerced-value (coercion.result/success ["A"] ["A"])
-        props {:state (atom {kws/config {kws.config/include-tags coerced-value}})
-               kws/cards-metadata {kws.card-metadata/tags ["A"]}}
-        comp (sut/include-tags-config props)
-        [row row-props] comp
-        input (:input row-props)]
+  (testing "Contains input with cursor"
+    (let [state (atom {})
+          props {:state state kws/cards-metadata {kws.card-metadata/tags ["A"]}}]
+      (with-redefs [r/cursor #(do [::cursor %1 %2])]
+        (is (tu/exists-in-component?
+             [inputs/main
+              {kws.inputs/cursor [::cursor state [kws/config kws.config/include-tags]]
+               kws.inputs/coercer coercers/tags
+               kws.inputs/itype kws.inputs/t-tags
+               kws.inputs/props {kws.inputs.tags/all-tags ["A"]}}]
+             (tu/comp-seq (sut/include-tags-config props)))))))
 
-    (testing "Includes label"
-      (is (= "ALL tags" (:label row-props))))
-
-    (testing "Contains input with value"
-      (let [input-props (tu/get-props-for inputs.tags/main (tu/comp-seq input))]
-        (is (= ["A"] (:value input-props)))))
-
-    (testing "Contains input with all tags"
-      (let [input-props (tu/get-props-for inputs.tags/main (tu/comp-seq input))]
-        (is (= (kws.tags/all-tags input-props) ["A"]))))))
+  (testing "set-fn calls set-include-tags!"
+    (let [state (r/atom {})
+          calls (atom 0)
+          props {:state state kws/set-include-tags! #(swap! calls inc)}
+          comp (sut/include-tags-config props)
+          set-btn-props (tu/get-props-for sut/set-btn (tu/comp-seq comp))]
+      ((:set-fn set-btn-props))
+      (is (= 1 @calls)))))
 
 (deftest test-exclude-tags-config
 
-  (let [coerced-value (coercion.result/success ["A"] ["A"])
-        cards-metadata {kws.card-metadata/tags ["B"]}
-        props {:state (atom {kws/config {kws.config/exclude-tags coerced-value}})
-               kws/cards-metadata cards-metadata}
-        comp (sut/exclude-tags-config props)
-        [row row-props] comp
-        input (:input row-props)
-        tags-input-props (tu/get-props-for inputs.tags/main (tu/comp-seq input))]
+  (testing "Contains input with cursor"
+    (let [state (atom {})
+          props {:state state kws/cards-metadata {kws.card-metadata/tags ["A"]}}]
+      (with-redefs [r/cursor #(do [::cursor %1 %2])]
+        (is (tu/exists-in-component?
+             [inputs/main
+              {kws.inputs/cursor [::cursor state [kws/config kws.config/exclude-tags]]
+               kws.inputs/coercer coercers/tags
+               kws.inputs/itype kws.inputs/t-tags
+               kws.inputs/props {kws.inputs.tags/all-tags ["A"]}}]
+             (tu/comp-seq (sut/exclude-tags-config props)))))))
 
-    (testing "Includes label"
-      (is (= "NONE OF tags" (:label row-props))))
-
-    (testing "Contains input with value"
-      (is (= (:value tags-input-props) ["A"])))
-
-    (testing "Contains input with all tags"
-      (is (= (kws.tags/all-tags tags-input-props) ["B"])))))
+  (testing "set-fn calls set-exclude-tags!"
+    (let [state (r/atom {})
+          calls (atom 0)
+          props {:state state kws/set-exclude-tags! #(swap! calls inc)}
+          comp (sut/exclude-tags-config props)
+          set-btn-props (tu/get-props-for sut/set-btn (tu/comp-seq comp))]
+      ((:set-fn set-btn-props))
+      (is (= 1 @calls)))))
 
 (deftest test-tags-filter-query-config
 
-  (let [value (coercion.result/raw-value->success "foo")
-        path [kws/config kws.config/tags-filter-query]
-        props {:state (atom (assoc-in {} path value))}
-        comp  (sut/tags-filter-query-config props)
-        [row row-props] comp]
+  (testing "Contains input with cursor"
+    (let [state (atom {})]
+      (with-redefs [r/cursor #(do [::cursor %1 %2])]
+        (is (tu/exists-in-component?
+             [inputs/main
+              {kws.inputs/itype kws.inputs/t-textarea
+               kws.inputs/cursor [::cursor state [kws/config kws.config/tags-filter-query]]
+               kws.inputs/coercer coercers/string}]
+             (tu/comp-seq (sut/tags-filter-query-config {:state state})))))))
 
-    (testing "Includes label"
-      (is (= "Tag Filter Query" (:label row-props))))
-
-    (testing "Renders textarea"
-      (let [textarea-props (tu/get-props-for inputs.textarea/main (tu/comp-seq comp))]
-        (is (ifn? (:on-change textarea-props)))
-        (is (= "foo" (:value textarea-props)))))))
-
-(deftest test-set-btn
-
-  (letfn [(find-btn [comp] (tu/get-first
-                            #(= (tu/safe-first %) :button.cards-grid-config-dashboard__set)
-                            comp))]
-
-    (testing "Renders the text Set inside a button"
-      (let [comp        (sut/set-btn {:state (atom {}) :path [:foo] :set-fn #(do)})
-            [_ _ label] (find-btn comp)]
-        (is (= label "Set"))))
-
-    (testing "Passe set-fn to button"
-      (let [state  (atom {})
-            set-fn #(swap! state assoc :foo 1)
-            [_ props _] (find-btn (sut/set-btn {:state state :path [:foo] :set-fn set-fn}))]
-        ((:on-click props))
-        (is (= 1 (:foo @state)))))
-
-    (testing "If has coercion error..."
-      (let [state (atom {:foo (coercion.result/failure "" "err")})
-            comp  (sut/set-btn {:state state :path [:foo] :set-fn #(do)})]
-
-        (testing "does not render button"
-          (is (nil? (find-btn comp))))
-
-        (testing "renders an error message box with correct value"
-          (let [[c props] comp]
-            (is (= c error-message-box/main))
-            (is (= "err" (:value props)))))))))
+  (testing "set-fn calls set-tags-filter-query"
+    (let [state (r/atom {})
+          calls (atom 0)
+          props {:state state kws/set-tags-filter-query! #(swap! calls inc)}
+          comp (sut/tags-filter-query-config props)
+          set-btn-props (tu/get-props-for sut/set-btn (tu/comp-seq comp))]
+      ((:set-fn set-btn-props))
+      (is (= 1 @calls)))))

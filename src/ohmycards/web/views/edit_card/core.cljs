@@ -1,18 +1,23 @@
 (ns ohmycards.web.views.edit-card.core
-  (:require [ohmycards.web.components.error-message-box.core :as error-message-box]
+  (:require [ohmycards.web.common.coercion.coercers :as coercion.coercers]
+            [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
-            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
             [ohmycards.web.components.header.core :as header]
+            [ohmycards.web.components.inputs.core :as inputs]
             [ohmycards.web.components.inputs.markdown :as inputs.markdown]
+            [ohmycards.web.components.inputs.simple :as inputs.simple]
             [ohmycards.web.components.inputs.tags :as inputs.tags]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.card-metadata :as kws.card-metadata]
+            [ohmycards.web.kws.common.coercion.result :as kws.coercion.result]
+            [ohmycards.web.kws.components.inputs.core :as kws.inputs]
             [ohmycards.web.kws.components.inputs.tags :as kws.inputs.tags]
             [ohmycards.web.kws.views.edit-card.core :as kws]
-            [ohmycards.web.views.edit-card.handlers :as handlers]))
+            [ohmycards.web.views.edit-card.handlers :as handlers]
+            [reagent.core :as r]))
 
 ;; Components
 (defn- go-home-btn
@@ -42,42 +47,52 @@
                              [update-btn props]
                              [display-btn props]]}])
 
-(defn- id-input-row
-  [{:keys [state]}]
-  (let [path        [kws/card-input kws.card/id]
-        input-props (inputs.simple/build-props state path :disabled true)
-        input       [inputs.simple/main input-props]]
-    [form/row {:label "Id" :input input}]))
+(defn- id-input-row [{:keys [state]}]
+  [form/row
+   {:label "Id"
+    :input [inputs/main
+            {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/id])
+             kws.inputs/disabled? true
+             kws.inputs/coercer identity}]}])
 
-(defn- ref-input-row
-  [{:keys [state]}]
-  (let [path        [kws/card-input kws.card/ref]
-        input-props (inputs.simple/build-props state path :disabled true)
-        input       [inputs.simple/main input-props]]
-    [form/row {:label "Ref" :input input}]))
+(defn- ref-input-row [{:keys [state]}]
+  [form/row
+   {:label "Ref"
+    :input [inputs/main
+            {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/ref])
+             kws.inputs/disabled? true
+             kws.inputs/coercer identity}]}])
 
 (defn- title-input-row
   [{:keys [state]}]
-  (let [path        [kws/card-input kws.card/title]
-        input-props (inputs.simple/build-props state path)
-        input       [inputs.simple/main input-props]]
-    [form/row {:label "Title" :input input}]))
+  [form/row
+   {:label "Title"
+    :input [inputs/main
+            {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/title])
+             kws.inputs/coercer identity}]}])
 
 (defn- body-input-row
   [{:keys [state]}]
-  (let [path        [kws/card-input kws.card/body]
-        input-props (inputs.simple/build-props state path)
-        input       [inputs.markdown/main input-props]]
-    [form/row {:label "Body" :input input}]))
+  [form/row
+   {:label "Body"
+    :input [inputs/main
+            {kws.inputs/itype kws.inputs/t-markdown
+             kws.inputs/cursor (r/cursor state [kws/card-input kws.card/body])
+             kws.inputs/coercer identity}]}])
 
 (defn- tags-input-row
   "An input for tags"
   [{:keys [state] ::kws/keys [cards-metadata]}]
-  (let [all-tags    (kws.card-metadata/tags cards-metadata)
-        path        [kws/card-input kws.card/tags]
-        input-props (inputs.simple/build-props state path kws.inputs.tags/all-tags all-tags)
-        input       [inputs.tags/main input-props]]
-    [form/row {:label "Tags" :input input}]))
+  (let [all-tags (kws.card-metadata/tags cards-metadata)
+        cursor (r/cursor state [kws/card-input kws.card/tags])]
+    [form/row
+     {:label "Tags"
+      :input [inputs/main
+              {kws.inputs/itype kws.inputs/t-tags
+               kws.inputs/cursor cursor
+               kws.inputs/props {kws.inputs.tags/all-tags all-tags}
+               kws.inputs/coercer coercion.coercers/tags}]
+      :error-message (some-> @cursor kws.coercion.result/error-message)}]))
 
 (defn- form
   "The form for the card inputs."

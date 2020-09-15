@@ -36,7 +36,7 @@
 
 (defn extract-values
   "Given a map of coercion results, returns a map with the same keys and the coerced values.
-  Returns `nil` if any of the coercions is a fialure."
+  Returns `nil` if any of the coercions is a failure."
   [results]
   (loop [out {} [k v :as kv] (first results) todo (rest results)]
     (cond

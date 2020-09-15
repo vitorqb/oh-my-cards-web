@@ -38,6 +38,11 @@
   [id]
   (services.cards-crud/read! {:http-fn http-fn} id))
 
+(defn notify!
+  "Notifies the user of a msg."
+  [msg]
+  (services.notify/notify! msg))
+
 (defn fetch-card-metadata
   "Fetches the metadata for cards."
   []

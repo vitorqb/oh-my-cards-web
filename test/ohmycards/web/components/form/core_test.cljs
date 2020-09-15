@@ -1,6 +1,7 @@
 (ns ohmycards.web.components.form.core-test
-  (:require [ohmycards.web.components.form.core :as sut]
-            [cljs.test :refer-macros [is are deftest testing use-fixtures async]]))
+  (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.components.error-message-box.core :as error-message-box]
+            [ohmycards.web.components.form.core :as sut]))
 
 (deftest test-main
 
@@ -28,11 +29,13 @@
   (testing "Base"
     (is (= [:div.simple-form__row {}
             [:div.simple-form__label "LABEL"]
-            [:div.simple-input [::my-input]]]
-           (sut/row {:input [::my-input] :label "LABEL"}))))
+            [:div.simple-input [::my-input]]
+            [error-message-box/main {:value "ERROR"}]]
+           (sut/row {:input [::my-input] :label "LABEL" :error-message "ERROR"}))))
 
   (testing "No label"
     (is (= [:div.simple-form__row {}
             nil
-            [:div.simple-input [::my-input]]]
+            [:div.simple-input [::my-input]]
+            [error-message-box/main {:value nil}]]
            (sut/row {:input [::my-input]})))))

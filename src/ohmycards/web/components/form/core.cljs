@@ -1,5 +1,6 @@
 (ns ohmycards.web.components.form.core
-  (:require [ohmycards.web.utils.components :as utils.components]
+  (:require [ohmycards.web.components.error-message-box.core :as error-message-box]
+            [ohmycards.web.utils.components :as utils.components]
             [reagent.core :as r]))
 
 ;; Handlers and helpers
@@ -20,10 +21,11 @@
 
 (defn row
   "A single row for the form. It contains a label and an input."
-  [{:keys [label input]}]
+  [{:keys [label input error-message]}]
   [:div.simple-form__row {}
    (if label [:div.simple-form__label label])
-   [:div.simple-input input]])
+   [:div.simple-input input]
+   [error-message-box/main {:value error-message}]])
 
 (defn label
   "A label for a form input, usually comming before the input."
