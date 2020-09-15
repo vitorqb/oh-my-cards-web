@@ -50,21 +50,24 @@
    {:label "Id"
     :input [inputs/main
             {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/id])
-             kws.inputs/disabled? true}]}])
+             kws.inputs/disabled? true
+             kws.inputs/coercer identity}]}])
 
 (defn- ref-input-row [{:keys [state]}]
   [form/row
    {:label "Ref"
     :input [inputs/main
             {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/ref])
-             kws.inputs/disabled? true}]}])
+             kws.inputs/disabled? true
+             kws.inputs/coercer identity}]}])
 
 (defn- title-input-row
   [{:keys [state]}]
   [form/row
    {:label "Title"
     :input [inputs/main
-            {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/title])}]}])
+            {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/title])
+             kws.inputs/coercer identity}]}])
 
 (defn- body-input-row
   [{:keys [state]}]
@@ -72,7 +75,8 @@
    {:label "Body"
     :input [inputs/main
             {kws.inputs/itype kws.inputs/t-markdown
-             kws.inputs/cursor (r/cursor state [kws/card-input kws.card/body])}]}])
+             kws.inputs/cursor (r/cursor state [kws/card-input kws.card/body])
+             kws.inputs/coercer identity}]}])
 
 (defn- tags-input-row
   "An input for tags"
@@ -83,7 +87,8 @@
       :input [inputs/main
               {kws.inputs/itype kws.inputs/t-tags
                kws.inputs/cursor (r/cursor state [kws/card-input kws.card/tags])
-               kws.inputs/props {kws.inputs.tags/all-tags all-tags}}]}]))
+               kws.inputs/props {kws.inputs.tags/all-tags all-tags}
+               kws.inputs/coercer identity}]}]))
 
 (defn- form
   "The form for the card inputs."

@@ -1,11 +1,26 @@
 (ns ohmycards.web.views.edit-card.state-management
   (:require [cljs.core.async :as a]
+            [medley.core :as m]
+            [ohmycards.web.common.coercion.result :as coercion.result]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.common.coercion.result :as kws.coercion.result]
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
             [ohmycards.web.kws.views.edit-card.core :as kws]
             [ohmycards.web.utils.logging :as logging]))
 
 (logging/deflogger log "Views.EditCard.StateManagement")
+
+(defn card->form-input
+  "Transforms a Card data into the data for the input form of the edit card page."
+  [card]
+  (as-> card it
+    (select-keys it [kws.card/id kws.card/body kws.card/title kws.card/tags kws.card/ref])
+    (m/map-vals #(coercion.result/success % %) it)))
+
+(defn form-input->card
+  "Transforms a form input for edit card into the data for a card."
+  [form-input]
+  (m/map-vals kws.coercion.result/value form-input))
 
 (defn- should-fetch-card?
   "Given the current state and a card-id, decides whether we should go fetch the card or not."
@@ -29,7 +44,7 @@
   (cond-> (assoc state ::is-fetching? false kws/loading? false)
     error-message       (assoc kws/error-message error-message)
     (not error-message) (assoc kws/selected-card read-card
-                               kws/card-input read-card)))
+                               kws/card-input (card->form-input read-card))))
 
 (defn init!
   "Initializes the state for edit-card.

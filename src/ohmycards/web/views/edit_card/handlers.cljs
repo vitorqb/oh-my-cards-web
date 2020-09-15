@@ -6,7 +6,8 @@
             [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
             [ohmycards.web.kws.views.edit-card.core :as kws]
-            [ohmycards.web.services.cards-crud.core :as cards-crud]))
+            [ohmycards.web.services.cards-crud.core :as cards-crud]
+            [ohmycards.web.views.edit-card.state-management :as state-management]))
 
 (defn- deleted-card-msg [c]
   (str "Deleted card with id " (kws.card/id c)))
@@ -55,7 +56,7 @@
   [state {::kws.cards-crud/keys [error-message updated-card] :as result}]
   (cond-> (reduce-after-event state result)
     (not error-message) (assoc kws/good-message updated-card-msg
-                               kws/card-input updated-card
+                               kws/card-input (state-management/card->form-input updated-card)
                                kws/selected-card updated-card)))
 
 (defn update-card!
@@ -63,13 +64,14 @@
   [{:keys [http-fn state]}]
   (swap! state reduce-before-event)
   (a/go
-    (let [resp (a/<! (cards-crud/update! {:http-fn http-fn} (-> @state kws/card-input)))]
+    (let [card (-> @state kws/card-input state-management/form-input->card)
+          resp (a/<! (cards-crud/update! {:http-fn http-fn} card))]
       (swap! state reduce-after-update resp))))
 
 (defn goto-displaycard!
   "Navigates to the page that displays the card."
   [{:keys [state] ::kws/keys [goto-displaycard!]}]
-  (-> @state kws/card-input kws.card/id goto-displaycard!))
+  (-> @state kws/card-input state-management/form-input->card kws.card/id goto-displaycard!))
 
 (defn hydra-head
   "Returns an hydra head for the contextual actions dispatcher."
