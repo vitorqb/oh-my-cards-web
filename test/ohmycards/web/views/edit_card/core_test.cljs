@@ -1,5 +1,6 @@
 (ns ohmycards.web.views.edit-card.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.common.coercion.coercers :as coercion.coercers]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
@@ -94,7 +95,8 @@
                        {kws.inputs/cursor (r/cursor state [kws/card-input kws.card/tags])
                         kws.inputs/itype kws.inputs/t-tags
                         kws.inputs/props {kws.inputs.tags/all-tags ["A"]}
-                        kws.inputs/coercer identity}]}]
+                        kws.inputs/coercer coercion.coercers/tags}]
+               :error-message nil}]
              (sut/tags-input-row props))))))
 
 (deftest test-form

@@ -1,5 +1,6 @@
 (ns ohmycards.web.views.edit-card.core
-  (:require [ohmycards.web.components.error-message-box.core :as error-message-box]
+  (:require [ohmycards.web.common.coercion.coercers :as coercion.coercers]
+            [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
             [ohmycards.web.components.good-message-box.core :as good-message-box]
             [ohmycards.web.components.header.core :as header]
@@ -11,6 +12,7 @@
             [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.card-metadata :as kws.card-metadata]
+            [ohmycards.web.kws.common.coercion.result :as kws.coercion.result]
             [ohmycards.web.kws.components.inputs.core :as kws.inputs]
             [ohmycards.web.kws.components.inputs.tags :as kws.inputs.tags]
             [ohmycards.web.kws.views.edit-card.core :as kws]
@@ -81,14 +83,16 @@
 (defn- tags-input-row
   "An input for tags"
   [{:keys [state] ::kws/keys [cards-metadata]}]
-  (let [all-tags (kws.card-metadata/tags cards-metadata)]
+  (let [all-tags (kws.card-metadata/tags cards-metadata)
+        cursor (r/cursor state [kws/card-input kws.card/tags])]
     [form/row
      {:label "Tags"
       :input [inputs/main
               {kws.inputs/itype kws.inputs/t-tags
-               kws.inputs/cursor (r/cursor state [kws/card-input kws.card/tags])
+               kws.inputs/cursor cursor
                kws.inputs/props {kws.inputs.tags/all-tags all-tags}
-               kws.inputs/coercer identity}]}]))
+               kws.inputs/coercer coercion.coercers/tags}]
+      :error-message (some-> @cursor kws.coercion.result/error-message)}]))
 
 (defn- form
   "The form for the card inputs."
