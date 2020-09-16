@@ -101,10 +101,14 @@
 
 (defn commit-search!
   [{:keys [state] :as props}]
-  (let [search-term (kws.cards-grid/filter-input-search-term @state)]
-    (log (str "Committing search to " search-term "..."))
-    (swap! state assoc kws.cards-grid/search-term search-term)
-    (refetch-from-props! props)))
+  (let [new-search-term (kws.cards-grid/filter-input-search-term @state)
+        old-search-term (some-> @state kws.cards-grid/search-term)]
+    (when-not (= new-search-term old-search-term)
+      (log (str "Committing search to " new-search-term "..."))
+      (swap! state #(-> %
+                        (assoc kws.cards-grid/search-term new-search-term)
+                        (assoc-in [kws.cards-grid/config kws.config/page] 1)))
+      (refetch-from-props! props))))
 
 (defn set-page-from-props!
   "Set's page on the state"

@@ -125,15 +125,32 @@
 (deftest test-commit-search!
 
   (with-redefs [sut/refetch-from-props! #(do [::result %1])]
-    (let [state  (atom {kws.cards-grid/filter-input-search-term "FOO"})
-          props  {:state state}
-          result (sut/commit-search! props)]
 
-      (testing "Set's the committed search-term from the input search term"
-        (is (= "FOO" (kws.cards-grid/search-term @state))))
+    (testing "When called..."
+      
+      (let [state  (atom {kws.cards-grid/filter-input-search-term "FOO"})
+            props  {:state state}
+            result (sut/commit-search! props)]
 
-      (testing "Refetches the grid"
-        (is (= result [::result props]))))))
+        (testing "Set's the committed search-term from the input search term"
+          (is (= "FOO" (kws.cards-grid/search-term @state))))
+
+        (testing "Set's page back to 1"
+          (is (= 1 (-> @state kws.cards-grid/config kws.config/page))))
+
+        (testing "Refetches the grid"
+          (is (= result [::result props])))))
+
+    (testing "Don't do anything if search term has not changed"
+      
+      (let [state  {kws.cards-grid/filter-input-search-term "FOO"
+                    kws.cards-grid/search-term "FOO"}
+            state' (atom state)
+            props  {:state state'}
+            result (sut/commit-search! props)]
+
+        (is (= state @state'))
+        (is (nil? result))))))
 
 (defn gen-props [] {:state (atom {})})
 
