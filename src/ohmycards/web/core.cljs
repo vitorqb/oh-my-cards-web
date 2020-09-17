@@ -1,5 +1,7 @@
 (ns ohmycards.web.core
-  (:require [ohmycards.web.app.state :as app.state]
+  (:require [cljs.core.async :as a]
+            [ohmycards.web.app.provider :as app.provider]
+            [ohmycards.web.app.state :as app.state]
             [ohmycards.web.common.utils :as utils]
             [ohmycards.web.components.app-header.core :as header]
             [ohmycards.web.components.current-view.core :as components.current-view]
@@ -39,6 +41,9 @@
             [ohmycards.web.services.cards-grid-profile-manager.core
              :as
              services.cards-grid-profile-manager]
+            [ohmycards.web.services.cards-grid-profile-manager.route-sync
+             :as
+             services.cards-grid-profile-manager.route-sync]
             [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.services.login.core :as services.login]
             [ohmycards.web.services.notify :as services.notify]
@@ -60,17 +65,7 @@
              edit-card.state-management]
             [ohmycards.web.views.login.core :as views.login]
             [ohmycards.web.views.new-card.core :as new-card]
-            [reagent.dom :as r.dom]
-            [ohmycards.web.app.provider :as app.provider]))
-
-;; -------------------------
-;; Services > Cards Grid Profile Manager
-(def cards-grid-profile-manager-opts
-  {:http-fn
-   app.provider/http-fn
-
-   kws.services.cards-grid-profile-manager/on-metadata-fetch
-   #(swap! app.state/state assoc lenses.metadata/cards-grid %)})
+            [reagent.dom :as r.dom]))
 
 ;; -------------------------
 ;; View instances
@@ -140,11 +135,6 @@
   []
   [header/main {::header/email (-> @app.state/state ::lenses.login/current-user ::kws.user/email)}])
 
-(defn cards-grid-page
-  "An instance for the cards-grid view."
-  []
-  [controllers.cards-grid/cards-grid])
-
 (defn new-card-page-props
   []
   {:http-fn app.provider/http-fn
@@ -159,17 +149,6 @@
   []
   [new-card/main (new-card-page-props)])
 
-(defn cards-grid-config-page
-  "An instance for the cards-grid-config view."
-  []
-  (let [profile-names  (-> @app.state/state
-                           lenses.metadata/cards-grid
-                           kws.cards-grid.metadata/profile-names)
-        cards-metadata (-> @app.state/state lenses.metadata/cards)
-        props          {kws.cards-grid.config-dashboard/profiles-names profile-names
-                        kws.cards-grid.config-dashboard/cards-metadata cards-metadata}]
-    [controllers.cards-grid/config-dashboard-page props]))
-
 (defn- current-view*
   "Returns an instance of the `current-view` component."
   [state home-view login-view header-component]
@@ -183,36 +162,33 @@
    [controllers.action-dispatcher/component]
    [services.notify/toast]])
 
-(defn current-view [] (current-view* @app.state/state cards-grid-page login header))
+(defn current-view []
+  (current-view* @app.state/state #'controllers.cards-grid/cards-grid login header))
 
 
 ;; -------------------------
 ;; Routing
 (def ^:private routes
   "The reitit-style raw routes."
-  [["/"
-    {kws.routing/name routing.pages/home
-     kws.routing/view #'cards-grid-page}]
-   ["/about"
-    {kws.routing/name routing.pages/about
-     kws.routing/view #'about}]
-   ["/cards-grid/config"
-    {kws.routing/name routing.pages/cards-grid-config
-     kws.routing/view #'cards-grid-config-page}]
-   ["/cards"
-    ["/edit"
-     {kws.routing/name routing.pages/edit-card
-      kws.routing/view #'edit-card-page
-      kws.routing/enter-hook edit-card-enter-hook!
-      kws.routing/update-hook edit-card-update-hook!}]
-    ["/new"
-     {kws.routing/name routing.pages/new-card
-      kws.routing/view #'new-card-page}]
-    ["/display"
-     {kws.routing/name routing.pages/display-card
-      kws.routing/view #'display-card-page
-      kws.routing/enter-hook display-card-enter-hook
-      kws.routing/update-hook display-card-update-hook}]]])
+  (concat
+   [["/about"
+     {kws.routing/name routing.pages/about
+      kws.routing/view #'about}]
+    ["/cards"
+     ["/edit"
+      {kws.routing/name routing.pages/edit-card
+       kws.routing/view #'edit-card-page
+       kws.routing/enter-hook edit-card-enter-hook!
+       kws.routing/update-hook edit-card-update-hook!}]
+     ["/new"
+      {kws.routing/name routing.pages/new-card
+       kws.routing/view #'new-card-page}]
+     ["/display"
+      {kws.routing/name routing.pages/display-card
+       kws.routing/view #'display-card-page
+       kws.routing/enter-hook display-card-enter-hook
+       kws.routing/update-hook display-card-update-hook}]]]
+   controllers.cards-grid/routes))
 
 
 ;; -------------------------
@@ -228,26 +204,34 @@
   "Handles action for an user logging in"
   [event-kw new-user]
   (when (= event-kw kws.services.login/new-user)
-    (services.cards-grid-profile-manager/fetch-metadata! cards-grid-profile-manager-opts)
-    (app.provider/fetch-card-metadata)
-    (controllers.cards-grid/load-profile-from-route-match!
-     (::lenses.routing/match @app.state/state))
-    ;; Give a change for views that depends on login to initialize themselves.
-    (services.routing/force-update!)))
+    (let [route-match (::lenses.routing/match @app.state/state)]
+      (services.cards-grid-profile-manager/fetch-metadata!)
+      (app.provider/fetch-card-metadata)
+      (services.routing/run-view-hooks! nil route-match)
+      (services.cards-grid-profile-manager.route-sync/load-from-route! route-match))))
 
 (defn handle-navigated-to-route
   "Handles action for when the app has navigated to a new route"
-  [event-kw route-match]
+  [event-kw args]
   (when (= event-kw kws.routing/action-navigated-to-route)
     (when (services.login/is-logged-in?)
-      (controllers.cards-grid/load-profile-from-route-match! route-match))))
+      (let [[old-match new-match] args]
+        (services.routing/run-view-hooks! old-match new-match)
+        (services.cards-grid-profile-manager.route-sync/react-to-route-change! old-match new-match)))))
+
+(defn handle-new-grid-profile
+  "Handles actions for when a new gird profile has been set."
+  [event-kw args]
+  (when (= event-kw kws.services.cards-grid-profile-manager/action-new-grid-profile)
+    (controllers.cards-grid/new-grid-profile! args)))
 
 (def events-bus-handler
   "The main handler for all events send to the event bus."
   #(do
      (handle-cards-crud-action %1 %2)
      (handle-user-logged-in %1 %2)
-     (handle-navigated-to-route %1 %2)))
+     (handle-navigated-to-route %1 %2)
+     (handle-new-grid-profile %1 %2)))
 
 ;; ------------------------------
 ;; Contextual Action Dispatchers
@@ -320,25 +304,27 @@
 
 (defn ^:export init! []
 
-  ;; Initialize services
-  (services.login/init! {:state app.state/state :http-fn app.provider/http-fn})
-
+  ;; Initialize dependency-free services
+  (services.cards-grid-profile-manager/init!
+   {:http-fn
+    app.provider/http-fn
+    kws.services.cards-grid-profile-manager/set-metadata-fn!
+    #(swap! app.state/state assoc lenses.metadata/cards-grid %)})
+  (services.shortcuts-register/init! shortcuts)
+  (services.notify/init! {:state (app.state/state-cursor :services.notify)})
   (events-bus/init! {kws.events-bus/handler events-bus-handler})
 
-  (services.routing/start-routing! routes (app.state/state-cursor ::lenses.routing/match))
-
-  (services.shortcuts-register/init! shortcuts)
-
-  (services.notify/init! {:state (app.state/state-cursor :services.notify)})
+  ;; Initializes long initialization services
+  (services.login/init! {:state app.state/state :http-fn app.provider/http-fn})
+  (services.routing/start-routing!
+   routes
+   (app.state/state-cursor ::lenses.routing/match)
+   {kws.routing/global-query-params #{:grid-profile}})
 
   ;; Initializes controllers
   (controllers.action-dispatcher/init!
    {:state (app.state/state-cursor :components.action-dispatcher)})
-
-  (controllers.cards-grid/init!
-   {:app-state app.state/state
-    :http-fn app.provider/http-fn
-    :cards-grid-profile-manager-opts cards-grid-profile-manager-opts})
+  (controllers.cards-grid/init!)
 
   (mount-root))
  

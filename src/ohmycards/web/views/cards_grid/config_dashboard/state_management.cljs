@@ -21,13 +21,10 @@
                            (into {}))]
     (assoc state kws/config parsed-config)))
 
-(defn set-config-from-loader!
-  "Set's a config from a `services.cards-grid-config-loader` fetch response."
-  [state {::kws.cards-grid-profile-manager/keys [success? fetched-profile] :as fetched}]
-  (log "Resetting config from loader:" fetched)
-  (if success?
-    (swap! state reset-config (kws.profile/config fetched-profile))
-    (log "FAILED: fetch was not successfull")))
+(defn set-profile!
+  "Set's a new grid profile."
+  [props new-profile]
+  (swap! (:state props) reset-config (kws.profile/config new-profile)))
 
 (defn init-state
   "Reducer that initializes the state for the config dashboard."

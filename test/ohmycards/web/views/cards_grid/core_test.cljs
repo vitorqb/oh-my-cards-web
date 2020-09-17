@@ -65,20 +65,20 @@
         [sut/card-display-footer props]
         (tu/comp-seq (sut/card-display props)))))))
 
-(deftest test-main*
+(deftest test-main
 
   (testing "Top level component is a loading wrapper with props"
-    (let [[el props & _] (sut/main* {:state (atom {})})]
+    (let [[el props & _] (sut/main {:state (atom {})})]
       (is (= el loading-wrapper/main))
       (is (= props {:loading? true}))))
 
   (testing "There exists a div with correct class"
-    (is (tu/exists-in-component? :div.cards-grid (tu/comp-seq (sut/main* {:state (atom {})})))))
+    (is (tu/exists-in-component? :div.cards-grid (tu/comp-seq (sut/main {:state (atom {})})))))
 
   (testing "A card has it's card-display rendered"
     (let [card      {kws.card/id "FOO"}
           props     {:state (atom {kws/cards [card]})}
-          component (sut/main* props)]
+          component (sut/main props)]
       (is
        (some
         #(= [sut/card-display (assoc props ::sut/card card)] %)
@@ -86,21 +86,21 @@
 
   (testing "If not cards, renders the empty-msgbox"
     (let [props     {:state (atom {kws/cards []})}
-          component (sut/main* props)]
+          component (sut/main props)]
       (is (tu/exists-in-component? :div.cards-grid__empty-msgbox (tu/comp-seq component)))))
 
   (testing "If `filter-enabled?` is true, renders the fitlering control."
     (let [props     {:state (atom {kws/filter-enabled? true})}
-          component (sut/main* props)]
+          component (sut/main props)]
       (is (tu/exists-in-component? [control-filter/main props] (tu/comp-seq component)))))
 
   (testing "If `filter-enabled?` is false, DO NOT render the fitlering control."
     (let [props     {:state (atom {kws/filter-enabled? nil})}
-          component (sut/main* props)]
+          component (sut/main props)]
       (is (not (tu/exists-in-component? [control-filter/main props] (tu/comp-seq component))))))
 
   (testing "Renders error message with error"
     (is
      (some
       #(= [error-message-box/main {:value "Foo"}] %)
-      (tu/comp-seq (sut/main* {:state (atom {kws/error-message "Foo"})}))))))
+      (tu/comp-seq (sut/main {:state (atom {kws/error-message "Foo"})}))))))

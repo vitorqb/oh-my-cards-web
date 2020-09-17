@@ -14,11 +14,6 @@
 (logging/deflogger log "Views.CardsGrid.StateManagement")
 
 ;; Helpers
-(defn- state-initialized?
-  "Returns a boolean indicating whether the state has been initialized."
-  [{::kws.cards-grid/keys [status]}]
-  (-> status nil? not))
-
 (defn- reduce-before-fetch-cards
   "Reduces the state before fetching the cards."
   [state]
@@ -76,15 +71,6 @@
   (assoc state kws.cards-grid/config config))
 
 ;; API
-(def init-state! refetch!)
-
-(defn initialize-from-props!
-  "Initializes the component's state."
-  [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]}]
-  (log "Initilizing state...")
-  (when (not (state-initialized? @state))
-    (init-state! state fetch-cards!)))
-
 (defn refetch-from-props!
   "Refetches the cards data using the props."
   [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]}]
@@ -143,16 +129,11 @@
   (swap! state assoc-in [kws.cards-grid/config kws.config/tags-filter-query] new-tags-filter-query)
   (refetch! state fetch-cards!))
 
-(defn set-config-from-loader!
-  "Set's the entire config from the response of `services.cards-grid-profile-manager`"
-  [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]}
-   {::kws.cards-grid-profile-manager/keys [fetched-profile success?] :as loader-response}]
-  (log "Setting config from loader response:" loader-response)
-  (if success?
-    (do
-      (swap! state set-config-profile fetched-profile)
-      (refetch! state fetch-cards!))
-    (log "NOT SET BECAUSE FAILED RESPONSE")))
+(defn set-profile!
+  "Set's a new grid profile."
+  [{:keys [state] ::kws.cards-grid/keys [fetch-cards!]} new-profile]
+  (swap! state set-config-profile new-profile)
+  (refetch! state fetch-cards!))
 
 (defn goto-previous-page!
   "Navigates to the previous page."
