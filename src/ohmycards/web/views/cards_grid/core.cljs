@@ -62,7 +62,7 @@
    [tags-displayer {::tags tags}]
    [card-display-footer props]])
 
-(defn- main*
+(defn main
   "Rendering logic for the `main` component."
   [{:keys [state] :as props}]
   [loading-wrapper/main {:loading? (state-management/loading? props)}
@@ -78,9 +78,3 @@
         [card-display (assoc props ::card card)])
       [:div.cards-grid__empty-msgbox
        [:div "Nothing to display. Create your first card to get started!"]])]])
-
-(defn main
-  "A view for a grid of cards."
-  [{:keys [state] :as props}]
-  (state-management/initialize-from-props! props)
-  (fn [props] (main* props)))

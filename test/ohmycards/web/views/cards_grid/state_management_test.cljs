@@ -78,14 +78,6 @@
     (testing "Base"
       (is (= expected-params (sut/fetch-cards-params source-params))))))
 
-(deftest test-state-not-initialized?
-
-  (testing "nil -> false"
-    (is (false? (sut/state-initialized? {}))))
-
-  (testing "::ready -> true"
-    (is (true? (sut/state-initialized? {kws.cards-grid/status kws.cards-grid/status-ready})))))
-
 (deftest test-refetch-from-props!
   (with-redefs [sut/refetch! #(do [%1 %2])]
     (is (= [1 2] (sut/refetch-from-props! {:state 1 kws.cards-grid/fetch-cards! 2})))))

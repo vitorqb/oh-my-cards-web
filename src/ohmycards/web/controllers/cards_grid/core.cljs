@@ -5,10 +5,14 @@
   each other, but the entire app depends on a nice sync for them. This
   sync happens on this controller."
   (:require [cljs.core.async :as async]
+            [ohmycards.web.app.provider :as app.provider]
+            [ohmycards.web.app.state :as app.state]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.cards-grid.metadata.core :as kws.cards-grid.metadata]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
             [ohmycards.web.kws.hydra.core :as kws.hydra]
             [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
+            [ohmycards.web.kws.lenses.metadata :as lenses.metadata]
             [ohmycards.web.kws.services.routing.core :as kws.routing]
             [ohmycards.web.kws.services.routing.pages :as routing.pages]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core
@@ -18,10 +22,11 @@
             [ohmycards.web.services.cards-grid-profile-manager.core
              :as
              services.cards-grid-profile-manager]
-            [ohmycards.web.services.routing.core :as routing.core]
+            [ohmycards.web.services.cards-grid-profile-manager.route-sync
+             :as
+             services.cards-grid-profile-manager.route-sync]
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.routing.core :as services.routing]
-            [ohmycards.web.app.provider :as app.provider]
             [ohmycards.web.utils.logging :as logging]
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
@@ -47,12 +52,6 @@
 ;; The state for the config dashboard
 (defonce ^:private ^:dynamic *config-dashboard-state* nil)
 
-;; The http-fn to use
-(defonce ^:private ^:dynamic *http-fn* nil)
-
-;; The options for using the profile manager svc
-(defonce ^:private ^:dynamic *cards-grid-profile-manager-opts* nil)
-
 ;; 
 ;; Helper Fns
 ;;
@@ -72,13 +71,13 @@
 
 ;; Routing...
 (defn- route-to-config-dashboard! []
-  (routing.core/goto! routing.pages/cards-grid-config))
+  (services.routing/goto! routing.pages/cards-grid-config))
 
 (defn- route-to-new-card! []
-  (routing.core/goto! routing.pages/new-card))
+  (services.routing/goto! routing.pages/new-card))
 
 (defn- route-to-grid! []
-  (routing.core/goto! routing.pages/home))
+  (services.routing/goto! routing.pages/home))
 
 
 
@@ -113,22 +112,15 @@
 (defn- fetch-cards!
   "Fetches the cards for the grid."
   [opts]
-  (services.fetch-cards/main (assoc opts :http-fn *http-fn*)))
+  (services.fetch-cards/main (assoc opts :http-fn app.provider/http-fn)))
 
-(defn- load-profile!
-  "Uses the profile manager to load a profile for the cards grid and
-  updates both the grid and the config with it."
-  [profile-name]
-  (let [chan (services.cards-grid-profile-manager/load! {:http-fn *http-fn*} profile-name)]
-    (async/go
-      (let [resp (async/<! chan)]
-        (config-dashboard.state-management/set-config-from-loader! *config-dashboard-state* resp)
-        (cards-grid.state-management/set-config-from-loader! (grid-props) resp)))))
+(defn- load-profile! [profile-name]
+  (services.cards-grid-profile-manager.route-sync/set-in-route! profile-name))
 
 (defn- save-profile!
   "Uses the profile manager to save a profile in the BE."
   [profile]
-  (services.cards-grid-profile-manager/save! *cards-grid-profile-manager-opts* profile))
+  (services.cards-grid-profile-manager/save! profile))
 
 ;; Props generator
 (defn- grid-props
@@ -144,7 +136,7 @@
 (defn- config-dashboard-props
   "Returns the props for the config dashboard."
   []
-  {:state *config-dashboard-state*
+  {:state                                      *config-dashboard-state*
    kws.config-dashboard/goto-cards-grid!       route-to-grid!
    kws.config-dashboard/set-page!              set-grid-page!
    kws.config-dashboard/set-page-size!         set-grid-page-size!
@@ -152,19 +144,21 @@
    kws.config-dashboard/set-exclude-tags!      set-grid-exclude-tags!
    kws.config-dashboard/set-tags-filter-query! set-grid-tags-filter-query!
    kws.config-dashboard/load-profile!          load-profile!
-   kws.config-dashboard/save-profile!          save-profile!})
+   kws.config-dashboard/save-profile!          save-profile!
+   kws.config-dashboard/profiles-names         (-> @app.state/state
+                                                   lenses.metadata/cards-grid
+                                                   kws.cards-grid.metadata/profile-names)
+   kws.config-dashboard/cards-metadata         (-> @app.state/state lenses.metadata/cards)})
 
 ;; 
 ;; Public API
-;; 
+;;
 (defn init!
   "Initializes the controller"
-  [{:keys [app-state http-fn cards-grid-profile-manager-opts]}]
+  []
   (log "Initializing...")
-  (init-grid-state! app-state)
-  (init-config-dashboard-state! app-state)
-  (set! *http-fn* http-fn)
-  (set! *cards-grid-profile-manager-opts* cards-grid-profile-manager-opts))
+  (init-grid-state! app.state/state)
+  (init-config-dashboard-state! app.state/state))
 
 (defn cards-grid
   "An instance of the cards grid view."
@@ -174,23 +168,27 @@
 (defn config-dashboard-page
   "An instance of the cards grid config dashboard view."
   [props]
-  (let [props' (merge (config-dashboard-props) props)]
-    [config-dashboard/main props']))
+  [config-dashboard/main (config-dashboard-props)])
 
 (defn refetch!
   "Refetches the cards for the grid."
   []
   (cards-grid.state-management/refetch-from-props! (grid-props)))
 
-(defn load-profile-from-route-match!
-  "Given a route match (reitit), loads the profile for the cards grid if it is defined."
-  [route-match]
-  (when-let [profile-name (some-> route-match :query-params :grid-profile)]
-    (log "Loading grid-profile in the route: " profile-name)
-    (let [view (-> route-match :data kws.routing/name)
-          query-params (-> route-match :query-params (dissoc :grid-profile))]
-      (load-profile! profile-name)
-      (routing.core/goto! view kws.routing/query-params query-params))))
+(defn new-grid-profile!
+  "Reacts to a new grid profile being selected."
+  [new-profile]
+  (cards-grid.state-management/set-profile! (grid-props) new-profile)
+  (config-dashboard.state-management/set-profile! (config-dashboard-props) new-profile))
+
+(def routes
+  "All routes controlled by this controller."
+  [["/"
+    {kws.routing/name routing.pages/home
+     kws.routing/view #'cards-grid}]
+   ["/cards-grid/config"
+    {kws.routing/name routing.pages/cards-grid-config
+     kws.routing/view #'config-dashboard-page}]])
 
 (defn hydra-head
   "Returns a head for contextual hydra, with actions the user can make on the current grid."

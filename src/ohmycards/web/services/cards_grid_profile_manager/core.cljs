@@ -14,41 +14,53 @@
              update]
             [ohmycards.web.utils.logging :as logging]))
 
+(declare load!)
+
 (logging/deflogger log "Services.CardsGridProfileLoader")
+
+(defonce ^:private ^:dynamic *opts* nil)
 
 ;; Helpers
 (defn- fetch-metadata!*
   "Pure version of fetch-metadata!"
-  [{::kws/keys [on-metadata-fetch] :as opts} do-fetch-metadata!]
-  {:pre [(ifn? on-metadata-fetch)]}
+  [{::kws/keys [set-metadata-fn!] :as opts} do-fetch-metadata!]
+  {:pre [(ifn? set-metadata-fn!)]}
   (a/go
-    (-> opts do-fetch-metadata! a/<! on-metadata-fetch)))
+    (-> opts do-fetch-metadata! a/<! set-metadata-fn!)))
 
 ;; API
+(defn init!
+  "Initializes the profile manager.
+  - `http-fn`: Function used to run http requests.
+  - `set-metadata-fn!`: Function used to set the metadata after a fetch."
+  [opts]
+  (log "Initializing with" opts)
+  (set! *opts* opts))
+
 (defn fetch-metadata!
   "Asynchronously loads the metadata for card grid profiles from the BE. This is needed,
   for example, every time a new user logs in."
-  [opts]
+  []
   (log "Fetching metadata... ")
-  (fetch-metadata!* opts fetch-metadata/main!))
+  (fetch-metadata!* *opts* fetch-metadata/main!))
 
 (defn load!
   "Asynchronously loads a profile from the BE."
-  [opts profile-name]
+  [profile-name]
   (log "Loading profile:" profile-name)
-  (read/main! opts profile-name))
+  (read/main! *opts* profile-name))
 
 (defn save!
   "Asynchronously saves a profile to the BE."
-  [opts {profile-name ::kws.profile/name :as profile}]
+  [{profile-name ::kws.profile/name :as profile}]
   (log "Saving profile:" profile)
   (a/go
-    (if (a/<! (read/profile-exists? opts profile-name))
+    (if (a/<! (read/profile-exists? *opts* profile-name))
       (do
         (log "Updating profile: " profile)
         (when (js/confirm (str "Are you sure you want to update this profile?"))
-          (a/<! (update/main! opts profile))))
+          (a/<! (update/main! *opts* profile))))
       (do
         (log "Creating profile: " profile)
-        (a/<! (create/main! opts profile))))
-    (fetch-metadata! opts)))
+        (a/<! (create/main! *opts* profile))))
+    (fetch-metadata!)))

@@ -33,6 +33,7 @@
 [ohmycards.web.services.cards-grid-profile-manager.impl.helpers-test]
 [ohmycards.web.services.cards-grid-profile-manager.impl.read-test]
 [ohmycards.web.services.cards-grid-profile-manager.impl.update-test]
+[ohmycards.web.services.cards-grid-profile-manager.route-sync-test]
 [ohmycards.web.services.cards-metadata-fetcher.core-test]
 [ohmycards.web.services.events-bus.core-test]
 [ohmycards.web.services.fetch-cards.core-test]

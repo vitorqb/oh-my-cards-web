@@ -13,6 +13,7 @@
 
 ;; Params and Options
 (def query-params "Query parameters for routing." ::query-params)
+(def global-query-params "A set with global query parameters, kept between routings." ::global-query-params)
 
 ;; Bus Events/Actions
 (def action-navigated-to-route "An action representing that the app navigated to a route."
