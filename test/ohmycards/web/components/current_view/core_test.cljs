@@ -14,4 +14,7 @@
   (testing "Returns login-page if no user"
     (is (= [:div.current-view [::login-view]]
            (sut/main {::sut/current-user {}
-                      ::sut/login-view   ::login-view})))))
+                      ::sut/login-view   ::login-view}))))
+
+  (testing "Renders nothing if we are loading"
+    (is (nil? (sut/main {::sut/loading? true})))))
