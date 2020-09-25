@@ -77,4 +77,4 @@
         ^{:key (kws.card/id card)}
         [card-display (assoc props ::card card)])
       [:div.cards-grid__empty-msgbox
-       [:div "Nothing to display. Create your first card to get started!"]])]])
+       [:div "This grid is so empty! =("]])]])
