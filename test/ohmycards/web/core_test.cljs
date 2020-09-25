@@ -31,7 +31,8 @@
                  {::components.current-view/current-user     ::current-user
                   ::components.current-view/login-view       ::login-view
                   ::components.current-view/view             ::current-view
-                  ::components.current-view/header-component ::header-component}]
+                  ::components.current-view/header-component ::header-component
+                  ::components.current-view/loading?         true}]
                 [controllers.action-dispatcher/component]
                 [services.notify/toast]]
                (sut/current-view* state ::home-view ::login-view ::header-component))))
@@ -40,7 +41,13 @@
         (let [state*    (dissoc state ::lenses.routing/match)
               [_ props] (find-main
                          (sut/current-view* state* ::home-view ::login-view ::header-component))]
-          (is (= ::home-view (::components.current-view/view props))))))))
+          (is (= ::home-view (::components.current-view/view props)))))
+
+      (testing "Receives loading? from login status (false)"
+        (let [state*    (assoc state ::lenses.login/initialized? true)
+              [_ props] (find-main
+                         (sut/current-view* state* ::home-view ::login-view ::header-component))]
+          (is (false? (::components.current-view/loading? props))))))))
 
 (deftest test-contextual-actions-dispatcher-hydra-head!
 

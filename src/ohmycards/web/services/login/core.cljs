@@ -39,6 +39,10 @@
       (let [user (a/<! (get-user/main! opts token))]
         (set-user! user)))))
 
+(defn- set-finished-loading! [state]
+  (log "Login initialized.")
+  (swap! state assoc lenses.login/initialized? true))
+
 ;; API
 (defn init!
   "Initialization logic for the service. Tries to log the user in if he is not yet logged in.
@@ -47,7 +51,9 @@
   [{:keys [state http-fn] :as opts}]
   (log "Initializing...")
   (set! *state* state)
-  (try-login-from-cookies! opts))
+  (a/go
+    (a/<! (try-login-from-cookies! opts))
+    (set-finished-loading! state)))
 
 (defn main
   "Performs login for a given user.
