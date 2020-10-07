@@ -8,6 +8,9 @@
             [ohmycards.web.kws.lenses.metadata :as lenses.metadata]
             [ohmycards.web.kws.user :as kws.user]
             [ohmycards.web.services.cards-crud.core :as services.cards-crud]
+            [ohmycards.web.services.card-history-fetcher.core
+             :as
+             services.card-history-fetcher]
             [ohmycards.web.services.cards-metadata-fetcher.core
              :as
              services.cards-metadata-fetcher]
@@ -32,6 +35,11 @@
   "A shortcut to fetch cards using the fetch-cards svc"
   [opts]
   (services.fetch-cards/main (assoc opts :http-fn http-fn)))
+
+(defn fetch-card-history!
+  "Fetches the history of a card."
+  [id]
+  (services.card-history-fetcher/main id {:http-fn http-fn}))
 
 (defn fetch-card!
   "Fetches a single card."
