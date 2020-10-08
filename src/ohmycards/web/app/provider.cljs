@@ -29,13 +29,6 @@
   (utils.clipboard/to-clipboard! txt)
   (services.notify/notify! "Copied to clipboard!"))
 
-;; !!!! TODO Remove me
-(defn http-fn
-  "Wraps the http service function injecting the token from the global state."
-  [& args]
-  (let [token (-> @app.state/state lenses.login/current-user kws.user/token)]
-    (apply services.http/http kws.http/token token args)))
-
 (defn run-http-action
   "Runs an `ohmycards.web.protocols.http/HttpAction`."
   [action]
@@ -93,5 +86,4 @@
 (defn login
   "Provides the login service."
   [login-opts]
-  ;; !!!! TODO Remove http-fn
-  (services.login/main login-opts {:run-http-action-fn run-http-action :http-fn http-fn}))
+  (services.login/main login-opts {:run-http-action-fn run-http-action}))

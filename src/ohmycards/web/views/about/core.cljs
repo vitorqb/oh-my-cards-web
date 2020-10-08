@@ -33,7 +33,7 @@
    [version-label {::text "Web: " ::version fe-version}]])
 
 (defn- fetch-be-version!
-  [{:keys [http-fn fetch-be-version!]} a]
+  [{:keys [fetch-be-version!]} a]
   "Queries the service to fetch the BE version and set's the atom `a` to it."
   (async/go (reset! a (async/<! (fetch-be-version!)))))
 

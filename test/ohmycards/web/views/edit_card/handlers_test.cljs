@@ -64,10 +64,8 @@
   (let [card                 {::kws.card/title "Foo"}
         state                (atom {kws/selected-card card})
         cards-crud-args      (atom [])
-        http-fn              #(async/go [::http-fn %&])
         confirm-deletion-fn! #(async/go false)
-        props                {:http-fn http-fn
-                              :state state
+        props                {:state state
                               kws/confirm-deletion-fn! confirm-deletion-fn!
                               kws/delete-card! #(swap! cards-crud-args conj %&)}]
     (let [resp-chan (sut/delete-card! props)]
@@ -82,10 +80,8 @@
         initial-state        {kws/selected-card card}
         state                (atom initial-state)
         cards-crud-args      (atom [])
-        http-fn              #(async/go [::http-fn %&])
         confirm-deletion-fn! #(async/go true)
-        props                {:http-fn http-fn
-                              :state state
+        props                {:state state
                               kws/confirm-deletion-fn! confirm-deletion-fn!
                               kws/delete-card! #(async/go (swap! cards-crud-args conj %&))}]
     (async done

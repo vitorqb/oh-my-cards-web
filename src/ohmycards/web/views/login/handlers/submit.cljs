@@ -32,7 +32,7 @@
 
 (defn main
   "Handles state during login submission."
-  [{:keys [state http-fn save-user-fn login-fn]}]
+  [{:keys [state save-user-fn login-fn]}]
   (let [{:keys [email onetime-password loading?]} @state]
     (when-not loading?
       (a/go
