@@ -42,7 +42,7 @@
 
 (defn delete-card!
   "Handler to delete a card."
-  [{:keys [http-fn state] ::kws/keys [confirm-deletion-fn! delete-card!]}]
+  [{:keys [state] ::kws/keys [confirm-deletion-fn! delete-card!]}]
   (let [card            (kws/selected-card @state)
         confirm-channel (confirm-deletion-fn! card)]
     (a/go
@@ -63,7 +63,7 @@
 
 (defn- run-update-card!
   "Runs the update of a card."
-  [{:keys [http-fn state] ::kws/keys [update-card!]}]
+  [{:keys [state] ::kws/keys [update-card!]}]
   (swap! state reduce-before-event)
   (a/go
     (let [card (-> @state kws/card-input state-management/form-input->card)

@@ -14,7 +14,7 @@
 
 (deftest test-fetch-metadata!*__base
   (let [fetch-response {kws.http/body {:names ["FOO" "BAR"]}}
-        parsed-response (fetch-metadata/parse-response fetch-response)
+        parsed-response {kws.cards-grid.metadata/profile-names ["FOO" "BAR"]}
         do-fetch-metadata! #(a/go parsed-response)
         set-metadata-fn! #(assoc % ::foo 1)
         opts {kws/set-metadata-fn! set-metadata-fn!}

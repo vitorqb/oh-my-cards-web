@@ -82,7 +82,6 @@
    kws.edit-card/cards-metadata (lenses.metadata/cards @app.state/state)
    kws.edit-card/confirm-deletion-fn! services.user-question/confirm-card-delete
    kws.edit-card/delete-card! app.provider/delete-card!
-   :http-fn app.provider/http-fn
    :state (app.state/state-cursor :views.edit-card)
    :notify! app.provider/notify!})
 
@@ -139,8 +138,7 @@
 
 (defn new-card-page-props
   []
-  {:http-fn app.provider/http-fn
-   :state (app.state/state-cursor :views.new-card)
+  {:state (app.state/state-cursor :views.new-card)
    :notify! app.provider/notify!
    :path-to! services.routing/path-to!
    kws.new-card/goto-home! #(services.routing/goto! routing.pages/home)
@@ -310,8 +308,8 @@
 
   ;; Initialize dependency-free services
   (services.cards-grid-profile-manager/init!
-   {:http-fn
-    app.provider/http-fn
+   {:run-http-action-fn
+    app.provider/run-http-action
     kws.services.cards-grid-profile-manager/set-metadata-fn!
     #(swap! app.state/state assoc lenses.metadata/cards-grid %)})
   (services.shortcuts-register/init! shortcuts)

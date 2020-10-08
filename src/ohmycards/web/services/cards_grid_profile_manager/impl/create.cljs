@@ -1,26 +1,20 @@
 (ns ohmycards.web.services.cards-grid-profile-manager.impl.create
   (:require [cljs.core.async :as a]
-            [ohmycards.web.kws.cards-grid.config.core :as kws.config]
-            [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
-            [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.cards-grid-profile-manager.core :as kws]
-            [ohmycards.web.services.cards-grid-profile-manager.impl.helpers :as helpers]))
+            [ohmycards.web.protocols.http :as protocols.http]
+            [ohmycards.web.services.cards-grid-profile-manager.impl.helpers
+             :as
+             helpers]))
 
-(defn- parse-result
-  "Parses the result from the save http call."
-  [{::kws.http/keys [success?]}]
-  {kws/success? success?})
+(defrecord Action [profile]
+  protocols.http/HttpAction
+  (protocols.http/url [_] "/v1/cards-grid-profile")
+  (protocols.http/method [_] :POST)
+  (protocols.http/json-params [_] (helpers/serialize-profile profile))
+  (protocols.http/parse-error-response [_ _] {kws/success? false})
+  (protocols.http/parse-success-response [_ _] {kws/success? true}))
 
-(defn- run-http-call!
-  "Runs the http call for saving a profile."
-  [{:keys [http-fn]} profile]
-  (http-fn kws.http/method :POST
-           kws.http/url "/v1/cards-grid-profile"
-           kws.http/json-params (helpers/serialize-profile profile)))
-
-;; Public
 (defn main!
   "Async. saves a profile in the BE."
-  [opts profile]
-  (let [http-chan (run-http-call! opts profile)]
-    (a/go (parse-result (a/<! http-chan)))))
+  [{:keys [run-http-action-fn]} profile]
+  (-> profile ->Action run-http-action-fn))

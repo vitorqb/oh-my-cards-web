@@ -31,7 +31,7 @@
 
 (defn- run!
   "Runs the creation."
-  [{:keys [http-fn state] ::kws/keys [create-card!] :as props}]
+  [{:keys [state] ::kws/keys [create-card!] :as props}]
   (let [card-form-input (queries/card-form-input props)]
     (a/go
       (swap! state before-create)
@@ -45,7 +45,7 @@
 
 (defn main
   "Creates a card from the new-card props."
-  [{:keys [http-fn state] :as props}]
+  [{:keys [state] :as props}]
   (when (should-create? @state)
     (if (queries/form-has-errors? props)
       (warn-user-of-invalid-input! props)

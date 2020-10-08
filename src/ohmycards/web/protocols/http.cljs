@@ -17,6 +17,6 @@
   (url [_] "/")
   (json-params [_] nil)
   (query-params [_] nil)
-  (parse-success-response [_ _] nil)
-  (parse-error-response [_ _] nil)
+  (parse-success-response [_ x] x)
+  (parse-error-response [_ x] x)
   (do-after! [_ _ _] nil))
