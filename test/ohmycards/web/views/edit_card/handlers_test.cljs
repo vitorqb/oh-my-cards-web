@@ -3,6 +3,7 @@
             [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.common.coercion.result :as coercion.result]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.common.async-actions.core :as kws.async-actions]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
             [ohmycards.web.kws.hydra.core :as kws.hydra]
             [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
@@ -33,64 +34,45 @@
   (testing "Unsets error msg if no error"
     (is (nil? (kws/error-message (sut/reduce-after-event {kws/error-message "err"} {}))))))
 
-(deftest test-reduce-after-delete
-  
-  (testing "Sets loading to false"
-    (is (->> {kws/loading? true} (sut/reduce-after-delete {}) kws/loading? false?)))
+(deftest test-delete-async-action
 
-  (testing "On success"
-    (let [state       {kws/loading? true
-                       kws/selected-card {kws.card/id 1}
-                       kws/card-input {kws.card/id 1}}
-          service-res {}
-          result      (sut/reduce-after-delete state service-res)]
+  (testing "Pre reducer"
+    (let [async-action (sut/delete-async-action {})
+          pre-reducer (kws.async-actions/pre-reducer-fn async-action)]
+      (is (= {kws/loading? true
+              kws/error-message nil
+              kws/good-message nil}
+             (pre-reducer {kws/loading? false})))))
 
-      (testing "Sets loading to false"
-        (is (false? (kws/loading? result))))
+  (testing "Post reducer"
+    (let [async-action (sut/delete-async-action {})
+          post-reducer (kws.async-actions/post-reducer-fn async-action)]
 
-      (testing "Clears selected-card"
-        (is (nil? (kws/selected-card result))))
+      (testing "Success"
+        (let [card {kws.card/id "id"}
+              state {kws/loading? true
+                     kws/card-input card
+                     kws/selected-card card
+                     kws/good-message "FOO"}
+              response {kws/error-message nil}]
+          (is (= {kws/error-message nil
+                  kws/loading? false
+                  kws/card-input nil
+                  kws/selected-card nil
+                  kws/good-message (sut/deleted-card-msg card)}
+                 (post-reducer state response)))))
 
-      (testing "Clears card-input"
-        (is (nil? (kws/card-input result))))
-
-      (testing "Clears error-message"
-        (is (nil? (kws/error-message result))))
-
-      (testing "Sets success-message"
-        (is (= "Deleted card with id 1" (kws/good-message result)))))))
-
-(deftest test-delete-card!--dont-call-delete-if-confirm-is-false
-  (let [card                 {::kws.card/title "Foo"}
-        state                (atom {kws/selected-card card})
-        cards-crud-args      (atom [])
-        confirm-deletion-fn! #(async/go false)
-        props                {:state state
-                              kws/confirm-deletion-fn! confirm-deletion-fn!
-                              kws/delete-card! #(swap! cards-crud-args conj %&)}]
-    (let [resp-chan (sut/delete-card! props)]
-      (async done
-             (async/go
-               (is (false? (async/<! resp-chan)))
-               (is (= [] @cards-crud-args))
-               (done))))))
-
-(deftest test-delete-card!--call-delete-if-conficonfirm-is-true
-  (let [card                 {kws.card/title "Foo" kws.card/id "Bar"}
-        initial-state        {kws/selected-card card}
-        state                (atom initial-state)
-        cards-crud-args      (atom [])
-        confirm-deletion-fn! #(async/go true)
-        props                {:state state
-                              kws/confirm-deletion-fn! confirm-deletion-fn!
-                              kws/delete-card! #(async/go (swap! cards-crud-args conj %&))}]
-    (async done
-           (async/go
-             (let [resp-chan (sut/delete-card! props)]
-               (is (not (false? (async/<! resp-chan))))
-               (is (= [["Bar"]] @cards-crud-args))
-               (is (= @state (sut/reduce-after-delete initial-state {})))
-               (done))))))
+      (testing "Failure"
+        (let [card {kws.card/id "id"}
+              state {kws/loading? true
+                     kws/card-input card
+                     kws/selected-card card}
+              response {kws.cards-crud/error-message "ERROR"}]
+          (is (= {kws/error-message "ERROR"
+                  kws/loading? false
+                  kws/card-input card
+                  kws/selected-card card}
+                 (post-reducer state response))))))))
 
 (deftest test-reduce-after-update
 

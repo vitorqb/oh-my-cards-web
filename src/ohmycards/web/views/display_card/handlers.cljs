@@ -1,6 +1,8 @@
 (ns ohmycards.web.views.display-card.handlers
   (:require [cljs.core.async :as async]
+            [ohmycards.web.common.async-actions.core :as async-action]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.common.async-actions.core :as kws.async-actions]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
             [ohmycards.web.kws.hydra.core :as kws.hydra]
             [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
@@ -10,18 +12,24 @@
 ;; 
 ;; Helpers
 ;;
-(defn- reduce-before-fetch-card
-  "Reduces the state before fetching the card."
-  [state]
-  (assoc state kws/loading? true kws/card nil kws/error-message nil))
+(defn fetch-card-async-action [{:keys [state] ::kws/keys [fetch-card!]} card-id]
+  {kws.async-actions/state
+   state
 
-(defn- reduce-after-fetch-card
-  "Reduces the state after fetching the card."
-  [state response]
-  (let [success? (-> response kws.services.cards-crud/read-card nil? not)]
-    (cond-> (assoc state kws/loading? false)
-      success? (assoc kws/card (kws.services.cards-crud/read-card response))
-      (not success?) (assoc kws/error-message (kws.services.cards-crud/error-message response)))))
+   kws.async-actions/pre-reducer-fn
+   #(assoc % kws/loading? true kws/card nil kws/error-message nil)
+
+   kws.async-actions/action-fn
+   (fn [_] (fetch-card! card-id))
+
+   kws.async-actions/post-reducer-fn
+   (fn [state response]
+     (let [success? (-> response kws.services.cards-crud/read-card nil? not)
+           read-card (kws.services.cards-crud/read-card response)
+           error-message (kws.services.cards-crud/error-message response)]
+       (cond-> (assoc state kws/loading? false)
+         success? (assoc kws/card read-card)
+         (not success?) (assoc kws/error-message error-message))))})
 
 (defn- goto-editcard!
   "Navigates to the page that edit the current card."
@@ -34,10 +42,8 @@
 (defn init!
   "Initializes the state. The first argument are the props, and the
   second argument is the card id that must be displayed."
-  [{:keys [state] ::kws/keys [fetch-card!] :as props} card-id]
-  (swap! state reduce-before-fetch-card)
-  (async/go
-    (swap! state reduce-after-fetch-card (async/<! (fetch-card! card-id)))))
+  [props card-id]
+  (async-action/run (fetch-card-async-action props card-id)))
 
 (defn hydra-head
   "Returns an hydra head for the contextual actions dispatcher."

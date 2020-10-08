@@ -3,6 +3,7 @@
   THIS FILE IS CREATED AUTOMATICALLY AND SHOULD NOT BE EDITED.
   See make test-ns-requires"
   (:require
+[ohmycards.web.common.async-actions.core-test]
 [ohmycards.web.common.cards.core-test]
 [ohmycards.web.common.cards.history.core-test]
 [ohmycards.web.common.coercion.coercers-test]
