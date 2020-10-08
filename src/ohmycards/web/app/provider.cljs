@@ -77,6 +77,6 @@
 (defn fetch-card-metadata
   "Fetches the metadata for cards."
   []
-  (let [metadata-chan (services.cards-metadata-fetcher/main {:http-fn http-fn})]
+  (let [metadata-chan (run-http-action (services.cards-metadata-fetcher/->Action))]
     (async/go
       (swap! app.state/state assoc lenses.metadata/cards (async/<! metadata-chan)))))
