@@ -9,7 +9,8 @@
   (query-params [_] "The query parameters to send.")
   (parse-success-response [_ response] "Receives a success response for parsing.")
   (parse-error-response [_ response] "Receives an error response for parsing.")
-  (do-after! [_ response parsed-response] "Side-effect hook called with the response after we receive it."))
+  (do-after! [_ response parsed-response] "Side-effect hook called with the response after we receive it.")
+  (token [_] "The token to use. If not given, a default may be provided by the runner."))
 
 (extend-type default
   HttpAction
@@ -19,4 +20,5 @@
   (query-params [_] nil)
   (parse-success-response [_ x] x)
   (parse-error-response [_ x] x)
-  (do-after! [_ _ _] nil))
+  (do-after! [_ _ _] nil)
+  (token [_] nil))

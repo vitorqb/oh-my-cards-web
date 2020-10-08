@@ -32,9 +32,10 @@
   (a/map parse-response [(http/request (parse-args args))]))
 
 (defn run-action
-  "Runs an `ohmycards.web.protocols.http/HttpAction`"
+  "Runs an `ohmycards.web.protocols.http/HttpAction`.
+  `token` is used by default if the `HttpAction` does not provide a token."
   [action {::kws.http/keys [token]}]
-  (let [args [kws.http/token token
+  (let [args [kws.http/token (or (protocols.http/token action) token)
               kws.http/method (protocols.http/method action)
               kws.http/url (protocols.http/url action)
               kws.http/query-params (protocols.http/query-params action)

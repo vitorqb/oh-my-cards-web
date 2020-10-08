@@ -1,20 +1,17 @@
 (ns ohmycards.web.services.login.recover-token-from-cookie-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.kws.http :as kws.http]
+            [ohmycards.web.protocols.http :as protocols.http]
             [ohmycards.web.services.login.recover-token-from-cookie :as sut]))
 
-(deftest test-extract-token-from-token-recovery-response
-
-  (let [state {:foo :bar}
-        response {::kws.http/body {:value "foo"} ::kws.http/success? true}]
-
-    (testing "Nil if no body"
-      (let [response* (assoc response ::kws.http/body nil)]
-        (is (nil? (sut/extract-token-from-token-recovery-response response*)))))
+(deftest test-action
+  
+  (let [action (sut/->Action)]
 
     (testing "Nil if not success"
-      (let [response* (assoc response ::kws.http/success? false)]
-        (is (false? (sut/extract-token-from-token-recovery-response response*)))))
+      (is (nil? (protocols.http/parse-error-response action {}))))
 
     (testing "Assocs login"
-      (is (= {:value "foo"} (sut/extract-token-from-token-recovery-response response))))))
+      (let [response {::kws.http/body {:value "foo"} ::kws.http/success? true}]
+        (is (= {:value "foo"}
+               (protocols.http/parse-success-response action response)))))))

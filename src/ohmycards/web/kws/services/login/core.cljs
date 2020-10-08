@@ -11,6 +11,7 @@
 (def action "The login action." ::action)
 
 (def onetime-password "The onetime password the user is inputting." ::onetime-password)
+(def email "The email the user is inputting." ::email)
 (def error-message "An error message." ::error-message)
 (def token "The returned token." ::token)
 

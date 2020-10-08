@@ -124,7 +124,8 @@
   []
   [views.login/main {:state (app.state/state-cursor :views.login)
                      :http-fn app.provider/http-fn
-                     :save-user-fn #(services.login/set-user! %)}])
+                     :save-user-fn #(services.login/set-user! %)
+                     :login-fn app.provider/login}])
 
 (defn about
   "An instance for the about page."
@@ -317,7 +318,12 @@
   (events-bus/init! {kws.events-bus/handler events-bus-handler})
 
   ;; Initializes long initialization services
-  (services.login/init! {:state app.state/state :http-fn app.provider/http-fn})
+  (services.login/init!
+   {:state app.state/state
+    ;; !!!! TODO Remove
+    :http-fn app.provider/http-fn
+    :run-http-action-fn app.provider/run-http-action})
+
   (services.routing/start-routing!
    routes
    (app.state/state-cursor ::lenses.routing/match)

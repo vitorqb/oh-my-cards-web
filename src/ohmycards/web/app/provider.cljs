@@ -6,6 +6,7 @@
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.lenses.metadata :as lenses.metadata]
+            [ohmycards.web.services.login.core :as services.login]
             [ohmycards.web.kws.user :as kws.user]
             [ohmycards.web.services.card-history-fetcher.core
              :as
@@ -88,3 +89,9 @@
   "Fetches the BE version."
   []
   (run-http-action (services.fetch-be-version/->Action)))
+
+(defn login
+  "Provides the login service."
+  [login-opts]
+  ;; !!!! TODO Remove http-fn
+  (services.login/main login-opts {:run-http-action-fn run-http-action :http-fn http-fn}))

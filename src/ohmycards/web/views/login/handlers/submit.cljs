@@ -1,6 +1,5 @@
 (ns ohmycards.web.views.login.handlers.submit
   (:require [ohmycards.web.kws.http :as kws.http]
-            [ohmycards.web.services.login.core :as services.login]
             [cljs.core.async :as a]
             [ohmycards.web.kws.services.login.core :as services.login.kws]
             [ohmycards.web.kws.user :as kws.user]))
@@ -33,14 +32,14 @@
 
 (defn main
   "Handles state during login submission."
-  [{:keys [state http-fn save-user-fn]}]
+  [{:keys [state http-fn save-user-fn login-fn]}]
   (let [{:keys [email onetime-password loading?]} @state]
     (when-not loading?
       (a/go
         (swap! state before-submit)
         (let [login-result (-> {::services.login.kws/onetime-password onetime-password
                                 ::services.login.kws/email email}
-                               (services.login/main {:http-fn http-fn})
+                               (login-fn)
                                a/<!)]
           (swap! state after-submit login-result)
           (when-let [token (:token @state)]
