@@ -3,18 +3,22 @@
             [ohmycards.web.kws.common.cards.history.core :as kws.cards.history]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.card-history-fetcher.core :as kws]
+            [ohmycards.web.protocols.http :as protocols.http]
             [ohmycards.web.services.card-history-fetcher.core :as sut]))
 
-(deftest test-parse-response
+(def action (sut/->Action "id"))
 
-  (testing "Returns error if http call fails"
-    (is (= {kws/success? false
-            kws/error-message "ERRORMSG"}
-           (sut/parse-response {kws.http/body "ERRORMSG"
-                                kws.http/success? false}))))
+(deftest test-url
+  (is (= "/v1/cards/id/history" (protocols.http/url action))))
 
-  (testing "Returns success if http call succeeds"
-    (is (= {kws/success? true
-            kws/history {kws.cards.history/events []}}
-           (sut/parse-response {kws.http/success? true
-                                kws.http/body {:history []}})))))
+(deftest test-parse-success-response
+  (is (= {kws/success? true kws/history {kws.cards.history/events []}}
+         (protocols.http/parse-success-response
+          action
+          {kws.http/success? true kws.http/body {:history []}}))))
+
+(deftest test-parse-error-response
+  (is (= {kws/success? false kws/error-message "ERRORMSG"}
+         (protocols.http/parse-error-response
+          action
+          {kws.http/body "ERRORMSG" kws.http/success? false}))))

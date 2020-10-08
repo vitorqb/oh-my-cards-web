@@ -25,11 +25,19 @@
   (utils.clipboard/to-clipboard! txt)
   (services.notify/notify! "Copied to clipboard!"))
 
+;; !!!! TODO Remove me
 (defn http-fn
   "Wraps the http service function injecting the token from the global state."
   [& args]
   (let [token (-> @app.state/state lenses.login/current-user kws.user/token)]
     (apply services.http/http kws.http/token token args)))
+
+(defn run-http-action
+  "Runs an `ohmycards.web.protocols.http/HttpAction`."
+  [action]
+  (let [token (-> @app.state/state lenses.login/current-user kws.user/token)
+        opts  {kws.http/token token}]
+    (services.http/run-action action opts)))
 
 (defn fetch-cards!
   "A shortcut to fetch cards using the fetch-cards svc"
@@ -39,12 +47,27 @@
 (defn fetch-card-history!
   "Fetches the history of a card."
   [id]
-  (services.card-history-fetcher/main id {:http-fn http-fn}))
+  (-> id services.card-history-fetcher/->Action run-http-action))
 
 (defn fetch-card!
   "Fetches a single card."
   [id]
-  (services.cards-crud/read! {:http-fn http-fn} id))
+  (-> id services.cards-crud/->ReadAction run-http-action))
+
+(defn create-card!
+  "Creates a card"
+  [card-input]
+  (-> card-input services.cards-crud/->CreateAction run-http-action))
+
+(defn update-card!
+  "Updates a card"
+  [card-input]
+  (-> card-input services.cards-crud/->UpdateAction run-http-action))
+
+(defn delete-card!
+  "Deletes a card"
+  [id]
+  (-> id services.cards-crud/->DeleteAction run-http-action))
 
 (defn notify!
   "Notifies the user of a msg."

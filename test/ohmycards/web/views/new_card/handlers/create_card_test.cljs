@@ -4,7 +4,6 @@
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
             [ohmycards.web.kws.views.new-card.core :as kws]
-            [ohmycards.web.services.cards-crud.core :as services.cards-crud]
             [ohmycards.web.views.new-card.handlers.create-card :as sut]
             [reagent.core :as r]))
 

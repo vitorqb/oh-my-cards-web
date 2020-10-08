@@ -3,6 +3,8 @@
 (def goto-home! "A fn that navigates to the home view." ::goto-home!)
 (def goto-displaycard! "A fn that navigates to the display card view (with id)." ::goto-displaycard!)
 (def fetch-card! "A fn that is used to fetch the card." ::fetch-card!)
+(def update-card! "A fn that is used to update a card." ::update-card!)
+(def delete-card! "A fn that is used to delete a card." ::delete-card!)
 (def cards-metadata "Metadata for cards." ::cards-metadata)
 (def confirm-deletion-fn!
   "A function called with a card to confirm deletion.

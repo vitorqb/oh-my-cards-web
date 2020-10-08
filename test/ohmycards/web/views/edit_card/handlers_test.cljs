@@ -68,14 +68,14 @@
         confirm-deletion-fn! #(async/go false)
         props                {:http-fn http-fn
                               :state state
-                              kws/confirm-deletion-fn! confirm-deletion-fn!}]
-    (with-redefs [cards-crud/delete! #(swap! cards-crud-args conj %&)]
-      (let [resp-chan (sut/delete-card! props)]
-        (async done
-               (async/go
-                 (is (false? (async/<! resp-chan)))
-                 (is (= [] @cards-crud-args))
-                 (done)))))))
+                              kws/confirm-deletion-fn! confirm-deletion-fn!
+                              kws/delete-card! #(swap! cards-crud-args conj %&)}]
+    (let [resp-chan (sut/delete-card! props)]
+      (async done
+             (async/go
+               (is (false? (async/<! resp-chan)))
+               (is (= [] @cards-crud-args))
+               (done))))))
 
 (deftest test-delete-card!--call-delete-if-conficonfirm-is-true
   (let [card                 {kws.card/title "Foo" kws.card/id "Bar"}
@@ -86,15 +86,15 @@
         confirm-deletion-fn! #(async/go true)
         props                {:http-fn http-fn
                               :state state
-                              kws/confirm-deletion-fn! confirm-deletion-fn!}]
+                              kws/confirm-deletion-fn! confirm-deletion-fn!
+                              kws/delete-card! #(async/go (swap! cards-crud-args conj %&))}]
     (async done
            (async/go
-             (with-redefs [cards-crud/delete! #(async/go (swap! cards-crud-args conj %&))]
-               (let [resp-chan (sut/delete-card! props)]
-                 (async/<! resp-chan)
-                 (is (= [[{:http-fn http-fn} "Bar"]] @cards-crud-args))
-                 (is (= @state (sut/reduce-after-delete initial-state {})))
-                 (done)))))))
+             (let [resp-chan (sut/delete-card! props)]
+               (is (not (false? (async/<! resp-chan))))
+               (is (= [["Bar"]] @cards-crud-args))
+               (is (= @state (sut/reduce-after-delete initial-state {})))
+               (done))))))
 
 (deftest test-reduce-after-update
 

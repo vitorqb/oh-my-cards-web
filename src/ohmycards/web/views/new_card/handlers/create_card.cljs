@@ -2,7 +2,6 @@
   (:require [cljs.core.async :as a]
             [ohmycards.web.kws.services.cards-crud.core :as kws.services.cards-crud]
             [ohmycards.web.kws.views.new-card.core :as kws]
-            [ohmycards.web.services.cards-crud.core :as services.cards-crud]
             [ohmycards.web.views.new-card.queries :as queries])
   (:refer-clojure :exclude [run!]))
 
@@ -32,11 +31,11 @@
 
 (defn- run!
   "Runs the creation."
-  [{:keys [http-fn state] :as props}]
+  [{:keys [http-fn state] ::kws/keys [create-card!] :as props}]
   (let [card-form-input (queries/card-form-input props)]
     (a/go
       (swap! state before-create)
-      (let [res (a/<! (services.cards-crud/create! {:http-fn http-fn} card-form-input))]
+      (let [res (a/<! (create-card! card-form-input))]
         (swap! state after-create res)))))
 
 (defn- warn-user-of-invalid-input!

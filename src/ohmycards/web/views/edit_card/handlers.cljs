@@ -42,7 +42,7 @@
 
 (defn delete-card!
   "Handler to delete a card."
-  [{:keys [http-fn state] ::kws/keys [confirm-deletion-fn!]}]
+  [{:keys [http-fn state] ::kws/keys [confirm-deletion-fn! delete-card!]}]
   (let [card            (kws/selected-card @state)
         confirm-channel (confirm-deletion-fn! card)]
     (a/go
@@ -50,8 +50,7 @@
         false
         (do
           (swap! state reduce-before-event)
-          (let [resp (a/<! (cards-crud/delete! {:http-fn http-fn}
-                                               (-> @state kws/selected-card kws.card/id)))]
+          (let [resp (a/<! (delete-card! (-> @state kws/selected-card kws.card/id)))]
             (swap! state reduce-after-delete resp)))))))
 
 (defn- reduce-after-update
@@ -64,11 +63,11 @@
 
 (defn- run-update-card!
   "Runs the update of a card."
-  [{:keys [http-fn state]}]
+  [{:keys [http-fn state] ::kws/keys [update-card!]}]
   (swap! state reduce-before-event)
   (a/go
     (let [card (-> @state kws/card-input state-management/form-input->card)
-          resp (a/<! (cards-crud/update! {:http-fn http-fn} card))]
+          resp (a/<! (update-card! card))]
       (swap! state reduce-after-update resp))))
 
 (defn- warn-user-of-invalid-input!
