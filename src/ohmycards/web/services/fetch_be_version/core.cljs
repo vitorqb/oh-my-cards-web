@@ -1,11 +1,10 @@
 (ns ohmycards.web.services.fetch-be-version.core
-  (:require [cljs.core.async :as async]
-            [ohmycards.web.kws.http :as kws.http]))
+  (:require [ohmycards.web.kws.http :as kws.http]
+            [ohmycards.web.protocols.http :as protocols.http]))
 
-(defn main
-  "Fetches the BE version and returns it as a string."
-  [{:keys [http-fn]}]
-  (async/go
-    (-> (http-fn kws.http/url "/version" kws.http/method :GET)
-        async/<!
-        kws.http/body)))
+(defrecord Action []
+  protocols.http/HttpAction
+  (protocols.http/url [_] "/version")
+  (protocols.http/method [_] :GET)
+  (protocols.http/parse-success-response [_ r] (kws.http/body r))
+  (protocols.http/parse-error-response [_ _] "???"))

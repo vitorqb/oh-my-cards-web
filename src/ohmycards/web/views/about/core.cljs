@@ -1,9 +1,6 @@
 (ns ohmycards.web.views.about.core
   (:require [cljs.core.async :as async]
             [ohmycards.web.components.spinner.core :as spinner]
-            [ohmycards.web.services.fetch-be-version.core
-             :as
-             services.fetch-be-version]
             [ohmycards.web.version :as version]
             [reagent.core :as r]))
 
@@ -36,9 +33,9 @@
    [version-label {::text "Web: " ::version fe-version}]])
 
 (defn- fetch-be-version!
-  [{:keys [http-fn]} a]
+  [{:keys [http-fn fetch-be-version!]} a]
   "Queries the service to fetch the BE version and set's the atom `a` to it."
-  (async/go (reset! a (async/<! (services.fetch-be-version/main {:http-fn http-fn})))))
+  (async/go (reset! a (async/<! (fetch-be-version!)))))
 
 (defn main
   "A page to display information about the system."

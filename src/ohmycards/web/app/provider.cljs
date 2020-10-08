@@ -7,13 +7,16 @@
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.lenses.metadata :as lenses.metadata]
             [ohmycards.web.kws.user :as kws.user]
-            [ohmycards.web.services.cards-crud.core :as services.cards-crud]
             [ohmycards.web.services.card-history-fetcher.core
              :as
              services.card-history-fetcher]
+            [ohmycards.web.services.cards-crud.core :as services.cards-crud]
             [ohmycards.web.services.cards-metadata-fetcher.core
              :as
              services.cards-metadata-fetcher]
+            [ohmycards.web.services.fetch-be-version.core
+             :as
+             services.fetch-be-version]
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.http :as services.http]
             [ohmycards.web.services.notify :as services.notify]
@@ -80,3 +83,8 @@
   (let [metadata-chan (run-http-action (services.cards-metadata-fetcher/->Action))]
     (async/go
       (swap! app.state/state assoc lenses.metadata/cards (async/<! metadata-chan)))))
+
+(defn fetch-be-version!
+  "Fetches the BE version."
+  []
+  (run-http-action (services.fetch-be-version/->Action)))

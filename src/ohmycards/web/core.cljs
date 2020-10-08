@@ -129,7 +129,7 @@
 (defn about
   "An instance for the about page."
   []
-  [views.about/main {:http-fn app.provider/http-fn}])
+  [views.about/main {:fetch-be-version! app.provider/fetch-be-version!}])
 
 (defn header
   "An instance for the headerer component."
