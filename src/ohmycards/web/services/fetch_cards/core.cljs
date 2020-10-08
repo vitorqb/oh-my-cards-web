@@ -1,50 +1,43 @@
 (ns ohmycards.web.services.fetch-cards.core
-  (:require [cljs.core.async :as a]
-            [clojure.string :as string]
+  (:require [clojure.string :as string]
             [ohmycards.web.common.cards.core :as common.cards]
-            [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.fetch-cards.core :as kws]
+            [ohmycards.web.protocols.http :as protocols.http]
             [ohmycards.web.services.http.utils :as http.utils]))
 
 (def ^:private default-page 1)
 (def ^:private default-page-size 20)
 
-(defn fetch-query-params
-  "Prepares the query params for fetching cards."
-  [{config      kws/config
-    search-term kws/search-term}]
-  (let [page              (kws.config/page config)
-        page-size         (kws.config/page-size config)
-        include-tags      (kws.config/include-tags config)
-        exclude-tags      (kws.config/exclude-tags config)
-        tags-filter-query (kws.config/tags-filter-query config)]
-    (cond-> {:page (or page default-page) :pageSize (or page-size default-page-size)}
-      include-tags                      (assoc :tags (http.utils/list->query-arg include-tags))
-      exclude-tags                      (assoc :tagsNot (http.utils/list->query-arg exclude-tags))
-      tags-filter-query                 (assoc :query tags-filter-query)
-      (not (string/blank? search-term)) (assoc :searchTerm search-term))))
+(defrecord Action [opts]
 
-(defn- parse-fetch-response
-  [{::kws.http/keys [success? body]}]
-  (if success?
-    {kws/cards          (->> body :items (map common.cards/from-http))
-     kws/page           (:page body)
-     kws/page-size      (:pageSize body)
-     kws/count-of-cards (:countOfItems body)}
-    {kws/error-message (or body "Unknown error")}))
+  protocols.http/HttpAction
 
-(defn- fetch!
-  "Runs the http call to fetch the cards."
-  [{:keys [http-fn] :as opts}]
-  (http-fn
-   kws.http/method :GET
-   kws.http/url "/v1/cards"
-   kws.http/query-params (fetch-query-params opts)))
+  (protocols.http/url [_] "/v1/cards")
 
-(defn main
-  "Fetches cards from BE.
-  `opts.http-fn`: Http service used for sending the request."
-  [opts]
-  (a/map parse-fetch-response [(fetch! opts)]))
+  (protocols.http/method [_] :GET)
+
+  (protocols.http/query-params [_]
+    (let [config            (kws/config opts)
+          search-term       (kws/search-term opts)
+          page              (or (kws.config/page config) default-page)
+          page-size         (or (kws.config/page-size config) default-page-size)
+          include-tags      (kws.config/include-tags config)
+          exclude-tags      (kws.config/exclude-tags config)
+          tags-filter-query (kws.config/tags-filter-query config)]
+      (cond-> {:page page :pageSize page-size}
+        include-tags                      (assoc :tags (http.utils/list->query-arg include-tags))
+        exclude-tags                      (assoc :tagsNot (http.utils/list->query-arg exclude-tags))
+        tags-filter-query                 (assoc :query tags-filter-query)
+        (not (string/blank? search-term)) (assoc :searchTerm search-term))))
+
+  (protocols.http/parse-success-response [_ r]
+    (let [body (kws.http/body r)]
+      {kws/cards          (->> body :items (map common.cards/from-http))
+       kws/page           (:page body)
+       kws/page-size      (:pageSize body)
+       kws/count-of-cards (:countOfItems body)}))
+
+  (protocols.http/parse-error-response [_ r]
+    {kws/error-message (or (kws.http/body r) "Unknown error")}))

@@ -45,7 +45,7 @@
 (defn fetch-cards!
   "A shortcut to fetch cards using the fetch-cards svc"
   [opts]
-  (services.fetch-cards/main (assoc opts :http-fn http-fn)))
+  (-> opts services.fetch-cards/->Action run-http-action))
 
 (defn fetch-card-history!
   "Fetches the history of a card."
