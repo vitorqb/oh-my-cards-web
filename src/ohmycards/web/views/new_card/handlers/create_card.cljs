@@ -1,43 +1,35 @@
 (ns ohmycards.web.views.new-card.handlers.create-card
+  (:refer-clojure :exclude [run!])
   (:require [cljs.core.async :as a]
+            [ohmycards.web.common.async-actions.core :as async-actions]
+            [ohmycards.web.kws.common.async-actions.core :as kws.async-actions]
             [ohmycards.web.kws.services.cards-crud.core :as kws.services.cards-crud]
             [ohmycards.web.kws.views.new-card.core :as kws]
-            [ohmycards.web.services.cards-crud.core :as services.cards-crud]
-            [ohmycards.web.views.new-card.queries :as queries])
-  (:refer-clojure :exclude [run!]))
+            [ohmycards.web.views.new-card.queries :as queries]))
 
 (def INVALID_FORM_MSG "ERROR: The form contains invalid data preventing the creation!")
 
-(defn- should-create?
-  "Given the current state, returns true if a create attempt can be performed."
-  [state]
-  (-> state kws/loading? boolean not))
+(defn- create-async-action [{:keys [state] ::kws/keys [create-card!] :as props}]
+  {kws.async-actions/state
+   state
 
-(defn- before-create
-  "Reducer for before the creation"
-  [state]
-  (assoc state
-         kws/loading? true
-         kws/error-message nil))
+   kws.async-actions/run-condition-fn
+   #(-> % kws/loading? not)
 
-(defn- after-create
-  "Reducer for after the creation"
-  [state {::kws.services.cards-crud/keys [error-message created-card]}]
-  (cond-> state
-    :always (assoc kws/loading? false)
-    :always (dissoc kws/created-card)
-    error-message (assoc kws/error-message error-message)
-    created-card (assoc kws/created-card created-card)
-    created-card (assoc kws/card-input {})))
+   kws.async-actions/pre-reducer-fn
+   #(assoc % kws/loading? true kws/error-message nil)
 
-(defn- run!
-  "Runs the creation."
-  [{:keys [http-fn state] :as props}]
-  (let [card-form-input (queries/card-form-input props)]
-    (a/go
-      (swap! state before-create)
-      (let [res (a/<! (services.cards-crud/create! {:http-fn http-fn} card-form-input))]
-        (swap! state after-create res)))))
+   kws.async-actions/action-fn
+   #(-> % queries/card-form-input create-card!)
+
+   kws.async-actions/post-reducer-fn
+   (fn [s {::kws.services.cards-crud/keys [error-message created-card]}]
+     (cond-> s
+       :always (assoc kws/loading? false)
+       :always (dissoc kws/created-card)
+       error-message (assoc kws/error-message error-message)
+       created-card (assoc kws/created-card created-card)
+       created-card (assoc kws/card-input {})))})
 
 (defn- warn-user-of-invalid-input!
   "Warns the user about invalid inputs preventing the creation."
@@ -46,8 +38,8 @@
 
 (defn main
   "Creates a card from the new-card props."
-  [{:keys [http-fn state] :as props}]
-  (when (should-create? @state)
-    (if (queries/form-has-errors? props)
+  [{:keys [state] :as props}]
+  (when (-> @state kws/loading? not)
+    (if (queries/form-has-errors? @state)
       (warn-user-of-invalid-input! props)
-      (run! props))))
+      (async-actions/run (create-async-action props)))))

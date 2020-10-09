@@ -109,11 +109,6 @@
   (cards-grid.state-management/toggle-filter! (grid-props)))
 
 ;; Other svcs
-(defn- fetch-cards!
-  "Fetches the cards for the grid."
-  [opts]
-  (services.fetch-cards/main (assoc opts :http-fn app.provider/http-fn)))
-
 (defn- load-profile! [profile-name]
   (services.cards-grid-profile-manager.route-sync/set-in-route! profile-name))
 
@@ -131,7 +126,7 @@
    :to-clipboard!                app.provider/to-clipboard!
    kws.cards-grid/goto-settings! route-to-config-dashboard!
    kws.cards-grid/goto-newcard!  route-to-new-card!
-   kws.cards-grid/fetch-cards!   fetch-cards!})
+   kws.cards-grid/fetch-cards!   app.provider/fetch-cards!})
 
 (defn- config-dashboard-props
   "Returns the props for the config dashboard."
@@ -173,7 +168,7 @@
 (defn refetch!
   "Refetches the cards for the grid."
   []
-  (cards-grid.state-management/refetch-from-props! (grid-props)))
+  (cards-grid.state-management/refetch! (grid-props)))
 
 (defn new-grid-profile!
   "Reacts to a new grid profile being selected."

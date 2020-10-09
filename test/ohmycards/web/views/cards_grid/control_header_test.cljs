@@ -20,9 +20,9 @@
 
 (deftest test-refresh-btn
 
-  (testing "Calls refetch-from-props!"
+  (testing "Calls refetch!"
     (let [props {::foo 1}]
-      (with-redefs [state-management/refetch-from-props! #(if (= % props) ::result)]
+      (with-redefs [state-management/refetch! #(if (= % props) ::result)]
         (let [comp (sut/refresh-btn props)]
           (is (= ((get-in comp [1 :on-click])) ::result)))))))
 

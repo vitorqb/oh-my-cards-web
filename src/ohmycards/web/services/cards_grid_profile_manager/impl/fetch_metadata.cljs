@@ -1,21 +1,19 @@
 (ns ohmycards.web.services.cards-grid-profile-manager.impl.fetch-metadata
-  (:require [cljs.core.async :as a]
-            [ohmycards.web.kws.cards-grid.metadata.core :as kws.cards-grid.metadata]
-            [ohmycards.web.kws.http :as kws.http]))
+  (:require [ohmycards.web.kws.cards-grid.metadata.core :as kws.cards-grid.metadata]
+            [ohmycards.web.kws.http :as kws.http]
+            [ohmycards.web.protocols.http :as protocols.http]))
 
-(defn- parse-response
-  "Parses the response into a `ohmycards.web.kws.cards-grid.metadata.core` map."
-  [{{names :names} ::kws.http/body :as response}]
-  {kws.cards-grid.metadata/profile-names names})
+(defrecord Action []
+  protocols.http/HttpAction
 
-(defn- run-http-call!
-  "Runs the http call to fetch the cards grid metadata."
-  [{:keys [http-fn]}]
-  (http-fn
-   kws.http/url "/v1/metadata/cards-grid-profile/names"
-   kws.http/method "get"))
+  (protocols.http/url [_] "/v1/metadata/cards-grid-profile/names")
+
+  (protocols.http/method [_] :GET)
+
+  (protocols.http/parse-success-response [_ response]
+    {kws.cards-grid.metadata/profile-names (-> response kws.http/body :names)}))
 
 (defn main!
   "Fetches the metadata from the BE and returns."
-  [opts]
-  (a/go (-> opts run-http-call! a/<! parse-response)))
+  [{:keys [run-http-action-fn]}]
+  (run-http-action-fn (->Action)))

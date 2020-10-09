@@ -1,17 +1,16 @@
 (ns ohmycards.web.services.cards-grid-profile-manager.impl.fetch-metadata-test
-  (:require [ohmycards.web.services.cards-grid-profile-manager.impl.fetch-metadata :as sut]
-            [cljs.test :refer-macros [is are deftest testing use-fixtures async]]
+  (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.kws.cards-grid.metadata.core :as kws.cards-grid.metadata]
             [ohmycards.web.kws.http :as kws.http]
-            [ohmycards.web.kws.cards-grid.metadata.core :as kws.cards-grid.metadata]))
+            [ohmycards.web.protocols.http :as protocols.http]
+            [ohmycards.web.services.cards-grid-profile-manager.impl.fetch-metadata
+             :as
+             sut]))
 
-(deftest test-parse-response
-  (testing "Returns the names of the profiles."
-    (let [response {kws.http/body {:names ["FOO"]}}]
-      (is (= {kws.cards-grid.metadata/profile-names ["FOO"]}
-             (sut/parse-response response))))))
+(deftest test-action
+  (let [action (sut/->Action)]
+    (testing "Parses response properly"
+      (let [response {kws.http/body {:names ["FOO"]}}]
+        (is (= {kws.cards-grid.metadata/profile-names ["FOO"]}
+               (protocols.http/parse-success-response action response)))))))
 
-(deftest test-run-http-call
-  (testing "Calls http-fn with arguments"
-    (is (= {kws.http/url "/v1/metadata/cards-grid-profile/names"
-            kws.http/method "get"}
-           (sut/run-http-call! {:http-fn hash-map})))))

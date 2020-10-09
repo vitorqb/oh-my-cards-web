@@ -47,8 +47,8 @@
 (defn init!
   "Initialization logic for the service. Tries to log the user in if he is not yet logged in.
   `opts.state`: An atom-like variable where we will store the login state.
-  `opts.http-fn`: A function for making http requests."
-  [{:keys [state http-fn] :as opts}]
+  `opts.run-http-action`: A function used to run `ohmycards.web.protocols.http/HttpAction`."
+  [{:keys [state] :as opts}]
   (log "Initializing...")
   (set! *state* state)
   (a/go

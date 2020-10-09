@@ -23,7 +23,7 @@
    [icons/settings]])
 
 (defn- refresh-btn [props]
-  [:button.icon-button {:on-click #(state-management/refetch-from-props! props)}
+  [:button.icon-button {:on-click #(state-management/refetch! props)}
    [icons/refresh]])
 
 (defn- filter-btn [props]

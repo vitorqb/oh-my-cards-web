@@ -31,7 +31,7 @@
 ;; API
 (defn init!
   "Initializes the profile manager.
-  - `http-fn`: Function used to run http requests.
+  - `run-http-action-fn`: Function used to run `ohmycards.web.protocols.http/HttpAction`.
   - `set-metadata-fn!`: Function used to set the metadata after a fetch."
   [opts]
   (log "Initializing with" opts)

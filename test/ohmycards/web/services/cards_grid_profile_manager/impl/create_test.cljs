@@ -5,39 +5,38 @@
             [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.cards-grid-profile-manager.core :as kws]
+            [ohmycards.web.protocols.http :as protocols.http]
             [ohmycards.web.services.cards-grid-profile-manager.impl.create :as sut]))
 
-(deftest test-parse-result
+(deftest test-action
+  (let [profile {kws.profile/name "Foo"
+                 kws.profile/config {kws.config/page 1
+                                     kws.config/exclude-tags []
+                                     kws.config/include-tags ["A"]
+                                     kws.config/page-size 2}}
+        action (sut/->Action profile)]
 
-  (testing "Failure"
-    (is (= {kws/success? false} (sut/parse-result {kws.http/success? false}))))
+    (testing "Calls correct url"
+      (is (= "/v1/cards-grid-profile"
+             (protocols.http/url action))))
 
-  (testing "Success"
-    (is (= {kws/success? true} (sut/parse-result {kws.http/success? true})))))
+    (testing "Correct http method"
+      (is (= :POST
+             (protocols.http/method action))))
 
-(deftest test-run-http-call!
-  (is
-   (=
-    {kws.http/method :POST
-     kws.http/url "/v1/cards-grid-profile"
-     kws.http/json-params {:name "Foo"
-                           :config {:page 1
-                                    :excludeTags []
-                                    :includeTags ["A"]
-                                    :pageSize 2
-                                    :query nil}}}
-    (sut/run-http-call! {:http-fn hash-map}
-                        {kws.profile/name "Foo"
-                         kws.profile/config {kws.config/page 1
-                                             kws.config/exclude-tags []
-                                             kws.config/include-tags ["A"]
-                                             kws.config/page-size 2}}))))
+    (testing "Correctly parses json params"
+      (is (= {:name "Foo"
+              :config {:page 1
+                       :excludeTags []
+                       :includeTags ["A"]
+                       :pageSize 2
+                       :query nil}}
+             (protocols.http/json-params action))))
 
-(deftest test-main!
-  (async
-   done
-   (a/go
-     (with-redefs [sut/run-http-call! #(a/go {kws.http/success? true})]
-       (is (= {kws/success? true}
-              (a/<! (sut/main! {} {}))))
-       (done)))))
+    (testing "Correctly parses the error responses"
+      (is (= {kws/success? false}
+             (protocols.http/parse-error-response action {}))))
+
+    (testing "Correctly parses the success responses"
+      (is (= {kws/success? true}
+             (protocols.http/parse-success-response action {}))))))

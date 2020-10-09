@@ -3,7 +3,9 @@
   THIS FILE IS CREATED AUTOMATICALLY AND SHOULD NOT BE EDITED.
   See make test-ns-requires"
   (:require
+[ohmycards.web.common.async-actions.core-test]
 [ohmycards.web.common.cards.core-test]
+[ohmycards.web.common.cards.history.core-test]
 [ohmycards.web.common.coercion.coercers-test]
 [ohmycards.web.common.coercion.core-test]
 [ohmycards.web.common.coercion.result-test]
@@ -26,6 +28,7 @@
 [ohmycards.web.controllers.action-dispatcher.core-test]
 [ohmycards.web.controllers.cards-grid.core-test]
 [ohmycards.web.core-test]
+[ohmycards.web.services.card-history-fetcher.core-test]
 [ohmycards.web.services.cards-crud.core-test]
 [ohmycards.web.services.cards-grid-profile-manager.core-test]
 [ohmycards.web.services.cards-grid-profile-manager.impl.create-test]

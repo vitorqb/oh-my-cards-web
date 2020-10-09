@@ -6,10 +6,10 @@
 
 (defn card-form-input
   "Returns the coerced inputted card by the user."
-  [{:keys [state]}]
-  (-> @state kws/card-input coercion/extract-values))
+  [state]
+  (-> state kws/card-input coercion/extract-values))
 
 (defn form-has-errors?
   "Returns true if the form has errors, false otherwise."
-  [{:keys [state]}]
-  (-> @state kws/card-input coercion/extract-values nil?))
+  [state]
+  (-> state kws/card-input coercion/extract-values nil?))

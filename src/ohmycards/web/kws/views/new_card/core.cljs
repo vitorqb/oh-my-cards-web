@@ -2,6 +2,7 @@
 
 ;; Props
 (def goto-home! "Fn that navigates to home page." ::goto-home!)
+(def create-card! "A fn used to create a card." ::create-card!)
 (def cards-metadata "Metadata for cards" ::cards-metadata)
 
 ;; State

@@ -2,6 +2,7 @@
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.common.coercion.result :as coercion.result]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.common.async-actions.core :as kws.async-actions]
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
             [ohmycards.web.kws.views.edit-card.core :as kws]
             [ohmycards.web.views.edit-card.state-management :as sut]))
@@ -39,59 +40,58 @@
            kws.card/tags (coercion.result/success ["A"] ["A"])
            kws.card/ref (coercion.result/success 1 1)})))))
 
-(deftest test-should-fetch-card?
+(deftest test-card-fetch-async-action
 
-  (testing "Don't fetch if we are currently fetching it"
-    (is
-     (false?
-      (sut/should-fetch-card? {::sut/is-fetching? true} "foo"))))
+  (let [action (sut/card-fetch-async-action {} "id")
+        run-condition-fn (kws.async-actions/run-condition-fn action)
+        pre-reducer-fn (kws.async-actions/pre-reducer-fn action)
+        post-reducer-fn (kws.async-actions/post-reducer-fn action)]
 
-  (testing "Don't fetch if card is already fetched"
-    (is
-     (false?
-      (sut/should-fetch-card? {::sut/last-fetched-card-id "id"} "id"))))
+    (testing "Run condition"
+      (testing "Don't fetch if we are currently fetching it"
+        (is (false? (run-condition-fn {::sut/is-fetching? true
+                                       ::sut/last-fetched-card-id "id2"}))))
 
-  (testing "Fetch if ids are different"
-    (is
-     (true?
-      (sut/should-fetch-card? {kws/selected-card {kws.card/id "1"}} "2")))))
+      (testing "Don't fetch if card is already fetched"
+        (is (false? (run-condition-fn {::sut/is-fetching? false
+                                       ::sut/last-fetched-card-id "id"}))))
 
-(deftest test-reduce-before-card-fetch
+      (testing "Fetch if ids are different"
+        (is (true? (run-condition-fn {::sut/is-fetching? false
+                                      ::sut/last-fetched-card-id "id2"})))))
 
-  (testing "Assocs is-fetching?"
-    (is (true? (-> {} (sut/reduce-before-card-fetch "id") ::sut/is-fetching?))))
+    (testing "Pre reducer"
+      (testing "Assocs is-fetching?"
+        (is (true? (-> {} (pre-reducer-fn "id") ::sut/is-fetching?))))
 
-  (testing "Assocs last-fetched-card-id"
-    (is (= "id" (-> {} (sut/reduce-before-card-fetch "id") ::sut/last-fetched-card-id)))))
+      (testing "Assocs last-fetched-card-id"
+        (is (= "id" (-> {} (pre-reducer-fn "id") ::sut/last-fetched-card-id)))))
 
-(deftest test-reduce-on-card-fetch
+    (testing "Post reducer > With error"
+      (let [result (post-reducer-fn {} {kws.cards-crud/error-message "err"})]
 
-  (testing "With error"
-    (let [result (sut/reduce-on-card-fetch {} {kws.cards-crud/error-message "err"})]
+        (testing "Sets is-fetching? to false"
+          (is (false? (::sut/is-fetching? result))))
 
-      (testing "Sets is-fetching? to false"
-        (is (false? (::sut/is-fetching? result))))
+        (testing "Set's error message"
+          (is (= "err" (kws/error-message result))))
 
-      (testing "Set's error message"
-        (is (= "err" (kws/error-message result))))
+        (testing "Sets loading to false"
+          (is (false? (kws/loading? result))))))
 
-      (testing "Sets loading to false"
-        (is (false? (kws/loading? result))))))
+    (testing "Post reducer > Success"
+      (let [card        {kws.card/id 1}
+            service-res {kws.cards-crud/read-card card}
+            result (post-reducer-fn {} service-res)]
+        
+        (testing "Sets card form input on success"
+          (is (= (sut/card->form-input card) (kws/card-input result))))
 
-  (testing "Success"
+        (testing "Sets selected card on success"
+          (is (= card (kws/selected-card result))))
 
-    (let [card        {kws.card/id 1}
-          service-res {kws.cards-crud/read-card card}
-          result (sut/reduce-on-card-fetch {} service-res)]
-    
-      (testing "Sets card form input on success"
-        (is (= (sut/card->form-input card) (kws/card-input result))))
+        (testing "Sets is-fetching? to false"
+          (is (false? (::sut/is-fetching? result))))
 
-      (testing "Sets selected card on success"
-        (is (= card (kws/selected-card result))))
-
-      (testing "Sets is-fetching? to false"
-        (is (false? (::sut/is-fetching? result))))
-
-      (testing "Sets loading to false"
-        (is (false? (kws/loading? result)))))))
+        (testing "Sets loading to false"
+          (is (false? (kws/loading? result))))))))

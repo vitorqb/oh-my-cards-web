@@ -1,34 +1,42 @@
 (ns ohmycards.web.views.display-card.handlers-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.kws.common.async-actions.core :as kws.async-actions]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.services.cards-crud.core :as kws.services.cards-crud]
             [ohmycards.web.kws.views.display-card.core :as kws]
             [ohmycards.web.views.display-card.handlers :as sut]))
 
-(deftest test-reduce-before-fetch
+(deftest test-fetch-card-async-action
+  
+  (testing "Pre reducer"
 
-  (testing "Set's loading"
-    (is (true? (kws/loading? (sut/reduce-before-fetch-card {})))))
+    (let [async-action (sut/fetch-card-async-action {} "id")
+          pre-reducer-fn (kws.async-actions/pre-reducer-fn async-action)]
 
-  (testing "Unsets card"
-    (is (nil? (kws/card (sut/reduce-before-fetch-card {kws/card 1})))))
+      (testing "Set's loading"
+        (is (true? (kws/loading? (pre-reducer-fn {})))))
 
-  (testing "Unsets error message"
-    (is (nil? (kws/error-message (sut/reduce-before-fetch-card {kws/error-message "A"}))))))
+      (testing "Unsets card"
+        (is (nil? (kws/card (pre-reducer-fn {kws/card 1})))))
 
-(deftest test-reduce-after-fetch
+      (testing "Unsets error message"
+        (is (nil? (kws/error-message (pre-reducer-fn {kws/error-message "A"})))))))
 
-  (let [good-response {kws.services.cards-crud/read-card {:title "A"}}
-        bad-response  {kws.services.cards-crud/error-message "B"}]
+  (testing "Post reducer"
 
-    (testing "Set's loading to false"
-      (is (false? (kws/loading? (sut/reduce-after-fetch-card {} {})))))
+    (let [async-action (sut/fetch-card-async-action {} "id")
+          post-reducer-fn (kws.async-actions/post-reducer-fn async-action)
+          good-response {kws.services.cards-crud/read-card {:title "A"}}
+          bad-response  {kws.services.cards-crud/error-message "B"}]
 
-    (testing "Set's fetched card"
-      (is (= {:title "A"} (kws/card (sut/reduce-after-fetch-card {} good-response)))))
+      (testing "Set's loading to false"
+        (is (false? (kws/loading? (post-reducer-fn {} {})))))
 
-    (testing "Set's error message"
-      (is (= "B" (kws/error-message (sut/reduce-after-fetch-card {} bad-response)))))))
+      (testing "Set's fetched card"
+        (is (= {:title "A"} (kws/card (post-reducer-fn {} good-response)))))
+
+      (testing "Set's error message"
+        (is (= "B" (kws/error-message (post-reducer-fn {} bad-response))))))))
 
 (deftest test-goto-editcard!
 

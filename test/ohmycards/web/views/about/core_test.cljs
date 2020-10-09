@@ -2,9 +2,6 @@
   (:require [cljs.core.async :as async]
             [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.spinner.core :as spinner]
-            [ohmycards.web.services.fetch-be-version.core
-             :as
-             services.fetch-be-version]
             [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.about.core :as sut]))
 
@@ -17,14 +14,14 @@
         (tu/comp-seq ((sut/main {}))))))))
 
 (deftest test-fetch-be-version!
-  (async
-   done
-   (async/go
-     (with-redefs [services.fetch-be-version/main #(async/go "FOO")]
-      (let [a (atom nil)]
-        (async/<! (sut/fetch-be-version! {:http-fn #(do)} a))
-        (is (= @a "FOO"))
-        (done))))))
+  (let [props {:fetch-be-version! #(async/go "FOO")}]
+    (async
+     done
+     (async/go
+       (let [a (atom nil)]
+         (async/<! (sut/fetch-be-version! props a))
+         (is (= @a "FOO"))
+         (done))))))
 
 (deftest test-version-label
 

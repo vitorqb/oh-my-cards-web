@@ -4,42 +4,46 @@
             [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.cards-grid.profile.core :as kws.profile]
             [ohmycards.web.kws.http :as kws.http]
-            [ohmycards.web.kws.services.cards-grid-profile-manager.core :as kws]))
+            [ohmycards.web.kws.services.cards-grid-profile-manager.core :as kws]
+            [ohmycards.web.protocols.http :as protocols.http]))
 
-(defn- parse-result
-  "Parses the result from the load http call."
-  [{success?
-    ::kws.http/success?
-    {name :name {:keys [excludeTags includeTags page pageSize query]} :config}
-    ::kws.http/body}]
-  (if success?
-    {kws/success? true
-     kws/fetched-profile {kws.profile/name name
-                          kws.profile/config {kws.config/exclude-tags excludeTags
-                                              kws.config/include-tags includeTags
-                                              kws.config/page page
-                                              kws.config/page-size pageSize
-                                              kws.config/tags-filter-query query}}}
-    {kws/success? false})) 
+;; Private
+(defrecord ^:private ProfileExistsAction [profile-name]
+  protocols.http/HttpAction
+  (protocols.http/method [_] :GET)
+  (protocols.http/url [_] (str "/v1/cards-grid-profile/" profile-name)))
 
-(defn- run-http-call!
-  "Runs the http call for loading a profile."
-  [{:keys [http-fn]} profile-name]
-  (http-fn kws.http/method :GET
-           kws.http/url (str "/v1/cards-grid-profile/" profile-name)))
+(defrecord ^:private Action [profile-name]
+
+  protocols.http/HttpAction
+
+  (protocols.http/method [_] :GET)
+
+  (protocols.http/url [_] (str "/v1/cards-grid-profile/" profile-name))
+
+  (protocols.http/parse-error-response [_ response] {kws/success? false})
+
+  (protocols.http/parse-success-response [_ response]
+    (let [body (kws.http/body response)
+          config (:config body)]
+      {kws/success? true
+       kws/fetched-profile {kws.profile/name (:name body)
+                            kws.profile/config {kws.config/exclude-tags (:excludeTags config)
+                                                kws.config/include-tags (:includeTags config)
+                                                kws.config/page (:page config)
+                                                kws.config/page-size (:pageSize config)
+                                                kws.config/tags-filter-query (:query config)}}})))
 
 ;; Public
 (defn main!
   "Loads a profile from the BE."
-  [opts profile-name]
-  (let [resp-chan (run-http-call! opts profile-name)]
-    (a/go
-      (parse-result (a/<! resp-chan)))))
+  [{:keys [run-http-action-fn]} profile-name]
+  (-> profile-name ->Action run-http-action-fn))
 
 (defn profile-exists?
   "Checks whether a profile exists in the BE."
-  [opts profile-name]
-  (let [resp-chan (run-http-call! opts profile-name)]
+  [{:keys [run-http-action-fn]} profile-name]
+  (let [resp-chan (-> profile-name ->ProfileExistsAction run-http-action-fn)]
     (letfn [(handle-unknown-error []
               (let [msg "Unexpected error when getting a profile."]
                 (js/alert msg)

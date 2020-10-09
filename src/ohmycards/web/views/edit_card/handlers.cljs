@@ -1,6 +1,8 @@
 (ns ohmycards.web.views.edit-card.handlers
   (:require [cljs.core.async :as a]
+            [ohmycards.web.common.async-actions.core :as async-action]
             [ohmycards.web.kws.card :as kws.card]
+            [ohmycards.web.kws.common.async-actions.core :as kws.async-actions]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
             [ohmycards.web.kws.hydra.core :as kws.hydra]
             [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
@@ -32,44 +34,53 @@
     error-message       (assoc kws/error-message error-message)
     (not error-message) (assoc kws/error-message nil)))
 
-(defn- reduce-after-delete
-  "Reduces state after removing a card"
-  [state {::kws.cards-crud/keys [error-message deleted-card] :as result}]
-  (cond-> (reduce-after-event state result)
-    (not error-message) (assoc kws/card-input nil
-                               kws/selected-card nil
-                               kws/good-message (-> state kws/selected-card deleted-card-msg))))
+(defn- delete-async-action [{:keys [state] ::kws/keys [confirm-deletion-fn! delete-card!]}]
+  {kws.async-actions/state
+   state
+
+   kws.async-actions/action-fn
+   #(-> % kws/selected-card kws.card/id delete-card!)
+
+   kws.async-actions/run-condition-fn
+   #(-> % kws/selected-card confirm-deletion-fn!)
+
+   kws.async-actions/pre-reducer-fn
+   reduce-before-event
+
+   kws.async-actions/post-reducer-fn
+   (fn [s {::kws.cards-crud/keys [error-message deleted-card] :as result}]
+     (cond-> (reduce-after-event s result)
+       (not error-message)
+       (assoc kws/card-input nil
+              kws/selected-card nil
+              kws/good-message (-> s kws/selected-card deleted-card-msg))))})
 
 (defn delete-card!
   "Handler to delete a card."
-  [{:keys [http-fn state] ::kws/keys [confirm-deletion-fn!]}]
-  (let [card            (kws/selected-card @state)
-        confirm-channel (confirm-deletion-fn! card)]
-    (a/go
-      (if-not (a/<! confirm-channel)
-        false
-        (do
-          (swap! state reduce-before-event)
-          (let [resp (a/<! (cards-crud/delete! {:http-fn http-fn}
-                                               (-> @state kws/selected-card kws.card/id)))]
-            (swap! state reduce-after-delete resp)))))))
+  [props]
+  (async-action/run (delete-async-action props)))
 
-(defn- reduce-after-update
-  "Reduces state after updating a card"
-  [state {::kws.cards-crud/keys [error-message updated-card] :as result}]
-  (cond-> (reduce-after-event state result)
-    (not error-message) (assoc kws/good-message updated-card-msg
-                               kws/card-input (state-management/card->form-input updated-card)
-                               kws/selected-card updated-card)))
+(defn- update-async-action [{:keys [state] ::kws/keys [update-card!]}]
+  {kws.async-actions/state
+   state
+
+   kws.async-actions/pre-reducer-fn
+   reduce-before-event
+
+   kws.async-actions/action-fn
+   #(-> % kws/card-input state-management/form-input->card update-card!)
+
+   kws.async-actions/post-reducer-fn
+   (fn [s {::kws.cards-crud/keys [error-message updated-card] :as result}]
+     (cond-> (reduce-after-event s result)
+       (not error-message) (assoc kws/good-message updated-card-msg
+                                  kws/card-input (state-management/card->form-input updated-card)
+                                  kws/selected-card updated-card)))})
 
 (defn- run-update-card!
   "Runs the update of a card."
-  [{:keys [http-fn state]}]
-  (swap! state reduce-before-event)
-  (a/go
-    (let [card (-> @state kws/card-input state-management/form-input->card)
-          resp (a/<! (cards-crud/update! {:http-fn http-fn} card))]
-      (swap! state reduce-after-update resp))))
+  [props]
+  (async-action/run (update-async-action props)))
 
 (defn- warn-user-of-invalid-input!
   "Warns the user of invalid input that prevents update of the card."

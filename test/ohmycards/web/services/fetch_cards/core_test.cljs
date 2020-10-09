@@ -4,10 +4,47 @@
             [ohmycards.web.kws.cards-grid.config.core :as kws.config]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.fetch-cards.core :as kws]
+            [ohmycards.web.protocols.http :as protocols.http]
             [ohmycards.web.services.fetch-cards.core :as sut]))
 
+(deftest test-action
+
+  (let [opts {kws/config {kws.config/page 2
+                          kws.config/page-size 20
+                          kws.config/include-tags ["A" "B"]
+                          kws.config/exclude-tags ["C" "D"]
+                          kws.config/tags-filter-query "(tags NOT CONTAINS 'bar')"}
+              kws/search-term "SEARCH_TERM"}
+        action (sut/->Action opts)]
+
+    (testing "Parses success response"
+      (let [response {kws.http/body {:page 2
+                                     :pageSize 1
+                                     :items [{:id 1
+                                              :title "Foo"
+                                              :body "Bar"
+                                              :tags ["A"]
+                                              :ref 1}]
+                                     :countOfItems 100}}]
+        (is (= {kws/cards [{kws.card/id 1
+                            kws.card/title "Foo"
+                            kws.card/body "Bar"
+                            kws.card/tags ["A"]
+                            kws.card/created-at nil
+                            kws.card/updated-at nil
+                            kws.card/ref 1}]
+                kws/page 2
+                kws/page-size 1
+                kws/count-of-cards 100}
+               (protocols.http/parse-success-response action response)))))
+
+    (testing "Parses error response"
+      (let [response {kws.http/body "Error"}]
+        (is (= {kws/error-message "Error"}
+               (protocols.http/parse-error-response action response)))))))
+
 (deftest test-fetch-query-params
-  (let [props  {kws/config
+  (let [opts  {kws/config
                 {kws.config/page              2
                  kws.config/page-size         20
                  kws.config/include-tags      ["A" "B"]
@@ -22,91 +59,43 @@
                 :searchTerm "SEARCH_TERM"}]
 
     (testing "Defaults page"
-      (let [props  (update props kws/config dissoc kws.config/page)
+      (let [opts  (update opts kws/config assoc kws.config/page nil)
             result (assoc result :page sut/default-page)]
-        (is (= result (sut/fetch-query-params props)))))
+        (is (= result
+               (-> opts sut/->Action protocols.http/query-params)))))
 
     (testing "Defaults page-size"
-      (let [props  (update props kws/config dissoc kws.config/page-size)
+      (let [opts  (update opts kws/config assoc kws.config/page-size nil)
             result (assoc result :pageSize sut/default-page-size)]
-        (is (= result (sut/fetch-query-params props)))))
+        (is (= result
+               (-> opts sut/->Action protocols.http/query-params)))))
 
     (testing "Ignore tags if not on params"
-      (let [props  (update props kws/config dissoc kws.config/include-tags)
+      (let [opts  (update opts kws/config dissoc kws.config/include-tags)
             result (dissoc result :tags)]
-        (is (= result (sut/fetch-query-params props)))))
+        (is (= result
+               (-> opts sut/->Action protocols.http/query-params)))))
 
     (testing "Ignore tagsNot if not on params"
-      (let [props  (update props kws/config dissoc kws.config/exclude-tags)
+      (let [opts  (update opts kws/config dissoc kws.config/exclude-tags)
             result (dissoc result :tagsNot)]
-        (is (= result (sut/fetch-query-params props)))))
+        (is (= result
+               (-> opts sut/->Action protocols.http/query-params)))))
 
     (testing "Ignore query if not on params"
-      (let [props  (update props kws/config dissoc kws.config/tags-filter-query)
+      (let [opts  (update opts kws/config dissoc kws.config/tags-filter-query)
             result (dissoc result :query)]
-        (is (= result (sut/fetch-query-params props)))))
+        (is (= result
+               (-> opts sut/->Action protocols.http/query-params)))))
 
     (testing "Ignore search term if not set"
-      (let [props  (dissoc props kws/search-term)
+      (let [opts  (dissoc opts kws/search-term)
             result (dissoc result :searchTerm)]
-        (is (= result (sut/fetch-query-params props)))))
+        (is (= result
+               (-> opts sut/->Action protocols.http/query-params)))))
 
     (testing "Ignore search term if set to an empty string"
-      (let [props  (assoc props kws/search-term "")
+      (let [opts  (assoc opts kws/search-term "")
             result (dissoc result :searchTerm)]
-        (is (= result (sut/fetch-query-params props)))))))
-
-(deftest test-parse-fetch-response
-
-  (testing "On failure..."
-    (let [http-resp {kws.http/success? false kws.http/body "Error"}
-          result    (sut/parse-fetch-response http-resp)]
-
-      (testing "Returns error message"
-        (is (= "Error" (kws/error-message result))))))
-
-  (testing "On success..."
-    (let [http-resp {kws.http/success? true
-                     kws.http/body     {:page 2
-                                        :pageSize 1
-                                        :items [{:id 1 :title "Foo" :body "Bar" :tags ["A"] :ref 1}]
-                                        :countOfItems 100}}
-          result    (sut/parse-fetch-response http-resp)]
-
-      (testing "Returns cards"
-        (is (= [{kws.card/id         1
-                 kws.card/title      "Foo"
-                 kws.card/body       "Bar"
-                 kws.card/tags       ["A"]
-                 kws.card/created-at nil
-                 kws.card/updated-at nil
-                 kws.card/ref        1}]
-               (kws/cards result))))
-
-      (testing "Returns page"
-        (is (= 2 (kws/page result))))
-
-      (testing "Returns page size"
-        (is (= 1 (kws/page-size result))))
-
-      (testing "Returns total cards count"
-        (is (= 100 (kws/count-of-cards result)))))))
-
-(deftest test-fetch!
-
-  (testing "Calls http-fn with correct args"
-    (let [config {kws.config/page 11 kws.config/page-size 100}]
-      (is (= {kws.http/method :GET
-              kws.http/url "/v1/cards"
-              kws.http/query-params {:page 11 :pageSize 100}}
-             (sut/fetch! {:http-fn hash-map kws/config config})))))
-
-  (testing "Defaults page"
-    (is (= sut/default-page
-           (-> (sut/fetch! {:http-fn hash-map kws/page-size 100})
-               kws.http/query-params :page))))
-
-  (testing "Defaults page"
-    (is (= sut/default-page-size
-           (-> (sut/fetch! {:http-fn hash-map kws/page 11})
-               kws.http/query-params :pageSize)))))
+        (is (= result
+               (-> opts sut/->Action protocols.http/query-params)))))))

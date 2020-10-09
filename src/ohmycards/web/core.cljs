@@ -78,9 +78,10 @@
    kws.edit-card/goto-displaycard! #(services.routing/goto! routing.pages/display-card
                                                             kws.routing/query-params {:id %})
    kws.edit-card/fetch-card! app.provider/fetch-card!
+   kws.edit-card/update-card! app.provider/update-card!
    kws.edit-card/cards-metadata (lenses.metadata/cards @app.state/state)
    kws.edit-card/confirm-deletion-fn! services.user-question/confirm-card-delete
-   :http-fn app.provider/http-fn
+   kws.edit-card/delete-card! app.provider/delete-card!
    :state (app.state/state-cursor :views.edit-card)
    :notify! app.provider/notify!})
 
@@ -122,13 +123,13 @@
   "An instance for the login page."
   []
   [views.login/main {:state (app.state/state-cursor :views.login)
-                     :http-fn app.provider/http-fn
-                     :save-user-fn #(services.login/set-user! %)}])
+                     :save-user-fn #(services.login/set-user! %)
+                     :login-fn app.provider/login}])
 
 (defn about
   "An instance for the about page."
   []
-  [views.about/main {:http-fn app.provider/http-fn}])
+  [views.about/main {:fetch-be-version! app.provider/fetch-be-version!}])
 
 (defn header
   "An instance for the headerer component."
@@ -137,11 +138,11 @@
 
 (defn new-card-page-props
   []
-  {:http-fn app.provider/http-fn
-   :state (app.state/state-cursor :views.new-card)
+  {:state (app.state/state-cursor :views.new-card)
    :notify! app.provider/notify!
    :path-to! services.routing/path-to!
    kws.new-card/goto-home! #(services.routing/goto! routing.pages/home)
+   kws.new-card/create-card! app.provider/create-card!
    kws.new-card/cards-metadata (lenses.metadata/cards @app.state/state)})
 
 (defn new-card-page
@@ -307,8 +308,8 @@
 
   ;; Initialize dependency-free services
   (services.cards-grid-profile-manager/init!
-   {:http-fn
-    app.provider/http-fn
+   {:run-http-action-fn
+    app.provider/run-http-action
     kws.services.cards-grid-profile-manager/set-metadata-fn!
     #(swap! app.state/state assoc lenses.metadata/cards-grid %)})
   (services.shortcuts-register/init! shortcuts)
@@ -316,7 +317,10 @@
   (events-bus/init! {kws.events-bus/handler events-bus-handler})
 
   ;; Initializes long initialization services
-  (services.login/init! {:state app.state/state :http-fn app.provider/http-fn})
+  (services.login/init!
+   {:state app.state/state
+    :run-http-action-fn app.provider/run-http-action})
+
   (services.routing/start-routing!
    routes
    (app.state/state-cursor ::lenses.routing/match)
