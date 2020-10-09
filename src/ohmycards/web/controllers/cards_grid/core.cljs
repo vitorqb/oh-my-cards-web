@@ -168,7 +168,7 @@
 (defn refetch!
   "Refetches the cards for the grid."
   []
-  (cards-grid.state-management/refetch-from-props! (grid-props)))
+  (cards-grid.state-management/refetch! (grid-props)))
 
 (defn new-grid-profile!
   "Reacts to a new grid profile being selected."
