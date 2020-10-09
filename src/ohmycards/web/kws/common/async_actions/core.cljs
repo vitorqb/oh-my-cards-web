@@ -1,7 +1,7 @@
 (ns ohmycards.web.kws.common.async-actions.core)
 
 (def state "The atom-like containing the state." ::state)
-(def run-condition-fn "A 1-arg function that receives the dereferred state and returns a channel with `true` if the action should be run. If the channel is closed or receives false, the entire action is aborted and is not run. Notice this is run before any other hook/reducer." ::run-condition-fn)
+(def run-condition-fn "A 1-arg function that receives the dereferred state and returns a a logical-true value that decides if the action should be run or not. It may return a normal value or a channel. A channel that get's closed is the same as a channel that sends `false`. Notice this is run before any other hook/reducer." ::run-condition-fn)
 (def pre-reducer-fn "A 1-arg fn used to reduce the state before the action." ::pre-reducer-fn)
 (def pre-hook-fn "A 0-arg fn called before the action." ::pre-hook-fn)
 (def post-reducer-fn "A 2-arg fn used to reduce the state after the action. Receives the payload from the action." ::post-reducer-fn)

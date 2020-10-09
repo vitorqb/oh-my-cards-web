@@ -1,9 +1,12 @@
 (ns ohmycards.web.common.async-actions.core
   (:require [cljs.core.async :as a]
+            [clojure.core.async.impl.protocols]
             [ohmycards.web.kws.common.async-actions.core :as kws]
             [ohmycards.web.utils.logging :as logging]))
 
 (logging/deflogger log "Common.AsyncActions")
+
+(defn- is-channel? [x] (satisfies? clojure.core.async.impl.protocols/ReadPort x))
 
 (defn run
   "Runs an async action."
@@ -17,18 +20,20 @@
         post-hook-fn (kws/post-hook-fn async-action)
         action-fn (kws/action-fn async-action)]
     (a/go
-      (when (a/<! (run-condition-fn @state))
-        (log "Running action: " async-action)
-        (when pre-hook-fn
-          (log "Running pre-hook for action: " async-action)
-          (pre-hook-fn))
-        (when pre-reducer-fn
-          (log "Running pre-reducer-fn for action: " async-action)
-          (swap! state pre-reducer-fn))
-        (let [result (a/<! (action-fn @state))]
-          (when post-hook-fn
-            (log "Running post-hook-fn for action and result: " [async-action result])
-            (post-hook-fn result))
-          (when post-reducer-fn
-            (log "Running post-reducer-fn for action and result: " [async-action result])
-            (swap! state post-reducer-fn result)))))))
+      (let [should-run? (run-condition-fn @state)
+            should-run? (if (is-channel? should-run?) (a/<! should-run?) should-run?)]
+        (when should-run?
+          (log "Running action: " async-action)
+          (when pre-hook-fn
+            (log "Running pre-hook for action: " async-action)
+            (pre-hook-fn))
+          (when pre-reducer-fn
+            (log "Running pre-reducer-fn for action: " async-action)
+            (swap! state pre-reducer-fn))
+          (let [result (a/<! (action-fn @state))]
+            (when post-hook-fn
+              (log "Running post-hook-fn for action and result: " [async-action result])
+              (post-hook-fn result))
+            (when post-reducer-fn
+              (log "Running post-reducer-fn for action and result: " [async-action result])
+              (swap! state post-reducer-fn result))))))))

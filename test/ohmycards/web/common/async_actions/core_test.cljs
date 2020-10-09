@@ -4,6 +4,13 @@
             [ohmycards.web.common.async-actions.core :as sut]
             [ohmycards.web.kws.common.async-actions.core :as kws]))
 
+(deftest is-channel?
+  (is (true? (sut/is-channel? (a/go nil))))
+  (is (true? (sut/is-channel? (a/timeout 1000))))
+  (is (false? (sut/is-channel? 1)))
+  (is (false? (sut/is-channel? "foo")))
+  (is (false? (sut/is-channel? {}))))
+
 (deftest test-run--simple
   (let [async-action {kws/state (atom {})
                       kws/pre-reducer-fn (fn [s] (assoc s ::pre-hook-fn 1))
@@ -40,10 +47,21 @@
        (is (= [[{::foo 1}]] @calls))
        (done)))))
 
-(deftest test-run--action-not-called-if-condition-fn-returns-false
+(deftest test-run--action-not-called-if-condition-fn-returns-chan-with-false
   (let [calls (atom 0)
         async-action {kws/state (atom {})
                       kws/run-condition-fn #(a/go nil)
+                      kws/action-fn (fn [_] (swap! calls inc))}]
+    (async done
+     (a/go
+       (a/<! (sut/run async-action))
+       (is (= 0 @calls))
+       (done)))))
+
+(deftest test-run--action-not-called-if-condition-fn-returns-false
+  (let [calls (atom 0)
+        async-action {kws/state (atom {})
+                      kws/run-condition-fn (constantly false)
                       kws/action-fn (fn [_] (swap! calls inc))}]
     (async done
      (a/go
