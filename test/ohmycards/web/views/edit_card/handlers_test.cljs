@@ -74,17 +74,26 @@
                   kws/selected-card card}
                  (post-reducer state response))))))))
 
-(deftest test-reduce-after-update
+(deftest test-update-async-action
 
-  (testing "Sets success msg"
-    (is (= sut/updated-card-msg (kws/good-message (sut/reduce-after-update {} {})))))
+  (let [update-card! #(do [::update-card! %1])
+        action (sut/update-async-action {kws/update-card! update-card!})
+        action-fn (kws.async-actions/action-fn action)
+        post-reducer-fn (kws.async-actions/post-reducer-fn action)]
 
-  (testing "Sets selected-card and card-input"
-    (let [card {kws.card/id 1}]
-      (is (= card
-             (kws/selected-card (sut/reduce-after-update {} {kws.cards-crud/updated-card card}))))
-      (is (= (state-management/card->form-input card)
-             (kws/card-input (sut/reduce-after-update {} {kws.cards-crud/updated-card card})))))))
+    (testing "Action fn calls update-card! with card"
+      (let [card {kws.card/id "id"}]
+        (is (= [::update-card! card]
+               (action-fn {kws/card-input (state-management/card->form-input card)})))))
+
+    (testing "Post reducer"
+      (let [card {kws.card/id 1}]
+        (is (= sut/updated-card-msg
+               (kws/good-message (post-reducer-fn {} {}))))
+        (is (= card
+               (kws/selected-card (post-reducer-fn {} {kws.cards-crud/updated-card card}))))
+        (is (= (state-management/card->form-input card)
+               (kws/card-input (post-reducer-fn {} {kws.cards-crud/updated-card card}))))))))
 
 (deftest test-update-card!
 

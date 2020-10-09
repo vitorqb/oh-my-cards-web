@@ -60,22 +60,27 @@
   [props]
   (async-action/run (delete-async-action props)))
 
-(defn- reduce-after-update
-  "Reduces state after updating a card"
-  [state {::kws.cards-crud/keys [error-message updated-card] :as result}]
-  (cond-> (reduce-after-event state result)
-    (not error-message) (assoc kws/good-message updated-card-msg
-                               kws/card-input (state-management/card->form-input updated-card)
-                               kws/selected-card updated-card)))
+(defn- update-async-action [{:keys [state] ::kws/keys [update-card!]}]
+  {kws.async-actions/state
+   state
+
+   kws.async-actions/pre-reducer-fn
+   reduce-before-event
+
+   kws.async-actions/action-fn
+   #(-> % kws/card-input state-management/form-input->card update-card!)
+
+   kws.async-actions/post-reducer-fn
+   (fn [s {::kws.cards-crud/keys [error-message updated-card] :as result}]
+     (cond-> (reduce-after-event s result)
+       (not error-message) (assoc kws/good-message updated-card-msg
+                                  kws/card-input (state-management/card->form-input updated-card)
+                                  kws/selected-card updated-card)))})
 
 (defn- run-update-card!
   "Runs the update of a card."
-  [{:keys [state] ::kws/keys [update-card!]}]
-  (swap! state reduce-before-event)
-  (a/go
-    (let [card (-> @state kws/card-input state-management/form-input->card)
-          resp (a/<! (update-card! card))]
-      (swap! state reduce-after-update resp))))
+  [props]
+  (async-action/run (update-async-action props)))
 
 (defn- warn-user-of-invalid-input!
   "Warns the user of invalid input that prevents update of the card."
