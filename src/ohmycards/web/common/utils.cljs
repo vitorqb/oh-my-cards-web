@@ -20,3 +20,10 @@
   (when (and (not (= x ""))
              (re-find #"^[\\+\\-]?[0-9]*$" x))
     (js/Number x)))
+
+(defn toggle-el-in-set
+  "If `el` belongs to set, remove it. Else, add it."
+  [set el]
+  (if (contains? set el)
+    (disj set el)
+    (conj set el)))

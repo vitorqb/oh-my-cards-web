@@ -104,7 +104,8 @@
    kws.display-card/fetch-card!    app.provider/fetch-card!
    kws.display-card/goto-home!     #(services.routing/goto! routing.pages/home)
    kws.display-card/goto-editcard! #(services.routing/goto! routing.pages/edit-card
-                                                            kws.routing/query-params {:id %})})
+                                                            kws.routing/query-params {:id %})
+   kws.display-card/fetch-card-history! app.provider/fetch-card-history!})
 
 (defn display-card-page []
   [display-card/main (display-card-page-props)])

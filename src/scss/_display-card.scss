@@ -1,6 +1,15 @@
 .display-card {
 
+    margin-bottom: 250px;
+
     &__content {
+        min-width: 600px;
+        max-width: 1000px;
+        width: 70%;
+        margin: 25px auto;
+    }
+
+    &__history {
         min-width: 600px;
         max-width: 1000px;
         width: 70%;
