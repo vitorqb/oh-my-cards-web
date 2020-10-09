@@ -12,25 +12,25 @@
 (deftest test-card-form-input
 
   (testing "Base"
-    (let [state (atom {kws/card-input f-card-input})]
+    (let [state {kws/card-input f-card-input}]
       (is (= {kws.card/body "body"
               kws.card/tags ["a"]
               kws.card/title "title"}
-             (sut/card-form-input {:state state}))))))
+             (sut/card-form-input state))))))
 
 
 (deftest test-form-has-errors?
 
   (testing "Error on tags"
-    (let [state (atom {kws/card-input (assoc f-card-input
-                                             kws.card/tags (coercion.result/failure "A" "A"))})]
-      (is (true? (sut/form-has-errors? {:state state})))))
+    (let [state {kws/card-input (assoc f-card-input
+                                       kws.card/tags (coercion.result/failure "A" "A"))}]
+      (is (true? (sut/form-has-errors? state)))))
 
   (testing "Error on title"
-    (let [state (atom {kws/card-input (assoc f-card-input
-                                             kws.card/title (coercion.result/failure "A" "A"))})]
-      (is (true? (sut/form-has-errors? {:state state})))))
+    (let [state {kws/card-input (assoc f-card-input
+                                       kws.card/title (coercion.result/failure "A" "A"))}]
+      (is (true? (sut/form-has-errors? state)))))
 
   (testing "No errors"
-    (let [state (atom {kws/card-input f-card-input})]
-      (is (false? (sut/form-has-errors? {:state state}))))))
+    (let [state {kws/card-input f-card-input}]
+      (is (false? (sut/form-has-errors? state))))))
