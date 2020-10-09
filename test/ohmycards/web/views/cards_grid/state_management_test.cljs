@@ -10,11 +10,10 @@
 (deftest test-fetch-cards-async-action
 
   (let [fetch-cards! #(do [::fetch-cards %1])
-        ;; !!!! TODO Rename async-action
-        action (sut/fetch-cards-async-action {kws.cards-grid/fetch-cards! fetch-cards!})
-        pre-reducer-fn (kws.async-actions/pre-reducer-fn action)
-        post-reducer-fn (kws.async-actions/post-reducer-fn action)
-        action-fn (kws.async-actions/action-fn action)]
+        async-action (sut/fetch-cards-async-action {kws.cards-grid/fetch-cards! fetch-cards!})
+        pre-reducer-fn (kws.async-actions/pre-reducer-fn async-action)
+        post-reducer-fn (kws.async-actions/post-reducer-fn async-action)
+        action-fn (kws.async-actions/action-fn async-action)]
 
     (testing "Pre reducer"
       (is (= {::foo 1 kws.cards-grid/status kws.cards-grid/status-loading}

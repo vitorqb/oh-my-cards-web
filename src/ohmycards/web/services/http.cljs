@@ -25,8 +25,7 @@
    ::kws.http/status status
    ::kws.http/body body})
 
-;; !!!! TODO - Make private?
-(defn http
+(defn- http
   "Runs an http request."
   [& {::kws.http/keys [method url json-params token] :as args}]
   (a/map parse-response [(http/request (parse-args args))]))
