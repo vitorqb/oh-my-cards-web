@@ -1,13 +1,18 @@
 (ns ohmycards.web.views.display-card.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.components.card-history-displayer.core
+             :as
+             card-history-displayer]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
+            [ohmycards.web.components.markdown-displayer.core
+             :as
+             markdown-displayer]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.views.display-card.core :as kws]
             [ohmycards.web.test-utils :as tu]
+            [ohmycards.web.views.display-card.child.card-history-displayer :as child.card-history-displayer]
             [ohmycards.web.views.display-card.core :as sut]
-            [ohmycards.web.components.markdown-displayer.core
-             :as
-             markdown-displayer]))
+            [reagent.core :as r]))
 
 (deftest test-title
   (let [state (atom {kws/card {kws.card/title "A" kws.card/ref 1}})]
@@ -69,14 +74,14 @@
   (testing "Loading rendering"
     
     (testing "Display loading-wrapper as second arg"
-      (let [state (atom {kws/loading? true})
+      (let [state (r/atom {kws/loading? true})
             [el props] (-> {:state state} sut/main second)]
         (is (= el loading-wrapper/main))
         (is (= {:loading? true} props)))))
 
   (testing "Non-loading rendering"
 
-    (let [props {:state (atom nil)}
+    (let [props {:state (r/atom nil)}
           comp-seq (tu/comp-seq (sut/main props))]
 
       (testing "Displays title"
@@ -89,4 +94,7 @@
         (is (tu/exists-in-component? [sut/extra-info props] comp-seq)))
 
       (testing "Displays header"
-        (is (tu/exists-in-component? [sut/header props] comp-seq))))))
+        (is (tu/exists-in-component? [sut/header props] comp-seq)))
+
+      (testing "Renders history displayer"
+        (is (tu/exists-in-component? [child.card-history-displayer/main props] comp-seq))))))

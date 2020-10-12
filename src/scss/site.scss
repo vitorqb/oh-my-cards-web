@@ -29,6 +29,7 @@
 @import "grid";
 @import "simple-input";
 @import "toast";
+@import "card-history-displayer/core";
 
 @import "buttons";
 
@@ -41,7 +42,7 @@ body {
   line-height: 1.5em;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
     color: $color-primary-darker;
 }
 h1 {

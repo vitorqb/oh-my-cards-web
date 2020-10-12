@@ -1,13 +1,19 @@
 (ns ohmycards.web.views.display-card.handlers
   (:require [cljs.core.async :as async]
             [ohmycards.web.common.async-actions.core :as async-action]
+            [ohmycards.web.components.card-history-displayer.core
+             :as
+             card-history-displayer]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.common.async-actions.core :as kws.async-actions]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
             [ohmycards.web.kws.hydra.core :as kws.hydra]
             [ohmycards.web.kws.hydra.leaf :as kws.hydra.leaf]
             [ohmycards.web.kws.services.cards-crud.core :as kws.services.cards-crud]
-            [ohmycards.web.kws.views.display-card.core :as kws]))
+            [ohmycards.web.kws.views.display-card.core :as kws]
+            [ohmycards.web.views.display-card.child.card-history-displayer
+             :as
+             child.card-history-displayer]))
 
 ;; 
 ;; Helpers
@@ -43,7 +49,8 @@
   "Initializes the state. The first argument are the props, and the
   second argument is the card id that must be displayed."
   [props card-id]
-  (async-action/run (fetch-card-async-action props card-id)))
+  (async-action/run (fetch-card-async-action props card-id))
+  (async-action/run (child.card-history-displayer/fetch-history-async-action props card-id)))
 
 (defn hydra-head
   "Returns an hydra head for the contextual actions dispatcher."

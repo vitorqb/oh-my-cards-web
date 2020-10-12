@@ -1,5 +1,8 @@
 (ns ohmycards.web.views.display-card.core
   (:require [ohmycards.web.common.cards.core :as cards]
+            [ohmycards.web.components.card-history-displayer.core
+             :as
+             card-history-displayer]
             [ohmycards.web.components.header.core :as header]
             [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.components.markdown-displayer.core
@@ -8,6 +11,9 @@
             [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.views.display-card.core :as kws]
+            [ohmycards.web.views.display-card.child.card-history-displayer
+             :as
+             child.card-history-displayer]
             [ohmycards.web.views.display-card.handlers :as handlers]))
 
 ;; 
@@ -57,4 +63,6 @@
       [extra-info props]
       [title props]]
      [body props]
-     [footer props]]]])
+     [footer props]]
+    [:div.display-card__history
+     [child.card-history-displayer/main props]]]])

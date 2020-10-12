@@ -1,0 +1,12 @@
+@import "field-update-displayer";
+
+.card-history-displayer {
+
+    &__event-displayer {
+        display: flex;
+        :not(:last-child) {
+            margin-right: 20px;
+        }
+    }
+
+}
