@@ -16,6 +16,7 @@
 [ohmycards.web.components.action-dispatcher.core-test]
 [ohmycards.web.components.app-header.core-test]
 [ohmycards.web.components.card-history-displayer.core-test]
+[ohmycards.web.components.card-history-displayer.field-update-displayer-test]
 [ohmycards.web.components.current-view.core-test]
 [ohmycards.web.components.dialog.core-test]
 [ohmycards.web.components.form.core-test]

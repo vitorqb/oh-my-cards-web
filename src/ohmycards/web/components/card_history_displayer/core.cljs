@@ -1,9 +1,15 @@
 (ns ohmycards.web.components.card-history-displayer.core
-  (:require [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
+  (:require [ohmycards.web.components.card-history-displayer.field-update-displayer
+             :as
+             field-update-displayer]
+            [ohmycards.web.components.loading-wrapper.core :as loading-wrapper]
             [ohmycards.web.components.table.core :as table]
             [ohmycards.web.kws.common.async-actions.core :as kws.async-actions]
             [ohmycards.web.kws.common.cards.history.core :as kws.cards.history]
             [ohmycards.web.kws.components.card-history-displayer.core :as kws]
+            [ohmycards.web.kws.components.card-history-displayer.field-update-displayer
+             :as
+             kws.field-update-displayer]
             [ohmycards.web.kws.components.table.column :as kws.table.column]
             [ohmycards.web.kws.components.table.core :as kws.table]
             [ohmycards.web.kws.components.table.row :as kws.table.row]
@@ -38,11 +44,21 @@
     ::kws.cards.history/event-update   [:span "Updated"]
     ::kws.cards.history/event-deletion [:span "Deleted"]))
 
-(defn- event-details
-  "Thunkified  Renders the details for an event."
-  [props]
-  (let [event (-> props kws.table/row ::event)]
-    (with-out-str (cljs.pprint/pprint event))))
+(defmulti event-details-row
+  "Component that renders the details for an event.
+  Dispatches on `event-type` for the `::event` inside the `:row`."
+  (fn [props] (-> props kws.table/row ::event kws.cards.history/event-type)))
+
+(defmethod event-details-row :default [_]
+  [:span "-"])
+
+(defmethod event-details-row kws.cards.history/event-update [props]
+  (let [field-updates (-> props kws.table/row ::event kws.cards.history/field-updates)]
+    [:<>
+     (for [field-update field-updates
+           :let [field-name (kws.cards.history/field-name field-update)]]
+       ^{:key field-name}
+       [field-update-displayer/main {kws.field-update-displayer/field-update field-update}])]))
 
 (defn- events-table
   "A component to display a table with all events."
@@ -60,7 +76,7 @@
                                             :event-type event-type
                                             :actions actions}
                       ::event event})
-    kws.table/row-details-comp [event-details props]}])
+    kws.table/row-details-comp [event-details-row props]}])
 
 (defn main
   "A component that knows how to display the history of a card."
@@ -68,5 +84,5 @@
   (let [dstate @state loading? (kws/loading? dstate)]
     [loading-wrapper/main {:loading? loading?}
      [:div.card-history-displayer
-      [:h4 "Changelog"]
+      [:h3 "Changelog"]
       [events-table props]]]))
