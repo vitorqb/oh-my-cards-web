@@ -43,6 +43,7 @@
                 sut/TableBody :TableBody
                 sut/TableRow :TableRow
                 sut/TableCell :TableCell
+                sut/TableDetailsCell :TableDetailsCell
                 sut/TableHeaderCell :TableHeaderCell
                 sut/TableBodyCell :TableBodyCell]
     (let [comp (sut/head {kws/columns columns})]
@@ -60,6 +61,7 @@
                 sut/TableBody :TableBody
                 sut/TableRow :TableRow
                 sut/TableCell :TableCell
+                sut/TableDetailsCell :TableDetailsCell
                 sut/TableHeaderCell :TableHeaderCell
                 sut/TableBodyCell :TableBodyCell]
 
@@ -71,7 +73,7 @@
                    ::sut/row row}
             comp (sut/details-row props)]
         (is (= [:> :TableRow {}
-                [:> :TableCell {:col-span 3}
+                [:> :TableDetailsCell {:col-span 3}
                  [::foo {kws/row row}]]]
                comp))))
 
@@ -83,7 +85,7 @@
                    ::sut/row row}
             comp (sut/details-row props)]
         (is (= [:> :TableRow {}
-                [:> :TableCell {:col-span 3}
+                [:> :TableDetailsCell {:col-span 3}
                  [::foo1 {kws/row row} ::foo2]]]
                comp))))
 
@@ -95,7 +97,7 @@
                    ::sut/row row}
             comp (sut/details-row props)]
         (is (= [:> :TableRow {}
-                [:> :TableCell {:col-span 3}
+                [:> :TableDetailsCell {:col-span 3}
                  [::foo1 {:a :b kws/row row} ::foo2]]]
                comp))))))
 
@@ -106,6 +108,7 @@
                 sut/TableBody :TableBody
                 sut/TableRow :TableRow
                 sut/TableCell :TableCell
+                sut/TableDetailsCell :TableDetailsCell
                 sut/TableHeaderCell :TableHeaderCell
                 sut/TableBodyCell :TableBodyCell]
 
@@ -124,6 +127,7 @@
                 sut/TableBody :TableBody
                 sut/TableRow :TableRow
                 sut/TableCell :TableCell
+                sut/TableDetailsCell :TableDetailsCell
                 sut/TableHeaderCell :TableHeaderCell
                 sut/TableBodyCell :TableBodyCell]
 
@@ -173,6 +177,7 @@
                 sut/TableBody :TableBody
                 sut/TableRow :TableRow
                 sut/TableCell :TableCell
+                sut/TableDetailsCell :TableDetailsCell
                 sut/TableHeaderCell :TableHeaderCell
                 sut/TableBodyCell :TableBodyCell]
     (let [expanded-rows-indexes (r/atom #{1})

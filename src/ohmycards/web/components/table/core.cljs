@@ -15,25 +15,31 @@
 
 (declare expander-cell)
 
-(def Table RTable)
-(def TableHead RTableHead)
-(def TableRow RTableRow)
-(def TableCell RTableCell)
-(def TableBody RTableBody)
+(def ^:private Table RTable)
+(def ^:private TableHead RTableHead)
+(def ^:private TableRow RTableRow)
+(def ^:private TableCell RTableCell)
+(def ^:private TableBody RTableBody)
 
 ;; Helpers
-(def styled
+(def ^:private styled
   "Access the function used for styled components. See https://material-ui.com/styles/basics/"
   (.-styled styles))
 
-(def TableHeaderCell
+(def ^:private TableHeaderCell
   "A custom TableCell for headers, implementing custom style."
   ((styled TableCell)
    #js{:font-weight "750"
-       :background-color "#73c2fb"}))
+       :background-color "#192bc2"
+       :color "#ecf0f1"}))
 
-(def TableBodyCell
+(def ^:private TableBodyCell
   "A custom TableCell for body, implementing custom style."
+  ((styled TableCell)
+   #js{:background-color "#d9e8f8"}))
+
+(def ^:private TableDetailsCell
+  "A custom TableCell for the deailts of a cell, implementing custom style."
   ((styled TableCell)
    #js{:background-color "#d9e8f8"}))
 
@@ -94,7 +100,7 @@
   "Renders the row with details for the above row."
   [{::keys [row] ::kws/keys [row-details-comp] :as props}]
   [:> TableRow {}
-   [:> TableCell {:col-span (-> props get-columns count)}
+   [:> TableDetailsCell {:col-span (-> props get-columns count)}
     (if-not (vector? row-details-comp)
       [row-details-comp {kws/row row}]
       (vec

@@ -15,6 +15,6 @@
       (is (= [:div.field-update-displayer
               [:h4 "Updated " "Name"]
               [:div.field-update-displayer__comparison
-               [:pre.field-update-displayer__old-value "\"1\"\n"]
-               [:pre.field-update-displayer__new-value "\"2\"\n"]]]
+               [:pre.field-update-displayer__old-value "1"]
+               [:pre.field-update-displayer__new-value "2"]]]
              comp)))))
