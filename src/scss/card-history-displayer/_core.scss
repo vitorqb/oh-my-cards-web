@@ -2,6 +2,10 @@
 
 .card-history-displayer {
 
+    table.MuiTable-root {
+        table-layout: fixed;
+    }
+
     &__event-displayer {
         display: flex;
         :not(:last-child) {
