@@ -1,16 +1,14 @@
 .field-update-displayer {
 
-    &__comparison {
-        
-    }
-
     &__old-value {
         background-color: rgba(#F47983, 0.75);
         padding: 5px 10px;
+        overflow-y: auto;
     }
 
     &__new-value {
         background-color: rgba(#26C281, 0.75);
         padding: 5px 10px;
+        overflow-y: auto;
     }
 }
