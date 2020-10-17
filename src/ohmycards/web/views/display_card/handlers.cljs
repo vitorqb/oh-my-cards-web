@@ -67,6 +67,10 @@
                             kws.hydra/description "Edit"
                             kws.hydra/type        kws.hydra/leaf
                             kws.hydra.leaf/value  #(goto-editcard! props)}
+                           {kws.hydra/shortcut    \c
+                            kws.hydra/description "Copy"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(copy-to-clipboard! props)}
                            {kws.hydra/shortcut    \q
                             kws.hydra/description "Quit"
                             kws.hydra/type        kws.hydra/leaf
