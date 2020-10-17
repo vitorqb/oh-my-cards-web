@@ -79,6 +79,8 @@
 (defn- route-to-grid! []
   (services.routing/goto! routing.pages/home))
 
+(defn- route-to-profiles! []
+  (services.routing/goto! routing.pages/profiles))
 
 
 ;; Config setting
@@ -126,6 +128,7 @@
    :to-clipboard!                app.provider/to-clipboard!
    kws.cards-grid/goto-settings! route-to-config-dashboard!
    kws.cards-grid/goto-newcard!  route-to-new-card!
+   kws.cards-grid/goto-profiles! route-to-profiles!
    kws.cards-grid/fetch-cards!   app.provider/fetch-cards!})
 
 (defn- config-dashboard-props

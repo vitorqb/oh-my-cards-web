@@ -28,9 +28,12 @@
 
 (defn main
   "A combobox (multiselect)."
-  [{:keys [value on-change class] ::kws/keys [options] :as props}]
+  [{:keys [value on-change class auto-focus] ::kws/keys [options] :as props}]
   [Combobox {:on-select #(on-change %)}
-   [ComboboxInput {:value value :on-change #(-> % .-target .-value on-change) :autocomplete true}]
+   [ComboboxInput (cond-> {:value value
+                           :on-change #(-> % .-target .-value on-change)
+                           :autocomplete true}
+                    auto-focus (assoc :auto-focus auto-focus))]
    [ComboboxPopover {}
     (into
      [ComboboxList {}]

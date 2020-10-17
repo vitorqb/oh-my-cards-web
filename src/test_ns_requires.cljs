@@ -76,4 +76,5 @@
 [ohmycards.web.views.new-card.handlers.create-card-test]
 [ohmycards.web.views.new-card.header-test]
 [ohmycards.web.views.new-card.queries-test]
+[ohmycards.web.views.profiles.core-test]
 ))

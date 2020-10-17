@@ -50,7 +50,12 @@
     (testing "Set's disabled if passed"
       (is (nil? (:disabled (make-result {}))))
       (is (true? (:disabled (make-result {kws/disabled? true}))))
-      (is (false? (:disabled (make-result {kws/disabled? false})))))))
+      (is (false? (:disabled (make-result {kws/disabled? false})))))
+
+    (testing "Set's auto-focus if passed"
+      (is (nil? (:auto-focus (make-result {}))))
+      (is (true? (:auto-focus (make-result {kws/auto-focus true}))))
+      (is (false? (:auto-focus (make-result {kws/auto-focus false})))))))
 
 (deftest test-main
 

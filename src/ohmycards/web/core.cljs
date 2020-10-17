@@ -38,6 +38,7 @@
             [ohmycards.web.kws.views.display-card.core :as kws.display-card]
             [ohmycards.web.kws.views.edit-card.core :as kws.edit-card]
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
+            [ohmycards.web.kws.views.profiles.core :as kws.views.profiles]
             [ohmycards.web.services.cards-grid-profile-manager.core
              :as
              services.cards-grid-profile-manager]
@@ -65,6 +66,7 @@
              edit-card.state-management]
             [ohmycards.web.views.login.core :as views.login]
             [ohmycards.web.views.new-card.core :as new-card]
+            [ohmycards.web.views.profiles.core :as views.profiles]
             [reagent.dom :as r.dom]))
 
 ;; -------------------------
@@ -152,6 +154,17 @@
   []
   [new-card/main (new-card-page-props)])
 
+(defn- profiles-page
+  "An instance for the profiles page."
+  []
+  [views.profiles/main
+   {:state (app.state/state-cursor :views.profiles)
+    kws.views.profiles/profile-names (-> @app.state/state
+                                         lenses.metadata/cards-grid
+                                         kws.cards-grid.metadata/profile-names)
+    kws.views.profiles/goto-grid! #(services.routing/goto! routing.pages/home)
+    kws.views.profiles/load-profile! #(services.cards-grid-profile-manager.route-sync/set-in-route! %)}])
+
 (defn- current-view*
   "Returns an instance of the `current-view` component."
   [state home-view login-view header-component]
@@ -178,6 +191,9 @@
    [["/about"
      {kws.routing/name routing.pages/about
       kws.routing/view #'about}]
+    ["/profiles"
+      {kws.routing/name routing.pages/profiles
+       kws.routing/view #'profiles-page}]
     ["/cards"
      ["/edit"
       {kws.routing/name routing.pages/edit-card
@@ -278,6 +294,10 @@
      kws.hydra/description "New Cards"
      kws.hydra/type        kws.hydra/leaf
      kws.hydra.leaf/value  #(services.routing/goto! routing.pages/new-card)}
+    {kws.hydra/shortcut    \p
+     kws.hydra/description "Profile Switcher"
+     kws.hydra/type        kws.hydra/leaf
+     kws.hydra.leaf/value  #(services.routing/goto! routing.pages/profiles)}
     {kws.hydra/shortcut    \a
      kws.hydra/description "About the app"
      kws.hydra/type        kws.hydra/leaf
