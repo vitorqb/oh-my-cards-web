@@ -1,5 +1,6 @@
 (ns ohmycards.web.views.display-card.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.common.cards.core :as cards]
             [ohmycards.web.components.card-history-displayer.core
              :as
              card-history-displayer]
@@ -10,7 +11,9 @@
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.views.display-card.core :as kws]
             [ohmycards.web.test-utils :as tu]
-            [ohmycards.web.views.display-card.child.card-history-displayer :as child.card-history-displayer]
+            [ohmycards.web.views.display-card.child.card-history-displayer
+             :as
+             child.card-history-displayer]
             [ohmycards.web.views.display-card.core :as sut]
             [reagent.core :as r]))
 
@@ -66,8 +69,16 @@
     (let [state       (atom {kws/card {kws.card/id 1}})
           props       {:state state kws/goto-editcard! #(do [::result %])}
           header      (sut/header props)
-          on-click-fn (-> header second :center second :on-click)]
-      (is (= [::result 1] (on-click-fn))))))
+          on-click-fn (-> header second :center second second :on-click)]
+      (is (= [::result 1] (on-click-fn)))))
+
+  (testing "Renders button with copy-to-clipboard!"
+    (let [card        {kws.card/ref 1 kws.card/title "foo"}
+          state       (atom {kws/card card})
+          props       {:state state kws/to-clipboard! #(do [::result %])}
+          header      (sut/header props)
+          on-click-fn (-> header second :center (get 2) second :on-click)]
+      (is (= [::result (cards/->title card)] (on-click-fn))))))
 
 (deftest test-main
 

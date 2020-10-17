@@ -43,10 +43,16 @@
 
 (defn- header [{::kws/keys [goto-home!] :as props}]
   [header/main
-   {:left   [:button.icon-button {:on-click #(goto-home!)}
-             [icons/arrow-left]]
-    :center [:button.icon-button.u-color-good {:on-click #(handlers/goto-editcard! props)}
-             [icons/edit]]}])
+   {:left
+    [:button.icon-button {:on-click #(goto-home!)}
+     [icons/arrow-left]]
+
+    :center
+    [:<>
+     [:button.icon-button.u-color-good {:on-click #(handlers/goto-editcard! props)}
+      [icons/edit]]
+     [:button.icon-button.u-color-good {:on-click #(handlers/copy-to-clipboard! props)}
+      [icons/copy]]]}])
 
 ;;
 ;; API

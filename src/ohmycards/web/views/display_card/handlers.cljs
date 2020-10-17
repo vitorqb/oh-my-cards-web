@@ -1,6 +1,7 @@
 (ns ohmycards.web.views.display-card.handlers
   (:require [cljs.core.async :as async]
             [ohmycards.web.common.async-actions.core :as async-action]
+            [ohmycards.web.common.cards.core :as cards]
             [ohmycards.web.components.card-history-displayer.core
              :as
              card-history-displayer]
@@ -37,14 +38,19 @@
          success? (assoc kws/card read-card)
          (not success?) (assoc kws/error-message error-message))))})
 
-(defn- goto-editcard!
+;;
+;; API
+;; 
+(defn goto-editcard!
   "Navigates to the page that edit the current card."
   [{:keys [state] ::kws/keys [goto-editcard!]}]
   (-> @state kws/card kws.card/id goto-editcard!))
 
-;;
-;; API
-;; 
+(defn copy-to-clipboard!
+  "Copies the card title to the clipboard."
+  [{:keys [state] ::kws/keys [to-clipboard!]}]
+  (-> @state kws/card cards/->title to-clipboard!))
+
 (defn init!
   "Initializes the state. The first argument are the props, and the
   second argument is the card id that must be displayed."
@@ -61,6 +67,10 @@
                             kws.hydra/description "Edit"
                             kws.hydra/type        kws.hydra/leaf
                             kws.hydra.leaf/value  #(goto-editcard! props)}
+                           {kws.hydra/shortcut    \c
+                            kws.hydra/description "Copy"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  #(copy-to-clipboard! props)}
                            {kws.hydra/shortcut    \q
                             kws.hydra/description "Quit"
                             kws.hydra/type        kws.hydra/leaf
