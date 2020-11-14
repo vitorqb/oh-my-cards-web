@@ -68,7 +68,7 @@ scss: scss/once
 
 # Launches the backend services
 runBackend:
-	cd devTools && $(SUDO) docker-compose up backend elasticSearch
+	cd devTools && $(SUDO) docker-compose up --force-recreate backend elasticSearch
 
 rev-proxy:
         # A reverse proxy, usefull for development with BE.
