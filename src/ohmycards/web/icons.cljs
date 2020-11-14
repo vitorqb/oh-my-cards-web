@@ -15,3 +15,4 @@
 (defn view [p] [:i.fas.fa-eye p])
 (defn copy [p] [:i.far.fa-copy p])
 (defn expand [p] [:i.fas.fa-caret-down p])
+(defn profile [p] [:i.far.fa-id-badge p])

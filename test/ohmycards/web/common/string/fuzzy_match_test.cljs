@@ -21,4 +21,7 @@
     (is (= ["bar" "FOOBAR"] (sut/main "AR" ["bar" "FOO" "FOOBAR" "Baz" "BOZ"]))))
 
   (testing "Space matches anything"
-    (is (= ["foo bar" "foo and bar"] (sut/main "foo bar" ["foo" "bar" "foo bar" "foo and bar"])))))
+    (is (= ["foo bar" "foo and bar"] (sut/main "foo bar" ["foo" "bar" "foo bar" "foo and bar"]))))
+
+  (testing "Match with special chars"
+    (is (= ["foo!@#$%^&*()[]{}"] (sut/main "foo!@#$%^&*()[]{}" ["foo!@#$%^&*()[]{}"])))))

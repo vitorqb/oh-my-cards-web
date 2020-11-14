@@ -7,6 +7,7 @@
 (def cursor "An atom-like that keeps the value of the input" ::cursor)
 (def coercer "A coercer to use when setting the value from the raw input value" ::coercer)
 (def disabled? "If true, set's `:disabled` to the input" ::disabled?)
+(def auto-focus "If true, set's `:auto-focus` to the input" ::auto-focus)
 
 ;; Input types
 (def t-simple ::t-simple)
