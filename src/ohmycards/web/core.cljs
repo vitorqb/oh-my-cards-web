@@ -298,6 +298,10 @@
      kws.hydra/description "Profile Switcher"
      kws.hydra/type        kws.hydra/leaf
      kws.hydra.leaf/value  #(services.routing/goto! routing.pages/profiles)}
+    {kws.hydra/shortcut    \u
+     kws.hydra/description "Upload File"
+     kws.hydra/type        kws.hydra/leaf
+     kws.hydra.leaf/value  #(app.provider/upload-file!)}
     {kws.hydra/shortcut    \a
      kws.hydra/description "About the app"
      kws.hydra/type        kws.hydra/leaf

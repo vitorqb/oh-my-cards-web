@@ -43,6 +43,7 @@
 [ohmycards.web.services.cards-metadata-fetcher.core-test]
 [ohmycards.web.services.events-bus.core-test]
 [ohmycards.web.services.fetch-cards.core-test]
+[ohmycards.web.services.file-uploader-test]
 [ohmycards.web.services.http-test]
 [ohmycards.web.services.http.utils-test]
 [ohmycards.web.services.login.core-test]
