@@ -73,7 +73,7 @@ runBackend:
 rev-proxy:
         # A reverse proxy, usefull for development with BE.
         # Assumes BE is at 9002 and FE at 9001.
-	devd -p 9000 '/api/=http://127.0.0.1:9002/' '/=http://127.0.0.1:9001/'
+	cd devTools && $(SUDO) docker-compose up --build --force-recreate reverseproxy
 
 # Refreshes the test-ns-requires file containing all mftickets-web tests.
 test-ns-requires:

@@ -24,3 +24,7 @@ services:
       - '${OHMYCARDS_WEB_ES_PORT}:9200'
     environment:
       - 'discovery.type=single-node'
+
+  reverseproxy:
+    build: ./reverseProxy
+    network_mode: "host"
