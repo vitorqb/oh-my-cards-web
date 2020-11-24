@@ -29,7 +29,7 @@ endef
 
 # The shadow-cljs config used for release
 define shadow_cljs_release_config
-'{:closure-defines {ohmycards.web.version/VERSION "$(version)"}}'
+'{:closure-defines {ohmycards.web.globals/VERSION "$(version)"}}'
 endef
 
 # Cleans the build directory

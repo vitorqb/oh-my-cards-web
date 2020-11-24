@@ -22,12 +22,14 @@
                              :repl-pprint  true}
                 :dev        {;; This allows us to use with-redefs for multi arit fns
                              ;; see https://clojure.atlassian.net/browse/CLJS-1623
-                             :compiler-options {:static-fns false}}}
+                             :compiler-options {:static-fns false}
+                             :closure-defines {ohmycards.web.globals/DEV true}}}
 
           :test {:target           :karma
                  :output-to        "target/test.js"
                  :ns-regexp        "-test$"
-                 :compiler-options {:static-fns false}}}
+                 :compiler-options {:static-fns false}
+                 :closure-defines  {ohmycards.web.globals/DEV true}}}
 
  :nrepl {:middleware [refactor-nrepl.middleware/wrap-refactor]}
  
