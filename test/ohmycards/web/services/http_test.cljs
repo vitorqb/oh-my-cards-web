@@ -22,6 +22,12 @@
                             ::kws.http/url "/URL"
                             ::kws.http/query-params {::foo 1}}))))
 
+  (testing "Adds multipart-params"
+    (is (= {:method :get :url "/api/URL" :with-credentials? false :multipart-params [["A" "B"]]}
+           (sut/parse-args {::kws.http/method :get
+                            ::kws.http/url "/URL"
+                            ::kws.http/multipart-params [["A" "B"]]}))))
+
   (testing "Adds token"
     (is (= {:method :post
             :url "/api/URL"

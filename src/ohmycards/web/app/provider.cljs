@@ -21,7 +21,8 @@
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.http :as services.http]
             [ohmycards.web.services.notify :as services.notify]
-            [ohmycards.web.utils.clipboard :as utils.clipboard]))
+            [ohmycards.web.utils.clipboard :as utils.clipboard]
+            [ohmycards.web.services.file-uploader :as services.file-uploader]))
 
 (defn to-clipboard!
   "Sends a text to the clipboard and notifies user on completion."
@@ -87,3 +88,11 @@
   "Provides the login service."
   [login-opts]
   (services.login/main login-opts {:run-http-action-fn run-http-action}))
+
+(defn upload-file!
+  "Uploads a file"
+  []
+  (services.file-uploader/ask-and-upload
+   {::services.file-uploader/notify! notify!
+    ::services.file-uploader/run-http-action run-http-action
+    ::services.file-uploader/to-clipboard! to-clipboard!}))

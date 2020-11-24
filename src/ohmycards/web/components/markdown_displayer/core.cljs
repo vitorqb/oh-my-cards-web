@@ -7,7 +7,7 @@
   We support adding the `max-width` style attribute by identifying a
   syntax similar to ` MAX_WIDTH=100px` in the `:alt` attribute."
   [props]
-  (if-let [[_ group1 group2] (re-find #"^(.*) MAX_WIDTH=([^ ]+)$" (:alt props))]
+  (if-let [[_ group1 group2] (re-find #"^(.*) MAX_WIDTH=([^ ]+)$" (:alt props ""))]
     (-> props
         (assoc :alt group1)
         (assoc-in [:style :max-width] group2))

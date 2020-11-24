@@ -1,7 +1,7 @@
 (ns ohmycards.web.views.about.core
   (:require [cljs.core.async :as async]
             [ohmycards.web.components.spinner.core :as spinner]
-            [ohmycards.web.version :as version]
+            [ohmycards.web.globals :as globals]
             [reagent.core :as r]))
 
 (defn- about-textbox
@@ -45,4 +45,4 @@
     (fn [_]
       [:div.about-view
        [about-textbox]
-       [versions-infobox {::be-version @!be-version ::fe-version version/VERSION}]])))
+       [versions-infobox {::be-version @!be-version ::fe-version globals/VERSION}]])))
