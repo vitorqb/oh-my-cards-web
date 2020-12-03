@@ -19,3 +19,32 @@
     (testing "Renders header inside contents if active"
       (let [props {:state (gen-state)}]
         (is (tu/exists-in-component? [sut/header props] (sut/main props)))))))
+
+
+(deftest test-show!
+
+  (testing "Set's active to true"
+    (let [state (atom {kws/active? false})
+          props {:state state}]
+      (sut/show! props)
+      (is (true? (kws/active? @state)))))
+
+  (testing "Calls on-show!"
+    (let [calls (atom 0)
+          props {kws/on-show! #(swap! calls inc) :state (atom {})}]
+      (sut/show! props)
+      (is (= 1 @calls)))))
+
+(deftest test-hide!
+
+  (testing "Set's active to false"
+    (let [state (atom {kws/active? true})
+          props {:state state}]
+      (sut/hide! props)
+      (is (false? (kws/active? @state)))))
+
+  (testing "Calls on-hide!"
+    (let [calls (atom 0)
+          props {kws/on-hide! #(swap! calls inc) :state (atom {})}]
+      (sut/hide! props)
+      (is (= 1 @calls)))))

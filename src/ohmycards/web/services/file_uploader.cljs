@@ -17,27 +17,9 @@
   (protocols.http/do-after! [_ _ key]
     ((::to-clipboard! opts) (url-for-key key))))
 
-(defn ask-for-file!
-  "Asks the user for a file to be uploaded."
-  []
-  (let [el        (js/document.createElement "input")
-        file-chan (a/chan 1)]
-    (set! (.-type el) "file")
-    (set! (.-hidden el) true)
-    (set! (.-onchange el)
-          (fn [_]
-            (a/go
-              (if-let [file (->> el .-files js->clj first)]
-                (a/>! file-chan file)
-                (a/close! file-chan)))))
-    (js/document.body.appendChild el)
-    (.click el)
-    (js/document.body.removeChild el)
-    file-chan))
-
 (defn ask-and-upload [opts]
   "Asks the user for a file and uploads it"
-  (let [ask-for-file!   (::ask-for-file!   opts ask-for-file!)
+  (let [ask-for-file!   (::ask-for-file!   opts (constantly nil))
         notify!         (::notify!         opts (constantly nil))
         run-http-action (::run-http-action opts (constantly nil))]
     (a/go
