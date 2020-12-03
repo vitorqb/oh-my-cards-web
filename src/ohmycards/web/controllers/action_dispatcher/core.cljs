@@ -15,6 +15,9 @@
 (defonce ^:dynamic ^:private *controller* nil)
 
 ;; Impl
+(defn- dialog-props [controller]
+  {:state (::dialog-state controller)})
+
 (defn- show*
   "Pure implementation of show!
   - `controller-opts` is the options for the controller.
@@ -22,13 +25,13 @@
   [controller-opts hydra-head]
   (when hydra-head
     (reset! (::current-hydra-head-atom controller-opts) hydra-head)
-    (swap! (::dialog-state controller-opts) assoc kws.dialog/active? true)
+    (dialog/show! (dialog-props controller-opts))
     (action-dispatcher/reset-state (::action-dispatcher-state controller-opts))))
 
 (defn- close*
   "Pure implementation of close!"
-  [{::keys [dialog-state]}]
-  (swap! dialog-state assoc kws.dialog/active? false))
+  [controller-opts]
+  (dialog/hide! (dialog-props controller-opts)))
 
 (defn- component*
   "Pure implementation of component"
