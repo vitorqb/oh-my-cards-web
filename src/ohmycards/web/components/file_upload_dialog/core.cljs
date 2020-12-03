@@ -33,7 +33,8 @@
   [dialog/main (dialog-props props)
    [:input.file-upload-dialog
     {:type "file"
-     :on-change #(on-change! props %)}]])
+     :on-change #(on-change! props %)
+     :autoFocus true}]])
 
 (defn show!
   "Displays the file dialog and waits for the user to select a file.

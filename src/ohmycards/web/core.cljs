@@ -303,7 +303,7 @@
     {kws.hydra/shortcut    \u
      kws.hydra/description "Upload File"
      kws.hydra/type        kws.hydra/leaf
-     kws.hydra.leaf/value  #(app.provider/upload-file!)}
+     kws.hydra.leaf/value  #(controllers.file-upload-dialog/upload-file!)}
     {kws.hydra/shortcut    \a
      kws.hydra/description "About the app"
      kws.hydra/type        kws.hydra/leaf
