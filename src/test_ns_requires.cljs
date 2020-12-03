@@ -19,6 +19,7 @@
 [ohmycards.web.components.card-history-displayer.field-update-displayer-test]
 [ohmycards.web.components.current-view.core-test]
 [ohmycards.web.components.dialog.core-test]
+[ohmycards.web.components.file-upload-dialog.core-test]
 [ohmycards.web.components.form.core-test]
 [ohmycards.web.components.hydra.core-test]
 [ohmycards.web.components.inputs.combobox-test]
