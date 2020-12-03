@@ -5,6 +5,9 @@
             [ohmycards.web.controllers.action-dispatcher.core
              :as
              controllers.action-dispatcher]
+            [ohmycards.web.controllers.file-upload-dialog.core
+             :as
+             controllers.file-upload-dialog]
             [ohmycards.web.core :as sut]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
             [ohmycards.web.kws.hydra.core :as kws.hydra]
@@ -34,6 +37,7 @@
                   ::components.current-view/header-component ::header-component
                   ::components.current-view/loading?         true}]
                 [controllers.action-dispatcher/component]
+                [controllers.file-upload-dialog/component]
                 [services.notify/toast]]
                (sut/current-view* state ::home-view ::login-view ::header-component))))
 

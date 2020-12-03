@@ -67,7 +67,8 @@
             [ohmycards.web.views.login.core :as views.login]
             [ohmycards.web.views.new-card.core :as new-card]
             [ohmycards.web.views.profiles.core :as views.profiles]
-            [reagent.dom :as r.dom]))
+            [reagent.dom :as r.dom]
+            [ohmycards.web.controllers.file-upload-dialog.core :as controllers.file-upload-dialog]))
 
 ;; -------------------------
 ;; View instances
@@ -177,6 +178,7 @@
      ::components.current-view/header-component header-component
      ::components.current-view/loading? (-> state lenses.login/initialized? not)}]
    [controllers.action-dispatcher/component]
+   [controllers.file-upload-dialog/component]
    [services.notify/toast]])
 
 (defn current-view []
@@ -358,4 +360,3 @@
   (controllers.cards-grid/init!)
 
   (mount-root))
- 
