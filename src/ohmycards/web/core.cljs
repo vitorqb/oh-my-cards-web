@@ -1,5 +1,6 @@
 (ns ohmycards.web.core
   (:require [cljs.core.async :as a]
+            [ohmycards.web.app.logging :as app.logging]
             [ohmycards.web.app.provider :as app.provider]
             [ohmycards.web.app.state :as app.state]
             [ohmycards.web.common.utils :as utils]
@@ -244,6 +245,7 @@
   "Handles action for when the app has navigated to a new route"
   [event-kw args]
   (when (= event-kw kws.routing/action-navigated-to-route)
+    (services.logging/set-logging! (app.logging/should-log?))
     (when (services.login/is-logged-in?)
       (let [[old-match new-match] args]
         (services.routing/run-view-hooks! old-match new-match)
@@ -343,9 +345,7 @@
 (defn ^:export init! []
 
   ;; Initialize logging first
-  (if globals/LOG_ENABLED
-    (services.logging/enable-logging!)
-    (services.logging/disable-logging!))
+  (services.logging/set-logging! (app.logging/should-log?))
   
   ;; Initialize services that only depend on logging
   (services.cards-grid-profile-manager/init!
@@ -365,7 +365,7 @@
   (services.routing/start-routing!
    routes
    (app.state/state-cursor ::lenses.routing/match)
-   {kws.routing/global-query-params #{:grid-profile}})
+   {kws.routing/global-query-params #{:grid-profile (keyword app.logging/LOGGING_URL_PARAM)}})
 
   ;; Initializes controllers
   (controllers.action-dispatcher/init!

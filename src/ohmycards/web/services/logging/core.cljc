@@ -17,7 +17,12 @@
      (defn disable-logging!
        "Disables logging"
        []
-       (impl/disable-logging logging)))
+       (impl/disable-logging logging))
+
+     (defn set-logging!
+       "Enables or disables logging with a boolean"
+       [enable?]
+       (if enable? (enable-logging!) (disable-logging!))))
 
    :clj
    (do
