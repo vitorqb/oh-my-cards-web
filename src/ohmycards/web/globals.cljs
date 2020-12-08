@@ -2,8 +2,12 @@
 
 (goog-define VERSION "dev")
 (goog-define DEV false)
+(goog-define LOG_ENABLED false)
 
 (when DEV
   (prn "------------------------------------------------------------")
-  (prn "-- WARNING: THIS IS A DEV BUILD --")
+  (prn "--------          THIS IS A DEV BUILD               --------")
   (prn "------------------------------------------------------------"))
+
+(when LOG_ENABLED
+  (prn "LOG IS ENABLED"))

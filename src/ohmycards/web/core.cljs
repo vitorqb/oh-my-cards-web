@@ -15,6 +15,7 @@
             [ohmycards.web.controllers.file-upload-dialog.core
              :as
              controllers.file-upload-dialog]
+            [ohmycards.web.globals :as globals]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.cards-grid.metadata.core :as kws.cards-grid.metadata]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
@@ -52,6 +53,7 @@
              :as
              services.cards-grid-profile-manager.route-sync]
             [ohmycards.web.services.events-bus.core :as events-bus]
+            [ohmycards.web.services.logging.core :as services.logging]
             [ohmycards.web.services.login.core :as services.login]
             [ohmycards.web.services.notify :as services.notify]
             [ohmycards.web.services.routing.core :as services.routing]
@@ -340,7 +342,12 @@
 
 (defn ^:export init! []
 
-  ;; Initialize dependency-free services
+  ;; Initialize logging first
+  (if globals/LOG_ENABLED
+    (services.logging/enable-logging!)
+    (services.logging/disable-logging!))
+  
+  ;; Initialize services that only depend on logging
   (services.cards-grid-profile-manager/init!
    {:run-http-action-fn
     app.provider/run-http-action
@@ -364,5 +371,5 @@
   (controllers.action-dispatcher/init!
    {:state (app.state/state-cursor :components.action-dispatcher)})
   (controllers.cards-grid/init!)
-
+  
   (mount-root))

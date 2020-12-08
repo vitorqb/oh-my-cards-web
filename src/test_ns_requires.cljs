@@ -48,6 +48,7 @@
 [ohmycards.web.services.file-uploader-test]
 [ohmycards.web.services.http-test]
 [ohmycards.web.services.http.utils-test]
+[ohmycards.web.services.logging.impl-test]
 [ohmycards.web.services.login.core-test]
 [ohmycards.web.services.login.get-token-test]
 [ohmycards.web.services.login.get-user-test]
