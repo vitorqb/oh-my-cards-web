@@ -9,6 +9,12 @@
              :as
              controllers.action-dispatcher]
             [ohmycards.web.controllers.cards-grid.core :as controllers.cards-grid]
+            [ohmycards.web.controllers.clipboard-dialog.core
+             :as
+             controllers.clipboard-dialog]
+            [ohmycards.web.controllers.file-upload-dialog.core
+             :as
+             controllers.file-upload-dialog]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.cards-grid.metadata.core :as kws.cards-grid.metadata]
             [ohmycards.web.kws.hydra.branch :as kws.hydra.branch]
@@ -67,8 +73,7 @@
             [ohmycards.web.views.login.core :as views.login]
             [ohmycards.web.views.new-card.core :as new-card]
             [ohmycards.web.views.profiles.core :as views.profiles]
-            [reagent.dom :as r.dom]
-            [ohmycards.web.controllers.file-upload-dialog.core :as controllers.file-upload-dialog]))
+            [reagent.dom :as r.dom]))
 
 ;; -------------------------
 ;; View instances
@@ -179,6 +184,7 @@
      ::components.current-view/loading? (-> state lenses.login/initialized? not)}]
    [controllers.action-dispatcher/component]
    [controllers.file-upload-dialog/component]
+   [controllers.clipboard-dialog/component]
    [services.notify/toast]])
 
 (defn current-view []

@@ -5,6 +5,9 @@
             [ohmycards.web.controllers.action-dispatcher.core
              :as
              controllers.action-dispatcher]
+            [ohmycards.web.controllers.clipboard-dialog.core
+             :as
+             controllers.clipboard-dialog]
             [ohmycards.web.controllers.file-upload-dialog.core
              :as
              controllers.file-upload-dialog]
@@ -38,6 +41,7 @@
                   ::components.current-view/loading?         true}]
                 [controllers.action-dispatcher/component]
                 [controllers.file-upload-dialog/component]
+                [controllers.clipboard-dialog/component]
                 [services.notify/toast]]
                (sut/current-view* state ::home-view ::login-view ::header-component))))
 

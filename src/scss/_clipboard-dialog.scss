@@ -1,0 +1,14 @@
+.clipboard-dialog {
+
+    &__textarea {
+        min-width: 450px;
+        min-height: 150px;
+        margin: 20px;
+        resize: none;
+    }
+
+    &__button-wrapper {
+        text-align: center;
+    }
+
+}

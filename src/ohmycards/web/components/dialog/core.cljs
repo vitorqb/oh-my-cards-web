@@ -9,6 +9,11 @@
   (when on-show!
     (on-show!)))
 
+(defn is-visible?
+  "Returns true if the dialog is currently visible."
+  [{:keys [state]}]
+  (kws/active? @state))
+
 (defn hide!
   "Hidens the dialog."
   [{:keys [state] ::kws/keys [on-hide!]}]
