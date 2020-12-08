@@ -12,7 +12,7 @@
             [ohmycards.web.services.cards-grid-profile-manager.impl.update
              :as
              update]
-            [ohmycards.web.utils.logging :as logging]))
+            [ohmycards.web.services.logging.core :as logging]))
 
 (declare load!)
 

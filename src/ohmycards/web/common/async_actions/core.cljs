@@ -2,7 +2,7 @@
   (:require [cljs.core.async :as a]
             [clojure.core.async.impl.protocols]
             [ohmycards.web.kws.common.async-actions.core :as kws]
-            [ohmycards.web.utils.logging :as logging]))
+            [ohmycards.web.services.logging.core :as logging]))
 
 (logging/deflogger log "Common.AsyncActions")
 

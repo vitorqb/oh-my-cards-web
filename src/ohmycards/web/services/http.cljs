@@ -5,7 +5,7 @@
             [ohmycards.web.globals :as globals]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.protocols.http :as protocols.http]
-            [ohmycards.web.utils.logging :as log]))
+            [ohmycards.web.services.logging.core :as log]))
 
 (log/deflogger log "Services.Http")
 

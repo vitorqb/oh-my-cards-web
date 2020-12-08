@@ -27,7 +27,7 @@
              services.cards-grid-profile-manager.route-sync]
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.routing.core :as services.routing]
-            [ohmycards.web.utils.logging :as logging]
+            [ohmycards.web.services.logging.core :as logging]
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
              config-dashboard]

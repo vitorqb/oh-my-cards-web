@@ -2,7 +2,7 @@
   (:require [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.user :as kws.user]
             [ohmycards.web.protocols.http :as protocols.http]
-            [ohmycards.web.utils.logging :as logging]))
+            [ohmycards.web.services.logging.core :as logging]))
 
 (logging/deflogger log "Services.Login.GetUser")
 

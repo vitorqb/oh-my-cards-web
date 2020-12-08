@@ -6,7 +6,7 @@
              :as
              kws.cards-grid-profile-manager]
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core :as kws]
-            [ohmycards.web.utils.logging :as logging]
+            [ohmycards.web.services.logging.core :as logging]
             [ohmycards.web.views.cards-grid.config-dashboard.config-parser
              :as
              config-parser]))

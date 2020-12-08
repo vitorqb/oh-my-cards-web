@@ -5,7 +5,7 @@
              :as
              kws.action-dispatcher]
             [ohmycards.web.kws.components.dialog.core :as kws.dialog]
-            [ohmycards.web.utils.logging :as utils.logging]
+            [ohmycards.web.services.logging.core :as utils.logging]
             [reagent.core :as r]))
 
 (declare close!)

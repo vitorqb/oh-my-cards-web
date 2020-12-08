@@ -1,6 +1,6 @@
 (ns ohmycards.web.services.events-bus.core
   (:require [ohmycards.web.kws.services.events-bus.core :as kws]
-            [ohmycards.web.utils.logging :as logging]))
+            [ohmycards.web.services.logging.core :as logging]))
 
 (logging/deflogger log "Services.EventsBus")
 (def ^:dynamic *handler* nil)

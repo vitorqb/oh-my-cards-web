@@ -1,7 +1,7 @@
 (ns ohmycards.web.services.routing.core
   (:require [ohmycards.web.kws.services.routing.core :as kws]
             [ohmycards.web.services.events-bus.core :as events-bus]
-            [ohmycards.web.utils.logging :as logging]
+            [ohmycards.web.services.logging.core :as logging]
             [reitit.core :as r]
             [reitit.frontend :as rf]
             [reitit.frontend.easy :as rfe]))

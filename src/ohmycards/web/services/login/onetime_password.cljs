@@ -3,7 +3,7 @@
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.services.login.core :as kws]
             [ohmycards.web.protocols.http :as protocols.http]
-            [ohmycards.web.utils.logging :as logging]))
+            [ohmycards.web.services.logging.core :as logging]))
 
 (logging/deflogger log "Services.Login.OnetimePassword")
 

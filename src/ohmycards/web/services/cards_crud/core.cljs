@@ -8,7 +8,7 @@
             [ohmycards.web.protocols.http :as protocols.http]
             [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.services.http.utils :as http.utils]
-            [ohmycards.web.utils.logging :as logging]))
+            [ohmycards.web.services.logging.core :as logging]))
 
 (logging/deflogger log "Services.CardsCrud")
 

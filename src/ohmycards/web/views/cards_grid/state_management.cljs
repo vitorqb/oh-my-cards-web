@@ -6,7 +6,7 @@
             [ohmycards.web.kws.common.async-actions.core :as kws.async-actions]
             [ohmycards.web.kws.services.fetch-cards.core :as kws.fetch-cards]
             [ohmycards.web.kws.views.cards-grid.core :as kws.cards-grid]
-            [ohmycards.web.utils.logging :as logging]
+            [ohmycards.web.services.logging.core :as logging]
             [ohmycards.web.utils.pagination :as utils.pagination]))
 
 (logging/deflogger log "Views.CardsGrid.StateManagement")

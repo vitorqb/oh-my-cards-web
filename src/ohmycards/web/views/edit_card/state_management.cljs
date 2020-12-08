@@ -8,7 +8,7 @@
             [ohmycards.web.kws.common.coercion.result :as kws.coercion.result]
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
             [ohmycards.web.kws.views.edit-card.core :as kws]
-            [ohmycards.web.utils.logging :as logging]))
+            [ohmycards.web.services.logging.core :as logging]))
 
 (logging/deflogger log "Views.EditCard.StateManagement")
 
