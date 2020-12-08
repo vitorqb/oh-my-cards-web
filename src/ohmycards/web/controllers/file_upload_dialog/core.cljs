@@ -4,6 +4,9 @@
             [ohmycards.web.components.file-upload-dialog.core
              :as
              components.file-upload-dialog]
+            [ohmycards.web.controllers.clipboard-dialog.core
+             :as
+             controllers.clipboard-dialog]
             [ohmycards.web.services.file-uploader :as services.file-uploader]))
 
 (defn ^:private props
@@ -20,7 +23,7 @@
    {::services.file-uploader/ask-for-file! show!
     ::services.file-uploader/notify! app.provider/notify!
     ::services.file-uploader/run-http-action app.provider/run-http-action
-    ::services.file-uploader/to-clipboard! app.provider/to-clipboard!}))
+    ::services.file-uploader/to-clipboard! controllers.clipboard-dialog/show!}))
 
 (defn component
   "The ReactJs component for this instance of file-upload-dialog"
