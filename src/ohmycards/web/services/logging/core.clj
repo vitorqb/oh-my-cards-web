@@ -1,4 +1,4 @@
-(ns ohmycards.web.utils.logging)
+(ns ohmycards.web.services.logging.core)
 
 (defmacro deflogger
   "Creates a new logging function with a given prefix"

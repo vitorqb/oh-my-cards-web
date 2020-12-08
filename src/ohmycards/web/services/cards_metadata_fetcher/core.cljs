@@ -3,7 +3,7 @@
             [ohmycards.web.kws.card-metadata :as kws.card-metadata]
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.protocols.http :as protocols.http]
-            [ohmycards.web.utils.logging :as logging]))
+            [ohmycards.web.services.logging.core :as logging]))
 
 (defrecord Action []
   protocols.http/HttpAction

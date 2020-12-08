@@ -1,7 +1,7 @@
 (ns ohmycards.web.services.notify
   "Provides a small toast API to notify the user of small msgs"
   (:require [cljs.core.async :as a]
-            [ohmycards.web.utils.logging :as logging]
+            [ohmycards.web.services.logging.core :as logging]
             [reagent.dom :as r.dom]))
 
 (logging/deflogger log "Services.Notify")

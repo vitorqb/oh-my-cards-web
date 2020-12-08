@@ -5,7 +5,7 @@
             [ohmycards.web.services.cards-grid-profile-manager.core :as core]
             [ohmycards.web.services.events-bus.core :as events-bus]
             [ohmycards.web.services.routing.core :as services.routing]
-            [ohmycards.web.utils.logging :as logging]))
+            [ohmycards.web.services.logging.core :as logging]))
 
 (logging/deflogger log "Services.CardsGridProfileLoader.RouteSync")
 

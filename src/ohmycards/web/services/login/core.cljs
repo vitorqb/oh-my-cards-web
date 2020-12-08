@@ -11,7 +11,7 @@
             [ohmycards.web.services.login.recover-token-from-cookie
              :as
              recover-token-from-cookie]
-            [ohmycards.web.utils.logging :as logging]))
+            [ohmycards.web.services.logging.core :as logging]))
 
 ;; Constants and declarations
 (declare set-user!)

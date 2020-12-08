@@ -1,7 +1,7 @@
 (ns ohmycards.web.services.shortcuts-register.core
   (:require goog.events
             [ohmycards.web.kws.services.shortcuts-register.core :as kws]
-            [ohmycards.web.utils.logging :as logging])
+            [ohmycards.web.services.logging.core :as logging])
   (:import goog.ui.KeyboardShortcutHandler))
 
 ;; Constants
