@@ -5,5 +5,6 @@
 (def ^:const new-card "Page for creating new cards." ::new-card)
 (def ^:const display-card "Page for displaying a card." ::display-card)
 (def ^:const edit-card "Page for editting a card." ::edit-card)
+(def ^:const find-card "Page for finding a card by id or ref." ::find-card)
 (def ^:const about "The page with metadata for the application, including version." ::about)
 (def ^:const profiles "The page for managing and selecting profiles." ::profiles)

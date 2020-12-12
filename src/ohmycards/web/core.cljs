@@ -76,15 +76,15 @@
             [ohmycards.web.views.login.core :as views.login]
             [ohmycards.web.views.new-card.core :as new-card]
             [ohmycards.web.views.profiles.core :as views.profiles]
-            [reagent.dom :as r.dom]))
+            [reagent.dom :as r.dom]
+            [ohmycards.web.app.pages.card.find :as pages.card.find]))
 
 ;; -------------------------
 ;; View instances
 
 ;; Edit card
-(defn edit-card-page-props
+(def edit-card-page-props
   "Props for the `edit-card-page`."
-  []
   {kws.edit-card/goto-home! #(services.routing/goto! routing.pages/home)
    kws.edit-card/goto-displaycard! #(services.routing/goto! routing.pages/display-card
                                                             kws.routing/query-params {:id %})
@@ -99,13 +99,13 @@
 (defn edit-card-page
   "An instance for the edit-card view"
   []
-  [edit-card/main (edit-card-page-props)])
+  [edit-card/main edit-card-page-props])
 
 (defn edit-card-enter-hook!
   "Enter hook for edit-card, setting state on entering."
   [route-match]
   (when (services.login/is-logged-in?)
-    (edit-card.state-management/init-from-route-match! (edit-card-page-props) route-match)))
+    (edit-card.state-management/init-from-route-match! edit-card-page-props route-match)))
 
 (def edit-card-update-hook! edit-card-enter-hook!)
 
@@ -218,7 +218,8 @@
       {kws.routing/name routing.pages/display-card
        kws.routing/view #'display-card-page
        kws.routing/enter-hook display-card-enter-hook
-       kws.routing/update-hook display-card-update-hook}]]]
+       kws.routing/update-hook display-card-update-hook}]
+     pages.card.find/route]]
    controllers.cards-grid/routes))
 
 
@@ -274,7 +275,7 @@
     (condp = current-route-name
 
       routing.pages/edit-card
-      (edit-card.handlers/hydra-head (edit-card-page-props))
+      (edit-card.handlers/hydra-head edit-card-page-props)
 
       routing.pages/new-card
       (new-card/hydra-head (new-card-page-props))
@@ -346,7 +347,7 @@
 
   ;; Initialize logging first
   (services.logging/set-logging! (app.logging/should-log?))
-  
+
   ;; Initialize services that only depend on logging
   (services.cards-grid-profile-manager/init!
    {:run-http-action-fn
@@ -367,7 +368,10 @@
    (app.state/state-cursor ::lenses.routing/match)
    {kws.routing/global-query-params #{:grid-profile (keyword app.logging/LOGGING_URL_PARAM)}})
 
-  ;; Initializes controllers
+  ;; Initializes controllers and pages
+  (pages.card.find/init!
+   {:state (app.state/state-cursor :views.find-card)
+    :run-http-action app.provider/run-http-action})
   (controllers.action-dispatcher/init!
    {:state (app.state/state-cursor :components.action-dispatcher)})
   (controllers.cards-grid/init!)
