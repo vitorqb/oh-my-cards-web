@@ -72,6 +72,7 @@
 [ohmycards.web.views.edit-card.core-test]
 [ohmycards.web.views.edit-card.handlers-test]
 [ohmycards.web.views.edit-card.state-management-test]
+[ohmycards.web.views.find-card.core-test]
 [ohmycards.web.views.login.core-test]
 [ohmycards.web.views.login.email-row-test]
 [ohmycards.web.views.login.handlers.submit-test]

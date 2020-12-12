@@ -3,10 +3,10 @@
             [ohmycards.web.kws.services.routing.pages :as routing.pages]
             [ohmycards.web.views.find-card.core :as views.find-card]))
 
-(def ^:dynamic ^:private *props* nil)
+(defonce ^:dynamic ^:private *props* nil)
 
 (defn view []
-  [views.find-card/main {}])
+  [views.find-card/main *props*])
 
 (def route
   ["/find"
@@ -17,4 +17,5 @@
   "Initializes the page"
   [{:keys [state run-http-action]}]
   (set! *props* {:state state
-                 :run-http-action run-http-action}))
+                 :run-http-action run-http-action})
+  (views.find-card/init-state! *props*))
