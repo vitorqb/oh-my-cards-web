@@ -302,6 +302,10 @@
      kws.hydra/description "Home"
      kws.hydra/type        kws.hydra/leaf
      kws.hydra.leaf/value  #(services.routing/goto! routing.pages/home)}
+    {kws.hydra/shortcut    \f
+     kws.hydra/description "Find a card by id or ref"
+     kws.hydra/type        kws.hydra/leaf
+     kws.hydra.leaf/value  #(services.routing/goto! routing.pages/find-card)}
     {kws.hydra/shortcut    \n
      kws.hydra/description "New Cards"
      kws.hydra/type        kws.hydra/leaf
