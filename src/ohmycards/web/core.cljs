@@ -86,8 +86,7 @@
 (def edit-card-page-props
   "Props for the `edit-card-page`."
   {kws.edit-card/goto-home! #(services.routing/goto! routing.pages/home)
-   kws.edit-card/goto-displaycard! #(services.routing/goto! routing.pages/display-card
-                                                            kws.routing/query-params {:id %})
+   kws.edit-card/goto-displaycard! app.provider/goto-displaycard!
    kws.edit-card/fetch-card! app.provider/fetch-card!
    kws.edit-card/update-card! app.provider/update-card!
    kws.edit-card/cards-metadata (lenses.metadata/cards @app.state/state)
@@ -371,7 +370,9 @@
   ;; Initializes controllers and pages
   (pages.card.find/init!
    {:state (app.state/state-cursor :views.find-card)
-    :run-http-action app.provider/run-http-action})
+    :run-http-action app.provider/run-http-action
+    :goto-displaycard! app.provider/goto-displaycard!
+    :fetch-card! app.provider/fetch-card!})
   (controllers.action-dispatcher/init!
    {:state (app.state/state-cursor :components.action-dispatcher)})
   (controllers.cards-grid/init!)

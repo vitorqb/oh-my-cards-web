@@ -6,7 +6,8 @@
             [ohmycards.web.kws.http :as kws.http]
             [ohmycards.web.kws.lenses.login :as lenses.login]
             [ohmycards.web.kws.lenses.metadata :as lenses.metadata]
-            [ohmycards.web.services.login.core :as services.login]
+            [ohmycards.web.kws.services.routing.core :as kws.routing]
+            [ohmycards.web.kws.services.routing.pages :as routing.pages]
             [ohmycards.web.kws.user :as kws.user]
             [ohmycards.web.services.card-history-fetcher.core
              :as
@@ -20,7 +21,9 @@
              services.fetch-be-version]
             [ohmycards.web.services.fetch-cards.core :as services.fetch-cards]
             [ohmycards.web.services.http :as services.http]
+            [ohmycards.web.services.login.core :as services.login]
             [ohmycards.web.services.notify :as services.notify]
+            [ohmycards.web.services.routing.core :as services.routing]
             [ohmycards.web.utils.clipboard :as utils.clipboard]))
 
 (defn to-clipboard!
@@ -87,3 +90,8 @@
   "Provides the login service."
   [login-opts]
   (services.login/main login-opts {:run-http-action-fn run-http-action}))
+
+(defn goto-displaycard!
+  "Routes to the display card page."
+  [card-id]
+  (services.routing/goto! routing.pages/display-card kws.routing/query-params {:id card-id}))
