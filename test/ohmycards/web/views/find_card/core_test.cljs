@@ -51,7 +51,7 @@
         (testing "Set's error message"
           (let [response {kws.services.cards-crud/error-message "FOO"}
                 new-state (post-reducer-fn {} response)]
-            (is (= "FOO" (kws/error-message new-state)))))))
+            (is (= sut/NOT_FOUND_ERR (kws/error-message new-state)))))))
 
     (testing "post-hook-fn"
 
@@ -95,7 +95,5 @@
 
   (testing "Passes disabled to button and input"
     (let [comp (mk-component {kws/disabled? true})
-          btn-props (tu/get-props-for :input#submit (tu/comp-seq comp))
-          input-props (tu/get-props-for inputs/main (tu/comp-seq comp))]
-      (is (true? (:disabled btn-props)))
-      (is (true? (kws.inputs/disabled? input-props))))))
+          btn-props (tu/get-props-for :input#submit (tu/comp-seq comp))]
+      (is (true? (:disabled btn-props))))))
