@@ -1,6 +1,7 @@
 (ns ohmycards.web.core
   (:require [cljs.core.async :as a]
             [ohmycards.web.app.logging :as app.logging]
+            [ohmycards.web.app.pages.card.display :as pages.card.display]
             [ohmycards.web.app.pages.card.find :as pages.card.find]
             [ohmycards.web.app.provider :as app.provider]
             [ohmycards.web.app.state :as app.state]
@@ -44,7 +45,6 @@
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core
              :as
              kws.cards-grid.config-dashboard]
-            [ohmycards.web.kws.views.display-card.core :as kws.display-card]
             [ohmycards.web.kws.views.edit-card.core :as kws.edit-card]
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
             [ohmycards.web.kws.views.profiles.core :as kws.views.profiles]
@@ -68,8 +68,6 @@
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
              cards-grid.config-dashboard]
-            [ohmycards.web.views.display-card.core :as display-card]
-            [ohmycards.web.views.display-card.handlers :as display-card.handlers]
             [ohmycards.web.views.edit-card.core :as edit-card]
             [ohmycards.web.views.edit-card.handlers :as edit-card.handlers]
             [ohmycards.web.views.edit-card.state-management
@@ -108,28 +106,6 @@
     (edit-card.state-management/init-from-route-match! edit-card-page-props route-match)))
 
 (def edit-card-update-hook! edit-card-enter-hook!)
-
-;; Display card
-(defn display-card-page-props []
-  {:state                          (app.state/state-cursor :views.display-card)
-   kws.display-card/fetch-card!    app.provider/fetch-card!
-   kws.display-card/goto-home!     #(services.routing/goto! routing.pages/home)
-   kws.display-card/goto-editcard! #(services.routing/goto! routing.pages/edit-card
-                                                            kws.routing/query-params {:id %})
-   kws.display-card/fetch-card-history! app.provider/fetch-card-history!
-   kws.display-card/to-clipboard! app.provider/to-clipboard!})
-
-(defn display-card-page []
-  [display-card/main (display-card-page-props)])
-
-(defn display-card-enter-hook
-  "Enter hook for display-card, performing initialization logic."
-  [route-match]
-  (when (services.login/is-logged-in?)
-    (display-card.handlers/init! (display-card-page-props)
-                                 (some-> route-match :parameters :query :id))))
-
-(def display-card-update-hook display-card-enter-hook)
 
 ;; Others
 (defn login
@@ -214,11 +190,7 @@
      ["/new"
       {kws.routing/name routing.pages/new-card
        kws.routing/view #'new-card-page}]
-     ["/display"
-      {kws.routing/name routing.pages/display-card
-       kws.routing/view #'display-card-page
-       kws.routing/enter-hook display-card-enter-hook
-       kws.routing/update-hook display-card-update-hook}]
+     pages.card.display/route
      pages.card.find/route]]
    controllers.cards-grid/routes))
 
@@ -284,7 +256,7 @@
       (controllers.cards-grid/hydra-head)
 
       routing.pages/display-card
-      (display-card.handlers/hydra-head (display-card-page-props))
+      (pages.card.display/hydra-head)
 
       nil)))
 
@@ -380,6 +352,14 @@
     :goto-displaycard! app.provider/goto-displaycard!
     :fetch-card! app.provider/fetch-card!
     :storage-put! services.storage/put!})
+  (pages.card.display/init!
+   {:state (app.state/state-cursor :views.display-card)
+    :fetch-card!    app.provider/fetch-card!
+    :goto-home!     #(services.routing/goto! routing.pages/home)
+    :goto-editcard! #(services.routing/goto! routing.pages/edit-card
+                                             kws.routing/query-params {:id %})
+    :fetch-card-history! app.provider/fetch-card-history!
+    :to-clipboard! app.provider/to-clipboard!})
   (controllers.action-dispatcher/init!
    {:state (app.state/state-cursor :components.action-dispatcher)})
   (controllers.cards-grid/init!)
