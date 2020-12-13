@@ -19,7 +19,8 @@
 ;; 
 ;; Helpers
 ;;
-(defn fetch-card-async-action [{:keys [state] ::kws/keys [fetch-card!]} card-id]
+(defn fetch-card-async-action
+  [{:keys [state] ::kws/keys [fetch-card! storage-peek!]} card-id storage-key]
   {kws.async-actions/state
    state
 
@@ -27,7 +28,10 @@
    #(assoc % kws/loading? true kws/card nil kws/error-message nil)
 
    kws.async-actions/action-fn
-   (fn [_] (fetch-card! card-id))
+   (fn [_]
+     (if-let [card (some-> storage-key storage-peek!)]
+       {kws.services.cards-crud/read-card card}
+       (fetch-card! card-id)))
 
    kws.async-actions/post-reducer-fn
    (fn [state response]
@@ -53,10 +57,14 @@
 
 (defn init!
   "Initializes the state. The first argument are the props, and the
-  second argument is the card id that must be displayed."
-  [props card-id]
-  (async-action/run (fetch-card-async-action props card-id))
-  (async-action/run (child.card-history-displayer/fetch-history-async-action props card-id)))
+  second argument is the card id that must be displayed.  If
+  `storage-key` is given, first try to read from the storage using the
+  given key instead of fetching the card."
+  ([props card-id]
+   (init! props card-id nil))
+  ([props card-id storage-key]
+   (async-action/run (fetch-card-async-action props card-id storage-key))
+   (async-action/run (child.card-history-displayer/fetch-history-async-action props card-id))))
 
 (defn hydra-head
   "Returns an hydra head for the contextual actions dispatcher."

@@ -359,7 +359,8 @@
     :goto-editcard! #(services.routing/goto! routing.pages/edit-card
                                              kws.routing/query-params {:id %})
     :fetch-card-history! app.provider/fetch-card-history!
-    :to-clipboard! app.provider/to-clipboard!})
+    :to-clipboard! app.provider/to-clipboard!
+    :storage-peek! services.storage/peek!})
   (controllers.action-dispatcher/init!
    {:state (app.state/state-cursor :components.action-dispatcher)})
   (controllers.cards-grid/init!)
