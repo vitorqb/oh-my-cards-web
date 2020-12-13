@@ -16,3 +16,4 @@
 (defn copy [p] [:i.far.fa-copy p])
 (defn expand [p] [:i.fas.fa-caret-down p])
 (defn profile [p] [:i.far.fa-id-badge p])
+(defn search [p] [:i.fas.fa-search p])

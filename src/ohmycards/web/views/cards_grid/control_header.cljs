@@ -26,6 +26,10 @@
   [:button.icon-button {:on-click #(goto-profiles!)}
    [icons/profile]])
 
+(defn- find-card-btn [{::kws/keys [goto-findcard!]}]
+  [:button.icon-button {:on-click #(goto-findcard!)}
+   [icons/search]])
+
 (defn- refresh-btn [props]
   [:button.icon-button {:on-click #(state-management/refetch! props)}
    [icons/refresh]])
@@ -54,10 +58,11 @@
      [page-counter {::page page ::max-page (utils.pagination/last-page page-size count-of-cards)}]
      [arrow-right props]]))
 
-(defn- header-right [{::kws/keys [goto-settings! goto-profiles!]}]
+(defn- header-right [{::kws/keys [goto-settings! goto-profiles! goto-findcard!]}]
   [:<>
    [settings-btn goto-settings!]
-   [profiles-btn {kws/goto-profiles! goto-profiles!}]])
+   [profiles-btn {kws/goto-profiles! goto-profiles!}]
+   [find-card-btn {kws/goto-findcard! goto-findcard!}]])
 
 (defn main
   "A header for the grid with controls."
