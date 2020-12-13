@@ -13,15 +13,17 @@
             [reagent.core :as r]))
 
 (defn- mk-props
-  [{::kws/keys [value fetch-card! disabled? goto-displaycard!]
+  [{::kws/keys [value fetch-card! disabled? goto-displaycard! storage-put!]
     :or {value ""
          fetch-card! (constantly nil)
          disabled? false
-         goto-displaycard! (constantly nil)}}]
+         goto-displaycard! (constantly nil)
+         storage-put! (constantly nil)}}]
   {:state (r/atom {kws/value value
                    kws/disabled? disabled?})
    kws/fetch-card! fetch-card!
-   kws/goto-displaycard! goto-displaycard!})
+   kws/goto-displaycard! goto-displaycard!
+   kws/storage-put! storage-put!})
 
 (defn- mk-component [opts] (sut/main (mk-props opts)))
 
@@ -56,13 +58,19 @@
     (testing "post-hook-fn"
 
       (testing "Sends user to display card on success"
-        (let [goto-displaycard! (tu/new-stub)
-              action (mk-action {kws/goto-displaycard! goto-displaycard!})
+        (let [storage-put! (tu/new-stub {:fn (constantly "key")})
+              goto-displaycard! (tu/new-stub)
+              action (mk-action {kws/goto-displaycard! goto-displaycard!
+                                 kws/storage-put! storage-put!})
               post-hook-fn (kws.async-actions/post-hook-fn action)
-              response {kws.services.cards-crud/read-card {kws.card/id "id"}}]
+              card {kws.card/id "id"}
+              response {kws.services.cards-crud/read-card card}]
           (post-hook-fn response)
-          (is (= [["id"]] (tu/get-calls goto-displaycard!)))))
-      
+          (is (= [[card]]
+                 (tu/get-calls storage-put!)))
+          (is (= [["id" {:storage-key "key"}]]
+                 (tu/get-calls goto-displaycard!)))))
+
       (testing "DOES NOT send user to display card on error"
         (let [goto-displaycard! (tu/new-stub)
               action (mk-action {kws/goto-displaycard! goto-displaycard!})

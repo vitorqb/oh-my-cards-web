@@ -14,7 +14,7 @@
 
 (defn- submit-async-action
   "Returns the AsyncAction for submit"
-  [{:keys [state] ::kws/keys [goto-displaycard! fetch-card!] :as props}]
+  [{:keys [state] ::kws/keys [goto-displaycard! fetch-card! storage-put!] :as props}]
   {kws.async-actions/pre-reducer-fn
    #(assoc % kws/disabled? true kws/error-message nil)
 
@@ -32,8 +32,9 @@
 
    kws.async-actions/post-hook-fn
    (fn [response]
-     (when-let [id (some-> response kws.cards-crud/read-card kws.card/id)]
-       (goto-displaycard! id)))})
+     (when-let [card (kws.cards-crud/read-card response)]
+       (let [key (storage-put! card)]
+         (goto-displaycard! (kws.card/id card) {:storage-key key}))))})
 
 (defn- handle-submit!
   "Handles the submission of the form"

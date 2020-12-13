@@ -378,7 +378,8 @@
    {:state (app.state/state-cursor :views.find-card)
     :run-http-action app.provider/run-http-action
     :goto-displaycard! app.provider/goto-displaycard!
-    :fetch-card! app.provider/fetch-card!})
+    :fetch-card! app.provider/fetch-card!
+    :storage-put! services.storage/put!})
   (controllers.action-dispatcher/init!
    {:state (app.state/state-cursor :components.action-dispatcher)})
   (controllers.cards-grid/init!)

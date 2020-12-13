@@ -93,5 +93,9 @@
 
 (defn goto-displaycard!
   "Routes to the display card page."
-  [card-id]
-  (services.routing/goto! routing.pages/display-card kws.routing/query-params {:id card-id}))
+  ([card-id] (goto-displaycard! card-id nil))
+  ([card-id {:keys [storage-key]}]
+   (let [query-params (cond-> {:id card-id}
+                        storage-key (assoc :storage-key storage-key))]
+     (services.routing/goto! routing.pages/display-card
+                             kws.routing/query-params query-params))))
