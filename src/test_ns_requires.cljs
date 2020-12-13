@@ -10,6 +10,7 @@
 [ohmycards.web.common.coercion.core-test]
 [ohmycards.web.common.coercion.result-test]
 [ohmycards.web.common.hydra.core-test]
+[ohmycards.web.common.storage.core-test]
 [ohmycards.web.common.string.fuzzy-match-test]
 [ohmycards.web.common.tags.core-test]
 [ohmycards.web.common.utils-test]

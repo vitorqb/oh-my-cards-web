@@ -1,6 +1,7 @@
 (ns ohmycards.web.core
   (:require [cljs.core.async :as a]
             [ohmycards.web.app.logging :as app.logging]
+            [ohmycards.web.app.pages.card.find :as pages.card.find]
             [ohmycards.web.app.provider :as app.provider]
             [ohmycards.web.app.state :as app.state]
             [ohmycards.web.common.utils :as utils]
@@ -61,6 +62,7 @@
             [ohmycards.web.services.shortcuts-register.core
              :as
              services.shortcuts-register]
+            [ohmycards.web.services.storage.core :as services.storage]
             [ohmycards.web.services.user-question.core :as services.user-question]
             [ohmycards.web.views.about.core :as views.about]
             [ohmycards.web.views.cards-grid.config-dashboard.core
@@ -76,8 +78,7 @@
             [ohmycards.web.views.login.core :as views.login]
             [ohmycards.web.views.new-card.core :as new-card]
             [ohmycards.web.views.profiles.core :as views.profiles]
-            [reagent.dom :as r.dom]
-            [ohmycards.web.app.pages.card.find :as pages.card.find]))
+            [reagent.dom :as r.dom]))
 
 ;; -------------------------
 ;; View instances
@@ -352,6 +353,7 @@
   (services.logging/set-logging! (app.logging/should-log?))
 
   ;; Initialize services that only depend on logging
+  (services.storage/init! {:state (app.state/state-cursor :services.storage)})
   (services.cards-grid-profile-manager/init!
    {:run-http-action-fn
     app.provider/run-http-action
