@@ -2,7 +2,9 @@
   (:require [ohmycards.web.common.async-actions.core :as async-actions]
             [ohmycards.web.components.error-message-box.core :as error-message-box]
             [ohmycards.web.components.form.core :as form]
+            [ohmycards.web.components.header.core :as header]
             [ohmycards.web.components.inputs.core :as inputs]
+            [ohmycards.web.icons :as icons]
             [ohmycards.web.kws.card :as kws.card]
             [ohmycards.web.kws.common.async-actions.core :as kws.async-actions]
             [ohmycards.web.kws.components.inputs.core :as kws.inputs]
@@ -54,10 +56,13 @@
 
 (defn main
   "A view to find cards by id or ref"
-  [{:keys [state] :as props}]
+  [{:keys [state] ::kws/keys [goto-home!] :as props}]
   (let [disabled? (kws/disabled? @state)
         error-message (kws/error-message @state)]
     [:div.find-card
+     [header/main
+      {:left [:button#find-card-goto-home.icon-button {:on-click #(goto-home!)}
+              [icons/arrow-left]]}]
      [:div.find-card__title-wrapper
       [:h3 "Find Card"]]
      [:div.find-card__form-wrapper

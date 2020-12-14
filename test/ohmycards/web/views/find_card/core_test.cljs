@@ -13,17 +13,19 @@
             [reagent.core :as r]))
 
 (defn- mk-props
-  [{::kws/keys [value fetch-card! disabled? goto-displaycard! storage-put!]
+  [{::kws/keys [value fetch-card! disabled? goto-displaycard! storage-put! goto-home!]
     :or {value ""
          fetch-card! (constantly nil)
          disabled? false
          goto-displaycard! (constantly nil)
-         storage-put! (constantly nil)}}]
+         storage-put! (constantly nil)
+         goto-home! (constantly nil)}}]
   {:state (r/atom {kws/value value
                    kws/disabled? disabled?})
    kws/fetch-card! fetch-card!
    kws/goto-displaycard! goto-displaycard!
-   kws/storage-put! storage-put!})
+   kws/storage-put! storage-put!
+   kws/goto-home! goto-home!})
 
 (defn- mk-component [opts] (sut/main (mk-props opts)))
 
@@ -104,4 +106,11 @@
   (testing "Passes disabled to button and input"
     (let [comp (mk-component {kws/disabled? true})
           btn-props (tu/get-props-for :input#submit (tu/comp-seq comp))]
-      (is (true? (:disabled btn-props))))))
+      (is (true? (:disabled btn-props)))))
+
+  (testing "Has a button to go to home page"
+    (let [goto-home! (tu/new-stub)
+          comp (mk-component {kws/goto-home! goto-home!})
+          btn-props (tu/get-props-for :button#find-card-goto-home.icon-button (tu/comp-seq comp))]
+      ((:on-click btn-props) (js->clj {}))
+      (is (= [[]] (tu/get-calls goto-home!))))))

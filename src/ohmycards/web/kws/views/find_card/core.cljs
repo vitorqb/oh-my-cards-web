@@ -3,6 +3,7 @@
 ;; Props
 (def ^:const fetch-card! "A fn that fetches a card (see services.cards-crud)" ::fetch-card!)
 (def ^:const goto-displaycard! "A fn that routes the app to the display card page, accepting an id as param. The second param is an obj of options, in which `:storage-key` may be set. This key tells the `display-card` page that it's safe to read from that key instead of fetching the card from the BE." ::goto-displaycard!)
+(def ^:const goto-home! "A fn that routes the app to the home page." ::goto-home!)
 (def ^:const storage-put! "A fn that set's an object into the storage, returning a key. See services.storage." ::storage-put!)
 
 ;; State

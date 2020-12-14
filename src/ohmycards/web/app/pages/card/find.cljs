@@ -11,12 +11,13 @@
 
 (defn init!
   "Initializes the page"
-  [{:keys [state run-http-action goto-displaycard! fetch-card! storage-put!]}]
+  [{:keys [state run-http-action goto-displaycard! fetch-card! storage-put! goto-home!]}]
   (set! *props* {:state state
                  :run-http-action run-http-action
                  kws.find-card/goto-displaycard! goto-displaycard!
                  kws.find-card/fetch-card! fetch-card!
-                 kws.find-card/storage-put! storage-put!})
+                 kws.find-card/storage-put! storage-put!
+                 kws.find-card/goto-home! goto-home!})
   (views.find-card/init-state! *props*))
 
 (def route

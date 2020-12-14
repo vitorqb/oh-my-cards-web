@@ -351,7 +351,9 @@
     :run-http-action app.provider/run-http-action
     :goto-displaycard! app.provider/goto-displaycard!
     :fetch-card! app.provider/fetch-card!
-    :storage-put! services.storage/put!})
+    :storage-put! services.storage/put!
+    :goto-home! #(services.routing/goto! routing.pages/home)})
+
   (pages.card.display/init!
    {:state (app.state/state-cursor :views.display-card)
     :fetch-card!    app.provider/fetch-card!
@@ -361,8 +363,10 @@
     :fetch-card-history! app.provider/fetch-card-history!
     :to-clipboard! app.provider/to-clipboard!
     :storage-peek! services.storage/peek!})
+  
   (controllers.action-dispatcher/init!
    {:state (app.state/state-cursor :components.action-dispatcher)})
+
   (controllers.cards-grid/init!)
   
   (mount-root))
