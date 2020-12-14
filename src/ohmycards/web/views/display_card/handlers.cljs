@@ -20,7 +20,7 @@
 ;; Helpers
 ;;
 (defn fetch-card-async-action
-  [{:keys [state] ::kws/keys [fetch-card! storage-peek!]} card-id storage-key]
+  [{:keys [state] ::kws/keys [fetch-card! storage-peek!]} {:keys [card-id storage-key]}]
   {kws.async-actions/state
    state
 
@@ -56,17 +56,14 @@
   (-> @state kws/card cards/->title to-clipboard!))
 
 (defn init!
-  "Initializes the state. The first argument are the props, and the
-  second argument is the card id that must be displayed.  If
-  `storage-key` is given, first try to read from the storage using the
-  given key instead of fetching the card."
-  ([props card-id]
-   (init! props card-id nil))
-  ([props card-id storage-key]
-   (swap! (:state props) {})
-   (swap! (:state (child.card-history-displayer/get-props props)) {})
-   (async-action/run (fetch-card-async-action props card-id storage-key))
-   (async-action/run (child.card-history-displayer/fetch-history-async-action props card-id))))
+  "Initializes the component, setting the state and fetching both the card and history.
+   Can receive either a card `card-id` or `card-ref` for deciding the card to fetch.
+   If `storage-key` is given, reads the card from storage using this key instead of fetch."
+  [props {:keys [card-id card-ref storage-key] :as opts}]
+  (swap! (:state props) {})
+  (swap! (:state (child.card-history-displayer/get-props props)) {})
+  (async-action/run (fetch-card-async-action props opts))
+  (async-action/run (child.card-history-displayer/fetch-history-async-action props card-id)))
 
 (defn hydra-head
   "Returns an hydra head for the contextual actions dispatcher."

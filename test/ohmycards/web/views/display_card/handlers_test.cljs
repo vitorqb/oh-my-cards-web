@@ -11,7 +11,7 @@
   
   (testing "Pre reducer"
 
-    (let [async-action (sut/fetch-card-async-action {} "id" "key")
+    (let [async-action (sut/fetch-card-async-action {} {:card-id "id" :storage-key "key"})
           pre-reducer-fn (kws.async-actions/pre-reducer-fn async-action)]
 
       (testing "Set's loading"
@@ -25,7 +25,7 @@
 
   (testing "Post reducer"
 
-    (let [async-action (sut/fetch-card-async-action {} "id" "key")
+    (let [async-action (sut/fetch-card-async-action {} {:card-id "id" :storage-key "key"})
           post-reducer-fn (kws.async-actions/post-reducer-fn async-action)
           good-response {kws.services.cards-crud/read-card {:title "A"}}
           bad-response  {kws.services.cards-crud/error-message "B"}]
@@ -46,7 +46,7 @@
             fetch-card! (tu/new-stub)
             props {kws/fetch-card! fetch-card!
                    kws/storage-peek! storage-peek!}
-            async-action (sut/fetch-card-async-action props "id" nil)
+            async-action (sut/fetch-card-async-action props {:card-id "id"})
             action-fn (kws.async-actions/action-fn async-action)]
         (action-fn {})
         (is (= [["id"]] (tu/get-calls fetch-card!)))
@@ -59,7 +59,7 @@
             fetch-card! (tu/new-stub)
             props {kws/fetch-card! fetch-card!
                    kws/storage-peek! storage-peek!}
-            async-action (sut/fetch-card-async-action props "id" "key")
+            async-action (sut/fetch-card-async-action props {:card-id "id" :storage-key "key"})
             action-fn (kws.async-actions/action-fn async-action)]
         (action-fn {})
         (is (= [["id"]] (tu/get-calls fetch-card!)))
@@ -73,7 +73,7 @@
             fetch-card! (tu/new-stub)
             props {kws/fetch-card! fetch-card!
                    kws/storage-peek! storage-peek!}
-            async-action (sut/fetch-card-async-action props "id" "key")
+            async-action (sut/fetch-card-async-action props {:card-id "id" :storage-key "key"})
             action-fn (kws.async-actions/action-fn async-action)]
         (action-fn {})
         (is (= [] (tu/get-calls fetch-card!)))

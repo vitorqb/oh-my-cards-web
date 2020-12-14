@@ -27,8 +27,9 @@
   [route-match]
   (when (services.login/is-logged-in?)
     (let [card-id (some-> route-match :parameters :query :id)
-          storage-key (some-> route-match :parameters :query :storage-key)]
-      (display-card.handlers/init! *props* card-id storage-key))))
+          storage-key (some-> route-match :parameters :query :storage-key)
+          opts {:card-id card-id :storage-key storage-key}]
+      (display-card.handlers/init! *props* opts))))
 
 (def ^:private update-hook enter-hook)
 
