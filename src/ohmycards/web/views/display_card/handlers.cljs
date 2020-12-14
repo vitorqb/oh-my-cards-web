@@ -63,6 +63,8 @@
   ([props card-id]
    (init! props card-id nil))
   ([props card-id storage-key]
+   (swap! (:state props) {})
+   (swap! (:state (child.card-history-displayer/get-props props)) {})
    (async-action/run (fetch-card-async-action props card-id storage-key))
    (async-action/run (child.card-history-displayer/fetch-history-async-action props card-id))))
 
