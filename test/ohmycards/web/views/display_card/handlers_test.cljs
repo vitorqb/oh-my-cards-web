@@ -77,7 +77,26 @@
             action-fn (kws.async-actions/action-fn async-action)]
         (action-fn {})
         (is (= [] (tu/get-calls fetch-card!)))
-        (is (= [["key"]] (tu/get-calls storage-peek!)))))))
+        (is (= [["key"]] (tu/get-calls storage-peek!)))))
+    
+    (testing "Reads from card-ref"
+      (let [card {kws.card/id "id"}
+            storage-peek! (tu/new-stub)
+            fetch-card! (tu/new-stub)
+            props {kws/fetch-card! fetch-card!
+                   kws/storage-peek! storage-peek!}
+            async-action (sut/fetch-card-async-action props {:card-ref "ref"})
+            action-fn (kws.async-actions/action-fn async-action)]
+        (action-fn {})
+        (is (= [["ref"]] (tu/get-calls fetch-card!)))
+        (is (= [] (tu/get-calls storage-peek!))))))
+
+  (testing "Return value"
+    (let [response {kws.services.cards-crud/read-card {kws.card/id "id"}}
+          props {}
+          async-action (sut/fetch-card-async-action props {})
+          return-value-fn (kws.async-actions/return-value-fn async-action)]
+      (is (= "id" (return-value-fn response (atom {})))))))
 
 (deftest test-goto-editcard!
 

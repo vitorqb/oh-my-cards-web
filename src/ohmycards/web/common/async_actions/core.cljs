@@ -19,7 +19,9 @@
         pre-hook-fn (kws/pre-hook-fn async-action)
         post-reducer-fn (kws/post-reducer-fn async-action)
         post-hook-fn (kws/post-hook-fn async-action)
-        action-fn (kws/action-fn async-action)]
+        action-fn (kws/action-fn async-action)
+        return-value-fn (or (kws/return-value-fn async-action)
+                            (fn [response state] response))]
     (a/go
       (let [should-run? (run-condition-fn @state)
             should-run? (a/<! (ensure-channel should-run?))]
@@ -37,4 +39,5 @@
               (post-hook-fn result))
             (when post-reducer-fn
               (log "Running post-reducer-fn for action and result: " [async-action result])
-              (swap! state post-reducer-fn result))))))))
+              (swap! state post-reducer-fn result))
+            (return-value-fn result @state)))))))

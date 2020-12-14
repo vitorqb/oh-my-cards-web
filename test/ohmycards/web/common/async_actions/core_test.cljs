@@ -68,3 +68,13 @@
        (a/<! (sut/run async-action))
        (is (= 0 @calls))
        (done)))))
+
+(deftest test-run--return-value
+  (let [async-action {kws/state (atom {:val 2})
+                      kws/action-fn (fn [_] {:val 1})
+                      kws/return-value-fn (fn [response state] (+ (:val response) (:val state)))}]
+    (async done
+           (a/go
+             (let [result (a/<! (sut/run async-action))]
+               (is (= 3 result))
+               (done))))))
