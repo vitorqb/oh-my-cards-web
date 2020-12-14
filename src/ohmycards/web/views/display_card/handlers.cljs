@@ -1,5 +1,5 @@
 (ns ohmycards.web.views.display-card.handlers
-  (:require [cljs.core.async :as async]
+  (:require [cljs.core.async :as a]
             [ohmycards.web.common.async-actions.core :as async-action]
             [ohmycards.web.common.cards.core :as cards]
             [ohmycards.web.components.card-history-displayer.core
@@ -19,7 +19,10 @@
 ;; 
 ;; Helpers
 ;;
-(defn fetch-card-async-action [{:keys [state] ::kws/keys [fetch-card!]} card-id]
+(defn fetch-card-async-action
+  [{:keys [state] ::kws/keys [fetch-card! storage-peek!]}
+   {:keys [card-id card-ref storage-key] :as opts}]
+
   {kws.async-actions/state
    state
 
@@ -27,7 +30,10 @@
    #(assoc % kws/loading? true kws/card nil kws/error-message nil)
 
    kws.async-actions/action-fn
-   (fn [_] (fetch-card! card-id))
+   (fn [_]
+     (if-let [card (some-> storage-key storage-peek!)]
+       {kws.services.cards-crud/read-card card}
+       (fetch-card! (or card-id card-ref))))
 
    kws.async-actions/post-reducer-fn
    (fn [state response]
@@ -36,7 +42,11 @@
            error-message (kws.services.cards-crud/error-message response)]
        (cond-> (assoc state kws/loading? false)
          success? (assoc kws/card read-card)
-         (not success?) (assoc kws/error-message error-message))))})
+         (not success?) (assoc kws/error-message error-message))))
+
+   kws.async-actions/return-value-fn
+   (fn [response _]
+     (some-> response kws.services.cards-crud/read-card kws.card/id))})
 
 ;;
 ;; API
@@ -52,11 +62,15 @@
   (-> @state kws/card cards/->title to-clipboard!))
 
 (defn init!
-  "Initializes the state. The first argument are the props, and the
-  second argument is the card id that must be displayed."
-  [props card-id]
-  (async-action/run (fetch-card-async-action props card-id))
-  (async-action/run (child.card-history-displayer/fetch-history-async-action props card-id)))
+  "Initializes the component, setting the state and fetching both the card and history.
+   Can receive either a card `card-id` or `card-ref` for deciding the card to fetch.
+   If `storage-key` is given, reads the card from storage using this key instead of fetch."
+  [props {:keys [card-id card-ref storage-key] :as opts}]
+  (swap! (:state props) {})
+  (swap! (:state (child.card-history-displayer/get-props props)) {})
+  (a/go
+    (when-let [card-id (->> opts (fetch-card-async-action props) async-action/run a/<!)]
+      (async-action/run (child.card-history-displayer/fetch-history-async-action props card-id)))))
 
 (defn hydra-head
   "Returns an hydra head for the contextual actions dispatcher."
