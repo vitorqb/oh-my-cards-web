@@ -1,6 +1,7 @@
 (ns ohmycards.web.core
   (:require [cljs.core.async :as a]
             [ohmycards.web.app.logging :as app.logging]
+            [ohmycards.web.app.dialogs.copy-card-link :as dialogs.copy-card-link]
             [ohmycards.web.app.pages.card.display :as pages.card.display]
             [ohmycards.web.app.pages.card.find :as pages.card.find]
             [ohmycards.web.app.provider :as app.provider]
@@ -164,6 +165,7 @@
    [controllers.action-dispatcher/component]
    [controllers.file-upload-dialog/component]
    [controllers.clipboard-dialog/component]
+   [dialogs.copy-card-link/dialog]
    [services.notify/toast]])
 
 (defn current-view []
@@ -363,6 +365,10 @@
     :fetch-card-history! app.provider/fetch-card-history!
     :to-clipboard! app.provider/to-clipboard!
     :storage-peek! services.storage/peek!})
+
+  (dialogs.copy-card-link/init!
+   {:state (app.state/state-cursor :dialogs.copy-card-link)
+    :to-clipboard! app.provider/to-clipboard!})
   
   (controllers.action-dispatcher/init!
    {:state (app.state/state-cursor :components.action-dispatcher)})

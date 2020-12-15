@@ -1,5 +1,6 @@
 (ns ohmycards.web.core-test
   (:require [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
+            [ohmycards.web.app.dialogs.copy-card-link :as dialogs.copy-card-link]
             [ohmycards.web.app.state :as app.state]
             [ohmycards.web.components.current-view.core :as components.current-view]
             [ohmycards.web.controllers.action-dispatcher.core
@@ -42,6 +43,7 @@
                 [controllers.action-dispatcher/component]
                 [controllers.file-upload-dialog/component]
                 [controllers.clipboard-dialog/component]
+                [dialogs.copy-card-link/dialog]
                 [services.notify/toast]]
                (sut/current-view* state ::home-view ::login-view ::header-component))))
 
