@@ -337,7 +337,8 @@
     :update-card! app.provider/update-card!
     :cards-metadata (lenses.metadata/cards @app.state/state)
     :confirm-deletion-fn! services.user-question/confirm-card-delete
-    :delete-card! app.provider/delete-card!})
+    :delete-card! app.provider/delete-card!
+    :user-link-to-card! dialogs.copy-card-link/show!})
 
   (dialogs.copy-card-link/init!
    {:state (app.state/state-cursor :dialogs.copy-card-link)

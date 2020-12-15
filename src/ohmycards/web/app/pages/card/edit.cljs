@@ -16,16 +16,17 @@
 
 (defn init!
   [{:keys [state goto-home! goto-displaycard! fetch-card! update-card! cards-metadata
-           confirm-deletion-fn! delete-card! notify]}]
+           confirm-deletion-fn! delete-card! notify! user-link-to-card!]}]
   (set! *props* {:state state
-                 :notify! notify
+                 :notify! notify!
                  kws.edit-card/goto-home! goto-home!
                  kws.edit-card/goto-displaycard! goto-displaycard!
                  kws.edit-card/fetch-card! fetch-card!
                  kws.edit-card/update-card! update-card!
                  kws.edit-card/cards-metadata cards-metadata
                  kws.edit-card/confirm-deletion-fn! confirm-deletion-fn!
-                 kws.edit-card/delete-card! delete-card!}))
+                 kws.edit-card/delete-card! delete-card!
+                 kws.edit-card/user-link-to-card! user-link-to-card!}))
 
 (defn enter-hook! [route-match]
   (when (services.login/is-logged-in?)

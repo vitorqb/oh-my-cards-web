@@ -101,7 +101,7 @@
 
 (defn hydra-head
   "Returns an hydra head for the contextual actions dispatcher."
-  [props]
+  [{::kws/keys [user-link-to-card!] :as props}]
   {kws.hydra/type         kws.hydra/branch
    kws.hydra.branch/name  "Edit Card Hydra"
    kws.hydra.branch/heads [{kws.hydra/shortcut    \s
@@ -112,6 +112,10 @@
                             kws.hydra/description "Delete"
                             kws.hydra/type        kws.hydra/leaf
                             kws.hydra.leaf/value  #(delete-card! props)}
+                           {kws.hydra/shortcut    \l
+                            kws.hydra/description "Link to card (by ref)"
+                            kws.hydra/type        kws.hydra/leaf
+                            kws.hydra.leaf/value  user-link-to-card!}
                            {kws.hydra/shortcut    \v
                             kws.hydra/description "View (Display)"
                             kws.hydra/type        kws.hydra/leaf
