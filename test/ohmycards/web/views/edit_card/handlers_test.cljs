@@ -10,6 +10,7 @@
             [ohmycards.web.kws.services.cards-crud.core :as kws.cards-crud]
             [ohmycards.web.kws.views.edit-card.core :as kws]
             [ohmycards.web.services.cards-crud.core :as cards-crud]
+            [ohmycards.web.test-utils :as tu]
             [ohmycards.web.views.edit-card.handlers :as sut]
             [ohmycards.web.views.edit-card.state-management :as state-management]
             [reagent.core :as r]))
@@ -147,9 +148,19 @@
           (is (= kws.hydra/leaf (kws.hydra/type delete-action)))
           (is (= [::delete-card props] ((kws.hydra.leaf/value delete-action)))))))
 
+    (testing "Get link to prop by ref action"
+      (let [user-link-to-card! (tu/new-stub)
+            props {kws/user-link-to-card! user-link-to-card!}
+            action (-> props sut/hydra-head kws.hydra.branch/heads (get 2))]
+        (is (= \l (kws.hydra/shortcut action)))
+        (is (= "Link to card (by ref)" (kws.hydra/description action)))
+        (is (= kws.hydra/leaf (kws.hydra/type action)))
+        ((kws.hydra.leaf/value action))
+        (is (= [[]] (tu/get-calls user-link-to-card!)))))
+
     (testing "View (Display) action calls delete-card!"
       (with-redefs [sut/goto-displaycard! #(do [::goto-displaycard! %1])]
-        (let [goto-displaycard-action (-> props sut/hydra-head kws.hydra.branch/heads (get 2))
+        (let [goto-displaycard-action (-> props sut/hydra-head kws.hydra.branch/heads (get 3))
               goto-displaycard-value (kws.hydra.leaf/value goto-displaycard-action)]
           (is (= \v (kws.hydra/shortcut goto-displaycard-action)))
           (is (= "View (Display)" (kws.hydra/description goto-displaycard-action)))
@@ -157,7 +168,7 @@
           (is (= [::goto-displaycard! props] ((kws.hydra.leaf/value goto-displaycard-action)))))))
 
     (testing "Quit action"
-      (let [quit-action (-> props sut/hydra-head kws.hydra.branch/heads (get 3))
+      (let [quit-action (-> props sut/hydra-head kws.hydra.branch/heads (get 4))
             quit-action-value (kws.hydra.leaf/value quit-action)]
         (is (= \q (kws.hydra/shortcut quit-action)))
         (is (= "Quit" (kws.hydra/description quit-action)))
