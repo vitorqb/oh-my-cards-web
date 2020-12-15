@@ -18,6 +18,13 @@
 (defn- mk-component [opts]
   (sut/main (mk-props opts)))
 
+(deftest test-show!
+  (testing "Cleans the state"
+    (let [props (mk-props {kws/value "SOME VALUE"})]
+      (is (= "SOME VALUE" (-> props :state deref kws/value)))
+      (sut/show! props)
+      (is (= "" (-> props :state deref kws/value))))))
+
 (deftest test-handle-submit!
 
   (testing "Copies to clipboard"

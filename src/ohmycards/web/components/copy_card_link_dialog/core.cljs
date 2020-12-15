@@ -10,8 +10,12 @@
 (defn- dialog-props [{:keys [state]}]
    {:state (r/cursor state [::dialog])})
 
-(defn show! [props] (dialog/show! (dialog-props props)))
-(defn hide! [props] (dialog/hide! (dialog-props props)))
+(defn show! [{:keys [state] :as props}]
+  (swap! state assoc kws/value "")
+  (dialog/show! (dialog-props props)))
+
+(defn hide! [props]
+  (dialog/hide! (dialog-props props)))
 
 (defn- handle-submit! [{:keys [state] ::kws/keys [to-clipboard!] :as props}]
   (to-clipboard! (str "/#/cards/display?ref=" (kws/value @state)))
