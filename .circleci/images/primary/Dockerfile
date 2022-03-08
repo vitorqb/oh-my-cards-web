@@ -1,4 +1,4 @@
-FROM circleci/clojure
+FROM circleci/clojure:openjdk-14-buster
 
 # Installs npm
 RUN export TMPFILE=$(mktemp -d) &&\
