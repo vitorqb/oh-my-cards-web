@@ -32,7 +32,7 @@ jobs:
 
   compile_scss:
     docker:
-      - image: circleci/node:lts
+      - image: cimg/node:14.18
     steps:
       - checkout
       - run: make install scss/once

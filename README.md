@@ -4,6 +4,8 @@ Please read the [Readme of OhMyCards](https://github.com/vitorqb/oh-my-cards).
 
 ## Development
 
+- Make sure you node version agrees with [](./nvmrc)
+
 ```sh
 # Installs all dependencies
 make install
