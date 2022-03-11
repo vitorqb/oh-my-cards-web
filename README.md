@@ -1,18 +1,26 @@
-## OhMyCards - Web!
+# OhMyCards - Web!
 
 Please read the [Readme of OhMyCards](https://github.com/vitorqb/oh-my-cards).
 
-### Development mode
-```
-npm install
-npx shadow-cljs watch app
-```
-start a ClojureScript REPL
-```
-npx shadow-cljs browser-repl
-```
-### Building for production
+## Development
 
+```sh
+# Installs all dependencies
+make install
+
+# Start all builds for development and watch for changes
+make watch
+
+# Start compiling the scss
+make scss
+
+# Starts a backend
+make runBackend
+make rev-proxy
 ```
-npx shadow-cljs release app
-```
+
+### Tests
+
+There are two ways of checking the tests. Both require `make watch` to be running.
+1. Open http://127.0.0.1:9050
+2. Run `make karma`
