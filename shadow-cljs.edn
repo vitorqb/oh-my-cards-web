@@ -30,9 +30,14 @@
                  :output-to        "target/test.js"
                  :ns-regexp        "-test$"
                  :compiler-options {:static-fns false}
-                 :closure-defines  {ohmycards.web.globals/DEV true}}}
+                 :closure-defines  {ohmycards.web.globals/DEV true}}
+
+          :browser-test {:target :browser-test
+                         :test-dir "target/browser-test"
+                         :compiler-options {:static-fns false}}}
 
  :nrepl {:middleware [refactor-nrepl.middleware/wrap-refactor]}
  
  :dev-http {9001 {:root    "public"
-                  :handler user/app}}}
+                  :handler user/app}
+            9050 {:root "target/browser-test"}}}
