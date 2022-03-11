@@ -3,6 +3,7 @@
             [ohmycards.web.components.clipboard-dialog.core :as sut]
             [ohmycards.web.components.dialog.core :as components.dialog]
             [ohmycards.web.kws.components.clipboard-dialog.core :as kws]
+            [ohmycards.web.kws.components.dialog.core :as kws.dialog]
             [ohmycards.web.test-utils :as tu]
             [reagent.core :as r]))
 
@@ -11,7 +12,8 @@
   ([{::kws/keys [text to-clipboard!]
      :or {text "FOO"
           to-clipboard! (constantly nil)}}]
-   {:state (r/atom {kws/text text})
+   {:state (r/atom {kws/text text
+                    kws.dialog/last-active-element (tu/new-dom-element-stub)})
     kws/to-clipboard! to-clipboard!}))
 
 (deftest test-main
@@ -48,6 +50,7 @@
   (testing "Calls to-clipboard!"
     (let [call (atom nil)
           props (mk-props {kws/to-clipboard! #(reset! call %&)})]
+      (sut/show! props "FOO")
       (sut/on-copy! props)
       (is (= ["FOO"] @call))))
 

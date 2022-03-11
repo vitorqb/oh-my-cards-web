@@ -5,7 +5,9 @@
 (defn show!
   "Displayes the dialog."
   [{:keys [state] ::kws/keys [on-show!]}]
-  (swap! state assoc kws/active? true)
+  (swap! state assoc
+         kws/active? true
+         kws/last-active-element js/document.activeElement)
   (when on-show!
     (on-show!)))
 
@@ -17,6 +19,8 @@
 (defn hide!
   "Hidens the dialog."
   [{:keys [state] ::kws/keys [on-hide!]}]
+  (when-let [last-active-element (kws/last-active-element @state)]
+    (.focus last-active-element))
   (swap! state assoc kws/active? false)
   (when on-hide!
     (on-hide!)))
