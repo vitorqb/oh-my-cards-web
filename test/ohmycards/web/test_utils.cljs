@@ -62,3 +62,6 @@
        (-invoke [this a b c d e f g h]
          (store-call this [a b c d e f g h])
          (apply fn [a b c d e f g h]))))))
+
+(defn new-dom-element-stub []
+  (clj->js {"focus" #(do)}))

@@ -1,10 +1,10 @@
-FROM circleci/clojure
+FROM circleci/clojure:openjdk-14-buster
 
 # Installs npm
 RUN export TMPFILE=$(mktemp -d) &&\
         mkdir -p $TMPFILE &&\
         cd $TMPFILE &&\
-        curl -sL https://deb.nodesource.com/setup_12.x | sudo bash - && \
+        curl -sL https://deb.nodesource.com/setup_14.x | sudo bash - && \
         sudo apt-get install -y nodejs &&\
         cd && rm -rf $TMPFILE
 

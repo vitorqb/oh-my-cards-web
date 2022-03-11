@@ -42,8 +42,8 @@
      kws.action-dispatcher/actions-hydra-head @current-hydra-head-atom
      kws.action-dispatcher/dispatch-action! (fn [f]
                                               (log "Handling action " f)
-                                              (f)
-                                              (close!))}]])
+                                              (close!)
+                                              (f))}]])
 
 ;; Public API
 (defn init!

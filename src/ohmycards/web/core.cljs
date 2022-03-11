@@ -1,7 +1,9 @@
 (ns ohmycards.web.core
   (:require [cljs.core.async :as a]
+            [ohmycards.web.app.dialogs.copy-card-link :as dialogs.copy-card-link]
             [ohmycards.web.app.logging :as app.logging]
             [ohmycards.web.app.pages.card.display :as pages.card.display]
+            [ohmycards.web.app.pages.card.edit :as pages.card.edit]
             [ohmycards.web.app.pages.card.find :as pages.card.find]
             [ohmycards.web.app.provider :as app.provider]
             [ohmycards.web.app.state :as app.state]
@@ -45,7 +47,6 @@
             [ohmycards.web.kws.views.cards-grid.config-dashboard.core
              :as
              kws.cards-grid.config-dashboard]
-            [ohmycards.web.kws.views.edit-card.core :as kws.edit-card]
             [ohmycards.web.kws.views.new-card.core :as kws.new-card]
             [ohmycards.web.kws.views.profiles.core :as kws.views.profiles]
             [ohmycards.web.services.cards-grid-profile-manager.core
@@ -68,46 +69,12 @@
             [ohmycards.web.views.cards-grid.config-dashboard.core
              :as
              cards-grid.config-dashboard]
-            [ohmycards.web.views.edit-card.core :as edit-card]
-            [ohmycards.web.views.edit-card.handlers :as edit-card.handlers]
-            [ohmycards.web.views.edit-card.state-management
-             :as
-             edit-card.state-management]
             [ohmycards.web.views.login.core :as views.login]
             [ohmycards.web.views.new-card.core :as new-card]
             [ohmycards.web.views.profiles.core :as views.profiles]
             [reagent.dom :as r.dom]))
 
-;; -------------------------
-;; View instances
 
-;; Edit card
-(def edit-card-page-props
-  "Props for the `edit-card-page`."
-  {kws.edit-card/goto-home! #(services.routing/goto! routing.pages/home)
-   kws.edit-card/goto-displaycard! app.provider/goto-displaycard!
-   kws.edit-card/fetch-card! app.provider/fetch-card!
-   kws.edit-card/update-card! app.provider/update-card!
-   kws.edit-card/cards-metadata (lenses.metadata/cards @app.state/state)
-   kws.edit-card/confirm-deletion-fn! services.user-question/confirm-card-delete
-   kws.edit-card/delete-card! app.provider/delete-card!
-   :state (app.state/state-cursor :views.edit-card)
-   :notify! app.provider/notify!})
-
-(defn edit-card-page
-  "An instance for the edit-card view"
-  []
-  [edit-card/main edit-card-page-props])
-
-(defn edit-card-enter-hook!
-  "Enter hook for edit-card, setting state on entering."
-  [route-match]
-  (when (services.login/is-logged-in?)
-    (edit-card.state-management/init-from-route-match! edit-card-page-props route-match)))
-
-(def edit-card-update-hook! edit-card-enter-hook!)
-
-;; Others
 (defn login
   "An instance for the login page."
   []
@@ -164,6 +131,7 @@
    [controllers.action-dispatcher/component]
    [controllers.file-upload-dialog/component]
    [controllers.clipboard-dialog/component]
+   [dialogs.copy-card-link/dialog]
    [services.notify/toast]])
 
 (defn current-view []
@@ -182,11 +150,7 @@
       {kws.routing/name routing.pages/profiles
        kws.routing/view #'profiles-page}]
     ["/cards"
-     ["/edit"
-      {kws.routing/name routing.pages/edit-card
-       kws.routing/view #'edit-card-page
-       kws.routing/enter-hook edit-card-enter-hook!
-       kws.routing/update-hook edit-card-update-hook!}]
+     pages.card.edit/route
      ["/new"
       {kws.routing/name routing.pages/new-card
        kws.routing/view #'new-card-page}]
@@ -247,7 +211,7 @@
     (condp = current-route-name
 
       routing.pages/edit-card
-      (edit-card.handlers/hydra-head edit-card-page-props)
+      (pages.card.edit/hydra-head)
 
       routing.pages/new-card
       (new-card/hydra-head (new-card-page-props))
@@ -363,6 +327,22 @@
     :fetch-card-history! app.provider/fetch-card-history!
     :to-clipboard! app.provider/to-clipboard!
     :storage-peek! services.storage/peek!})
+
+  (pages.card.edit/init!
+   {:state (app.state/state-cursor :views.edit-card)
+    :notify! app.provider/notify!
+    :goto-home! #(services.routing/goto! routing.pages/home)
+    :goto-displaycard! app.provider/goto-displaycard!
+    :fetch-card! app.provider/fetch-card!
+    :update-card! app.provider/update-card!
+    :cards-metadata (lenses.metadata/cards @app.state/state)
+    :confirm-deletion-fn! services.user-question/confirm-card-delete
+    :delete-card! app.provider/delete-card!
+    :user-link-to-card! dialogs.copy-card-link/show!})
+
+  (dialogs.copy-card-link/init!
+   {:state (app.state/state-cursor :dialogs.copy-card-link)
+    :to-clipboard! app.provider/to-clipboard!})
   
   (controllers.action-dispatcher/init!
    {:state (app.state/state-cursor :components.action-dispatcher)})

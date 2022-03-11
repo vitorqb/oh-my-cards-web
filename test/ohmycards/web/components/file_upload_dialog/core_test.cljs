@@ -2,31 +2,37 @@
   (:require [cljs.core.async :as a]
             [cljs.test :refer-macros [are async deftest is testing use-fixtures]]
             [ohmycards.web.components.dialog.core :as dialog]
+            [ohmycards.web.kws.components.dialog.core :as kws.dialog]
             [ohmycards.web.components.file-upload-dialog.core :as sut]
+            [ohmycards.web.test-utils :as tu]
             [reagent.core :as r]))
+
+(defn mk-props [{::keys [selected-file-chan]}]
+  (let [state (r/atom {::sut/selected-file-chan selected-file-chan
+                       kws.dialog/last-active-element (tu/new-dom-element-stub)})
+        props {:state state}]
+    props))
 
 (deftest test-integration-on-change!--does-nothing-if-no-file
   (async
    done
-   (let [file-chan (a/chan 1)
-         state (r/atom {::sut/selected-file-chan file-chan})
-         props {:state state}
+   (let [selected-file-chan (a/chan 1)
+         props (mk-props {::selected-file-chan selected-file-chan})
          event (clj->js {:target {:files []}})]
      (sut/on-change! props event)
      (a/go
-       (is (nil? (a/<! file-chan)))
+       (is (nil? (a/<! selected-file-chan)))
        (done)))))
 
 (deftest test-integration-on-change!--sends-file-to-chan
   (async
    done
-   (let [file-chan (a/chan 1)
-         state (r/atom {::sut/selected-file-chan file-chan})
-         props {:state state}
+   (let [selected-file-chan (a/chan 1)
+         props (mk-props {::selected-file-chan selected-file-chan})
          event (clj->js {:target {:files ["file"]}})]
      (sut/on-change! props event)
      (a/go
-       (is (= "file" (a/<! file-chan)))
+       (is (= "file" (a/<! selected-file-chan)))
        (done)))))
 
 (deftest test-integration-show-and-hide
@@ -34,8 +40,8 @@
    done
    (let [dialog-show-calls (atom 0)]
      (with-redefs [dialog/show! #(swap! dialog-show-calls inc)]
-       (let [state (r/atom {})
-             props {:state state}
+       (let [props (mk-props {})
+             state (:state props)
              chan  (sut/show! props)]
          (is (= 1 @dialog-show-calls))
          (is (= chan (::sut/selected-file-chan @state)))

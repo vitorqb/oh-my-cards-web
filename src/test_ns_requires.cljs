@@ -3,6 +3,7 @@
   THIS FILE IS CREATED AUTOMATICALLY AND SHOULD NOT BE EDITED.
   See make test-ns-requires"
   (:require
+[ohmycards.web.app.dialogs.copy-card-link-test]
 [ohmycards.web.common.async-actions.core-test]
 [ohmycards.web.common.cards.core-test]
 [ohmycards.web.common.cards.history.core-test]
@@ -19,6 +20,7 @@
 [ohmycards.web.components.card-history-displayer.core-test]
 [ohmycards.web.components.card-history-displayer.field-update-displayer-test]
 [ohmycards.web.components.clipboard-dialog.core-test]
+[ohmycards.web.components.copy-card-link-dialog.core-test]
 [ohmycards.web.components.current-view.core-test]
 [ohmycards.web.components.dialog.core-test]
 [ohmycards.web.components.file-upload-dialog.core-test]

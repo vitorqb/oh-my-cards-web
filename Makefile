@@ -41,7 +41,7 @@ server:
 
 # Watch all builds
 watch:
-	npx shadow-cljs watch app test
+	npx shadow-cljs watch app test browser-test
 
 # Builds once a specific build target
 build/%:
