@@ -4,7 +4,7 @@ jobs:
 
   test:
     docker: 
-      - image: vitorqb23/oh-my-cards-circle-ci-primary
+      - image: vitorqb23/oh-my-cards-circle-ci-primary:4
     steps:
       - checkout
       - restore_cache:
@@ -16,9 +16,15 @@ jobs:
 
   create_docker_image:
     docker:
-      - image: vitorqb23/oh-my-cards-circle-ci-primary
+      - image: vitorqb23/oh-my-cards-circle-ci-primary:4
     steps:
       - checkout
+      - run:
+          name: import GPG key
+          command: echo -e "$GPG_KEY_BASE64" | base64 -d | gpg --batch --yes --import
+      - run:
+          name: decrypt all blackbox files
+          command: blackbox_postdeploy
       - restore_cache:
           key: ohmycardsweb
       - setup_remote_docker
@@ -32,7 +38,7 @@ jobs:
 
   compile_scss:
     docker:
-      - image: cimg/node:14.18
+      - image: vitorqb23/oh-my-cards-circle-ci-primary:4
     steps:
       - checkout
       - run: make install scss/once
@@ -51,6 +57,7 @@ workflows:
             branches:
               only:
                 - master
+                - circlecitest
             tags:
               only: /^[0-9]+\.[0-9]+\.[0-9]+$/
   compile_scss:

@@ -22,3 +22,7 @@ pom.xml.asc
 /devops/build
 /devops/target
 /devops/context
+.blackbox/pubring.gpg~
+/.blackbox/pubring.kbx~
+/.blackbox/secring.gpg
+/resources/config.prod.edn
