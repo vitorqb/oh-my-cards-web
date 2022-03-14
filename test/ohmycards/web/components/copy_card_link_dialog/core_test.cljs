@@ -6,7 +6,8 @@
             [ohmycards.web.kws.components.copy-card-link-dialog.core :as kws]
             [ohmycards.web.kws.components.inputs.core :as inputs.kws]
             [ohmycards.web.test-utils :as tu]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [ohmycards.web.globals :as globals]))
 
 (defn- mk-props
   [{::kws/keys [value to-clipboard!]
@@ -33,7 +34,8 @@
                            kws/value "1234"})]
       (with-redefs [sut/hide! (tu/new-stub)]
         (sut/handle-submit! props)
-        (is (= [["/#/cards/display?ref=1234"]] (tu/get-calls to-clipboard!))))))
+        (is (= [[(str globals/HOSTNAME ":" globals/PORT "/#/cards/display?ref=1234")]]
+               (tu/get-calls to-clipboard!))))))
 
   (testing "Closes the dialog"
     (let [hide! (tu/new-stub)
