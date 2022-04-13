@@ -24,7 +24,9 @@
                              ;; see https://clojure.atlassian.net/browse/CLJS-1623
                              :compiler-options {:static-fns false}
                              :closure-defines {ohmycards.web.globals/DEV true
-                                               ohmycards.web.globals/LOG_ENABLED true}}}
+                                               ohmycards.web.globals/LOG_ENABLED true
+                                               ohmycards.web.globals/HOSTNAME "127.0.0.1"
+                                               ohmycards.web.globals/PORT 3002}}}
 
           :test {:target           :karma
                  :output-to        "target/test.js"

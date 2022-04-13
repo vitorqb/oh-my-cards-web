@@ -5,7 +5,8 @@
             [ohmycards.web.kws.components.copy-card-link-dialog.core :as kws]
             [ohmycards.web.kws.components.dialog.core :as kws.dialog]
             [ohmycards.web.kws.components.inputs.core :as kws.inputs]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [ohmycards.web.common.utils :as utils]))
 
 (defn- dialog-props [{:keys [state]}]
    {:state (r/cursor state [::dialog])})
@@ -18,7 +19,7 @@
   (dialog/hide! (dialog-props props)))
 
 (defn- handle-submit! [{:keys [state] ::kws/keys [to-clipboard!] :as props}]
-  (to-clipboard! (str "/#/cards/display?ref=" (kws/value @state)))
+  (to-clipboard! (utils/internal-link (str "/#/cards/display?ref=" (kws/value @state))))
   (hide! props))
 
 (defn main

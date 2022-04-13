@@ -52,7 +52,8 @@ artifacts/prod: build/prod
           ci \
           scss/once \
           release/app \
-          SHADOW_CLJS_RELEASE_CONFIG=$(shadow_cljs_release_config)
+          SHADOW_CLJS_RELEASE_CONFIG=$(shadow_cljs_release_config) \
+	  SHADOW_CLJS_RELEASE_CONFIG_FILE="./resources/config.prod.edn"
 
 	$(call msg,"Creating .tar.gz file...")
 	tar --dereference -vzcf $(target_prod) -C $(BUILD_DIR)/public css js vendor index.html

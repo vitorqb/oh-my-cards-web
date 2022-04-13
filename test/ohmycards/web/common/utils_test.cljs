@@ -1,6 +1,7 @@
 (ns ohmycards.web.common.utils-test
   (:require [ohmycards.web.common.utils :as sut]
-            [cljs.test :refer-macros [is are deftest testing use-fixtures async]]))
+            [cljs.test :refer-macros [is are deftest testing use-fixtures async]]
+            [ohmycards.web.globals :as globals]))
 
 (deftest test-to-path
   (is (= [:k] (sut/to-path :k)))
@@ -39,3 +40,12 @@
 
   (testing "Valid positive integer"
     (is (= 2 (sut/str->number "+2")))))
+
+(deftest test-internal-link*
+
+  (testing "No port"
+    (is (= "www.url.com/foo" (sut/internal-link* {:hostname "www.url.com"} "/foo"))))
+
+  (testing "With port"
+    (is (= "www.url.com:3000/foo" (sut/internal-link* {:hostname "www.url.com" :port 3000}
+                                                      "/foo")))))

@@ -1,5 +1,6 @@
 (ns ohmycards.web.common.utils
-  (:require-macros ohmycards.web.common.utils))
+  (:require-macros ohmycards.web.common.utils)
+  (:require  [ohmycards.web.globals :as globals]))
 
 (defn to-path [x]
   (cond
@@ -27,3 +28,13 @@
   (if (contains? set el)
     (disj set el)
     (conj set el)))
+
+(defn- internal-link*
+  "Generates an internal link to a <path>"
+  [{:keys [hostname port]} path]
+  (cond-> hostname
+    port    (str ":" port)
+    :always (str path)))
+
+(def internal-link
+  (partial internal-link* {:hostname globals/HOSTNAME :port globals/PORT}))
