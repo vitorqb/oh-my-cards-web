@@ -28,10 +28,14 @@ jobs:
       - restore_cache:
           key: ohmycardsweb
       - setup_remote_docker
-      - run: |
-          cd devops && make images/prod DOCKER='docker'
-          docker login -u $DOCKER_USER -p $DOCKER_PASS
-          docker push "vitorqb23/ohmycards-web:$(git describe --tags)"    
+      - run:
+          name: Builds image
+          command: cd devops && make images/prod DOCKER='docker'
+      - run:
+          name: Pushes image to repository
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push "vitorqb23/ohmycards-web:$(git describe --tags)"    
       - save_cache:
           paths: [~/.m2]
           key: ohmycardsweb
