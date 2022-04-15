@@ -1,5 +1,6 @@
 (ns ohmycards.web.app.pages.card.edit
-  (:require [ohmycards.web.kws.services.routing.core :as kws.routing]
+  (:require [ohmycards.web.kws.lenses.metadata :as lenses.metadata]
+            [ohmycards.web.kws.services.routing.core :as kws.routing]
             [ohmycards.web.kws.services.routing.pages :as routing.pages]
             [ohmycards.web.kws.views.edit-card.core :as kws.edit-card]
             [ohmycards.web.services.login.core :as services.login]
@@ -11,7 +12,10 @@
 
 (defonce ^:private ^:dynamic *props* nil)
 
-(defn view       [] [edit-card/main *props*])
+(defn view [{:keys [state]}]
+  [edit-card/main (assoc *props*
+                         kws.edit-card/cards-metadata (lenses.metadata/cards @state))])
+
 (defn hydra-head [] (edit-card.handlers/hydra-head *props*))
 
 (defn init!
@@ -23,7 +27,6 @@
                  kws.edit-card/goto-displaycard! goto-displaycard!
                  kws.edit-card/fetch-card! fetch-card!
                  kws.edit-card/update-card! update-card!
-                 kws.edit-card/cards-metadata cards-metadata
                  kws.edit-card/confirm-deletion-fn! confirm-deletion-fn!
                  kws.edit-card/delete-card! delete-card!
                  kws.edit-card/user-link-to-card! user-link-to-card!}))
