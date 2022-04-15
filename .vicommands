@@ -1,0 +1,3 @@
+nvm use
+make runBackend
+make rev-proxy
