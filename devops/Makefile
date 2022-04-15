@@ -1,7 +1,7 @@
 .PHONY: images/prod build/prod artifacts/prod
 
 # A regexp with files from the source (./..) that should be ignored for builds.
-IGNORE_BUILD_FILES_REG ?= ^(devops|\.|\.\.|node_modules|\.shadow-cljs)$
+IGNORE_BUILD_FILES_REG ?= ^(devops|\.|\.\.|node_modules|\.shadow-cljs|\.blackbox)$
 
 # The docker command to use
 DOCKER ?= sudo docker
@@ -41,6 +41,7 @@ clean:
 build/prod: clean
 	ls -a .. | grep -vP '$(IGNORE_BUILD_FILES_REG)' | xargs -I {} cp -rv ../{} $(BUILD_DIR)/{}
 	$(MAKE) -C $(BUILD_DIR) clean
+	find ./build -type f -iname '*.gpg' -exec gpg --yes '{}' ';'
 
 # Generates an .tar.gz artifact for production.
 artifacts/prod: build/prod
