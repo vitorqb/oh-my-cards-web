@@ -38,6 +38,7 @@
                  {::components.current-view/current-user     ::current-user
                   ::components.current-view/login-view       ::login-view
                   ::components.current-view/view             ::current-view
+                  ::components.current-view/view-props       {:state app.state/state}
                   ::components.current-view/header-component ::header-component
                   ::components.current-view/loading?         true}]
                 [controllers.action-dispatcher/component]
