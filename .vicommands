@@ -1,3 +1,5 @@
 nvm use
 make runBackend
 make rev-proxy
+make watch
+make test
