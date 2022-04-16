@@ -1,5 +1,23 @@
 # Check https://circleci.com/docs/2.0/language-clojure/ for more details
-version: 2
+version: 2.1
+
+commands:
+  import_gpg_key:
+    steps:
+      - run:
+          name: import GPG key
+          command: echo -e "$GPG_KEY_BASE64" | base64 -d | gpg --batch --yes --import
+  decrypt_blackbox:
+    steps:
+      - run:
+          name: decrypt all blackbox files
+          command: blackbox_postdeploy
+  restore_ohmycardsweb_cache:
+    steps:
+      - restore_cache:
+          key: ohmycardsweb
+          
+
 jobs:
 
   test:
@@ -12,21 +30,29 @@ jobs:
       - run: make install build/test karma KARMA_OPTS='--single-run'
       - save_cache:
           paths: [~/.m2]
-          key: ohmycardsweb          
+          key: ohmycardsweb
+
+  build:
+    docker:
+      - image: vitorqb23/oh-my-cards-circle-ci-primary:5
+    steps:
+      - checkout
+      - import_gpg_key
+      - decrypt_blackbox
+      - restore_ohmycardsweb_cache
+      - setup_remote_docker
+      - run:
+          name: Builds the application
+          command: cd devops && make images/prod DOCKER='docker'
 
   create_docker_image:
     docker:
       - image: vitorqb23/oh-my-cards-circle-ci-primary:5
     steps:
       - checkout
-      - run:
-          name: import GPG key
-          command: echo -e "$GPG_KEY_BASE64" | base64 -d | gpg --batch --yes --import
-      - run:
-          name: decrypt all blackbox files
-          command: blackbox_postdeploy
-      - restore_cache:
-          key: ohmycardsweb
+      - import_gpg_key
+      - decrypt_blackbox
+      - restore_ohmycardsweb_cache
       - setup_remote_docker
       - run:
           name: Builds image
@@ -53,6 +79,14 @@ workflows:
   test:
     jobs:
       - test: {}
+  build:
+    jobs:
+      - build:
+          context: main
+          filters:
+            branches:
+              ignore:
+                - master
   create_docker_image:
     jobs:
       - create_docker_image:

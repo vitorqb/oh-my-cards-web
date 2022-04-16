@@ -6,9 +6,10 @@
 (deftest test-main
 
   (testing "Returns view if has user"
-    (is (= [:div.current-view '([::header-component] [::view])]
+    (is (= [:div.current-view '([::header-component] [::view {}])]
            (sut/main {::sut/current-user     {kws.user/email "A" kws.user/token "B"}
                       ::sut/view             ::view
+                      ::sut/view-props       {}
                       ::sut/header-component ::header-component}))))
 
   (testing "Returns login-page if no user"

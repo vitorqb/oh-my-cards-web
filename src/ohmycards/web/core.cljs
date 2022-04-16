@@ -125,6 +125,7 @@
     {::components.current-view/current-user (::lenses.login/current-user state)
      ::components.current-view/view (or (-> state ::lenses.routing/match :data kws.routing/view)
                                         home-view)
+     ::components.current-view/view-props {:state app.state/state}
      ::components.current-view/login-view login-view
      ::components.current-view/header-component header-component
      ::components.current-view/loading? (-> state lenses.login/initialized? not)}]
