@@ -1,4 +1,4 @@
-FROM openjdk:14-buster
+FROM openjdk:11-buster
 
 ARG BLACKBOX_VERSION=2.0.0
 ARG BLACKBOX_TAR_URL=https://github.com/StackExchange/blackbox/archive/refs/tags/v${BLACKBOX_VERSION}.tar.gz
@@ -29,7 +29,6 @@ RUN export TMPFILE="$(mktemp -d)" &&\
     make copy-install &&\
     which blackbox_list_admins &&\
     rm -rf "$TMPFILE"
-    
 
 # Install docker
 RUN apt-get -y install ca-certificates curl gnupg lsb-release
@@ -40,6 +39,15 @@ RUN echo \
 RUN apt-get -y update
 RUN apt-get -y install docker-ce docker-ce-cli containerd.io
 
+# Install sbt
+RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list
+RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list
+RUN curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | apt-key add
+RUN apt-get update
+RUN apt-get install sbt
+
 # Sets user up
 RUN useradd -ms /bin/bash circleci
 USER circleci
+
+RUN cd $HOME && sbt version
