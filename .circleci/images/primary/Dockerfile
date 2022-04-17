@@ -50,4 +50,4 @@ RUN apt-get install sbt
 RUN useradd -ms /bin/bash circleci
 USER circleci
 
-RUN cd $HOME && sbt version
+RUN mkdir /tmp/foo-project && cd /tmp/foo-project && sbt version && rm -rf /tmp/foo-project

@@ -22,7 +22,7 @@ jobs:
 
   test:
     docker: 
-      - image: vitorqb23/oh-my-cards-circle-ci-primary:8
+      - image: vitorqb23/oh-my-cards-circle-ci-primary:9
     steps:
       - checkout
       - restore_cache:
@@ -34,7 +34,7 @@ jobs:
 
   build:
     docker:
-      - image: vitorqb23/oh-my-cards-circle-ci-primary:8
+      - image: vitorqb23/oh-my-cards-circle-ci-primary:9
     steps:
       - checkout
       - import_gpg_key
@@ -47,7 +47,7 @@ jobs:
 
   create_docker_image:
     docker:
-      - image: vitorqb23/oh-my-cards-circle-ci-primary:8
+      - image: vitorqb23/oh-my-cards-circle-ci-primary:9
     steps:
       - checkout
       - import_gpg_key
@@ -68,7 +68,7 @@ jobs:
 
   compile_scss:
     docker:
-      - image: vitorqb23/oh-my-cards-circle-ci-primary:8
+      - image: vitorqb23/oh-my-cards-circle-ci-primary:9
     steps:
       - checkout
       - run: make install scss/once
